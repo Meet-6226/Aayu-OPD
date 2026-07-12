@@ -73,8 +73,8 @@ export function validateAppointmentData(data) {
   if (!data.appointmentDate || !/^\d{4}-\d{2}-\d{2}$/.test(data.appointmentDate)) {
     throw new Error(`Invalid date format: "${data.appointmentDate}". Must be YYYY-MM-DD`);
   }
-  if (!data.patientId || /[^0-9]/.test(data.patientId)) {
-    throw new Error(`Invalid patientId: "${data.patientId}". Must be digits-only cleaned phone number (no + or spaces)`);
+  if (!data.patientId || /[^a-zA-Z0-9_-]/.test(data.patientId)) {
+    throw new Error(`Invalid patientId: "${data.patientId}". Must be a valid alphanumeric Firebase UID`);
   }
   if (!data.doctorId || !/^doc_\d{3}$/.test(data.doctorId)) {
     throw new Error(`Invalid doctorId: "${data.doctorId}". Must match format doc_XXX`);
@@ -85,8 +85,8 @@ export function validateAppointmentData(data) {
 }
 
 export function validatePatientData(data) {
-  if (!data.uid || /[^0-9]/.test(data.uid)) {
-    throw new Error(`Invalid patient document ID (uid): "${data.uid}". Must be digits-only cleaned phone number (no + or spaces)`);
+  if (!data.uid || /[^a-zA-Z0-9_-]/.test(data.uid)) {
+    throw new Error(`Invalid patient document ID (uid): "${data.uid}". Must be a valid alphanumeric Firebase UID`);
   }
   if (data.phone && !/^\+\d+$/.test(data.phone)) {
     throw new Error(`Invalid phone format: "${data.phone}". Must start with + followed by country code and digits`);
