@@ -130,10 +130,12 @@ export default function PatientLogin() {
   useEffect(() => {
     if (isAuthenticated && authUser) {
       if (authUser.isNew) {
-        if (authUser.name && authUser.name !== 'User') {
-          setCurrentStep(4);
-        } else {
+        if (!authUser.phone) {
+          setCurrentStep(1);
+        } else if (!authUser.age || !authUser.gender) {
           setCurrentStep(3);
+        } else {
+          setCurrentStep(4);
         }
       } else {
         navigate('/home');
