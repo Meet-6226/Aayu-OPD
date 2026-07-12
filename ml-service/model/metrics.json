@@ -1,0 +1,16 @@
+{
+  "xgboost": {
+    "accuracy": 0.68,
+    "auc_roc": 0.6844,
+    "precision": 0.4554,
+    "recall": 0.4322,
+    "f1_score": 0.4435
+  },
+  "logistic_regression": {
+    "accuracy": 0.7075,
+    "auc_roc": 0.6803,
+    "precision": 0.5161,
+    "recall": 0.1356,
+    "f1_score": 0.2148
+  }
+}

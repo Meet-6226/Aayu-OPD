@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: apollo-ml-service
+    env: python
+    region: singapore
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn api.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
