@@ -9,5 +9,6 @@ export const DEMO_CONFIG = {
   // 2. Vapi.ai config for automatic Hindi voice calls
   // Enter your Vapi API Private Key and Assistant ID
   vapiApiKey: "5a143972-6dec-4c85-8f4c-5b7eb8947252", 
-  vapiAssistantId: "56be0ba5-dd51-44cc-98f9-02bd7291659e" 
+  vapiAssistantId: "56be0ba5-dd51-44cc-98f9-02bd7291659e",
+  vapiPhoneNumberId: "eb51cb19-8560-4127-b3b4-d55b3388884f"
 };

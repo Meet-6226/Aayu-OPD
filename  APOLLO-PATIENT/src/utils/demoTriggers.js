@@ -70,7 +70,7 @@ const makeVoiceCallDirect = async (phone, callType, apptData = {}) => {
     return false;
   }
 
-  const { vapiApiKey, vapiAssistantId } = DEMO_CONFIG;
+  const { vapiApiKey, vapiAssistantId, vapiPhoneNumberId } = DEMO_CONFIG;
   if (!vapiApiKey || !vapiAssistantId) {
     console.log(`[makeVoiceCallDirect] Vapi credentials missing in demoConfig.js. Voice Call Type: "${callType}" to ${formatted}`);
     return false;
@@ -85,6 +85,7 @@ const makeVoiceCallDirect = async (phone, callType, apptData = {}) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
+        phoneNumberId: vapiPhoneNumberId || null,
         assistantId: vapiAssistantId,
         customer: {
           number: formatted
