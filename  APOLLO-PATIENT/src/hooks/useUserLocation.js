@@ -57,12 +57,38 @@ export function useUserLocation() {
   });
 
   const applyFallback = useCallback((reason) => {
-    setLatitude(HYDERABAD_CENTRE.latitude);
-    setLongitude(HYDERABAD_CENTRE.longitude);
-    setIsFallback(true);
-    setLocationReady(true);
-    setError(reason || 'Using city-centre fallback.');
-    setLoading(false);
+    // Attempt IP Geolocation as a fallback
+    fetch('https://ipapi.co/json/')
+      .then(res => {
+        if (!res.ok) throw new Error('IP Geolocation request failed');
+        return res.json();
+      })
+      .then(data => {
+        if (data.latitude && data.longitude) {
+          setLatitude(data.latitude);
+          setLongitude(data.longitude);
+          setIsFallback(true);
+          setLocationReady(true);
+          setError(null);
+          try {
+            localStorage.setItem('user_gps_coords', JSON.stringify({ latitude: data.latitude, longitude: data.longitude }));
+          } catch (_) {}
+          console.log('[useUserLocation] IP-based coords obtained:', data.latitude, data.longitude, data.city);
+        } else {
+          throw new Error('Invalid IP Geolocation data');
+        }
+      })
+      .catch((err) => {
+        console.warn('[useUserLocation] IP Geolocation failed, using hardcoded Hyderabad fallback:', err);
+        setLatitude(HYDERABAD_CENTRE.latitude);
+        setLongitude(HYDERABAD_CENTRE.longitude);
+        setIsFallback(true);
+        setLocationReady(true);
+        setError(reason || 'Using city-centre fallback.');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   const requestLocation = useCallback(() => {
@@ -83,6 +109,9 @@ export function useUserLocation() {
         setIsFallback(false);
         setLocationReady(true);
         setLoading(false);
+        try {
+          localStorage.setItem('user_gps_coords', JSON.stringify({ latitude: position.coords.latitude, longitude: position.coords.longitude }));
+        } catch (_) {}
         console.log('[useUserLocation] Live coords obtained:', position.coords.latitude, position.coords.longitude);
       },
       (err) => {
