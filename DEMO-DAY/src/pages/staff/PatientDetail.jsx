@@ -409,31 +409,50 @@ export default function PatientDetailPage() {
                   position: 'relative',
                   overflow: 'hidden'
                 }}>
-                  {/* Grid background */}
-                  <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    opacity: 0.3,
-                    backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)',
-                    backgroundSize: '12px 12px'
-                  }} />
-                  
-                  {/* Route SVG */}
-                  <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+                                    {/* Vector Map Layer */}
+                  <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 290 110" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    {/* Water Body (River) */}
+                    <path d="M -10,95 Q 100,85 180,105 T 300,98" fill="none" stroke="#bae6fd" strokeWidth="12" opacity="0.6" />
+                    <path d="M -10,95 Q 100,85 180,105 T 300,98" fill="none" stroke="#e0f2fe" strokeWidth="10" opacity="0.8" />
+
+                    {/* Park Zone */}
+                    <rect x="220" y="5" width="60" height="30" rx="4" fill="#dcfce7" stroke="#bbf7d0" strokeWidth="0.5" opacity="0.8" />
+                    <text x="250" y="16" fill="#15803d" fontSize="4.5" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Apollo Park</text>
+
+                    {/* Secondary Roads (Under-layer/Casing) */}
+                    <path d="M -10,20 L 300,20 M -10,50 L 300,50 M -10,80 L 300,80" stroke="white" strokeWidth="3.5" />
+                    <path d="M 50,-10 L 50,120 M 110,-10 L 110,120 M 170,-10 L 170,120 M 230,-10 L 230,120" stroke="white" strokeWidth="3.5" />
+
+                    {/* Secondary Roads (Top-layer) */}
+                    <path d="M -10,20 L 300,20 M -10,50 L 300,50 M -10,80 L 300,80" stroke="#cbd5e1" strokeWidth="1" opacity="0.5" />
+                    <path d="M 50,-10 L 50,120 M 110,-10 L 110,120 M 170,-10 L 170,120 M 230,-10 L 230,120" stroke="#cbd5e1" strokeWidth="1" opacity="0.5" />
+
+                    {/* GPS Navigation Route Track Casing */}
                     <path 
-                      d="M 30,80 Q 100,20 180,60 T 260,30" 
+                      d="M 30,80 L 70,80 C 90,80 100,50 120,50 L 190,50 C 210,50 220,30 240,30 L 260,30" 
                       fill="none" 
-                      stroke="#cbd5e1" 
-                      strokeWidth="5" 
-                      strokeLinecap="round"
+                      stroke={patientData.appointment.riskLevel === 'HIGH' ? '#fee2e2' : '#d1fae5'} 
+                      strokeWidth="5.5" 
+                      strokeLinecap="round" 
                     />
+
+                    {/* GPS Route Line */}
                     <path 
-                      d="M 30,80 Q 100,20 180,60 T 260,30" 
+                      d="M 30,80 L 70,80 C 90,80 100,50 120,50 L 190,50 C 210,50 220,30 240,30 L 260,30" 
                       fill="none" 
                       stroke={patientData.appointment.riskLevel === 'HIGH' ? '#ef4444' : '#10b981'} 
-                      strokeWidth="2.5" 
-                      strokeLinecap="round"
-                      strokeDasharray="4 3"
+                      strokeWidth="3" 
+                      strokeLinecap="round" 
+                    />
+
+                    {/* Animating Dash Overlay */}
+                    <path 
+                      d="M 30,80 L 70,80 C 90,80 100,50 120,50 L 190,50 C 210,50 220,30 240,30 L 260,30" 
+                      fill="none" 
+                      stroke="white" 
+                      strokeWidth="1" 
+                      strokeLinecap="round" 
+                      strokeDasharray="3 3" 
                     />
                   </svg>
                   
@@ -448,9 +467,10 @@ export default function PatientDetailPage() {
                   </div>
 
                   {/* Tiny Car Icon along path */}
-                  <div style={{ position: 'absolute', left: '130px', top: '40px', transform: 'translate(-50%, -50%)', background: 'white', borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #cbd5e1' }}>
+                  <div style={{ position: 'absolute', left: '120px', top: '50px', transform: 'translate(-50%, -50%)', background: 'white', borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #cbd5e1' }}>
                     <Car size={8} color="#1b504c" />
                   </div>
+
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#374151', fontWeight: 500 }}>
                   {patientData.appointment.distance}

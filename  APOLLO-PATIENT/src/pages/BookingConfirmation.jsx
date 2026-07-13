@@ -696,11 +696,17 @@ export default function BookingConfirmation() {
 
                 {/* Injected CSS keyframes for responsive car animation */}
                 <style>{`
-                  @keyframes moveCar {
-                    0% { left: 15%; top: 65%; transform: translate(-50%, -50%) rotate(-15deg); }
-                    35% { left: 40%; top: 32%; transform: translate(-50%, -50%) rotate(5deg); }
-                    70% { left: 60%; top: 58%; transform: translate(-50%, -50%) rotate(15deg); }
-                    100% { left: 75%; top: 25%; transform: translate(-50%, -50%) rotate(-30deg); }
+                                    @keyframes moveCar {
+                    0% { left: 15%; top: 65%; transform: translate(-50%, -50%) rotate(0deg); }
+                    20% { left: 25%; top: 65%; transform: translate(-50%, -50%) rotate(0deg); }
+                    25% { left: 27%; top: 62%; transform: translate(-50%, -50%) rotate(-30deg); }
+                    40% { left: 35%; top: 46%; transform: translate(-50%, -50%) rotate(-30deg); }
+                    45% { left: 36.7%; top: 45%; transform: translate(-50%, -50%) rotate(0deg); }
+                    65% { left: 53.3%; top: 45%; transform: translate(-50%, -50%) rotate(0deg); }
+                    70% { left: 55%; top: 42%; transform: translate(-50%, -50%) rotate(-30deg); }
+                    80% { left: 64%; top: 27%; transform: translate(-50%, -50%) rotate(-30deg); }
+                    85% { left: 66.7%; top: 25%; transform: translate(-50%, -50%) rotate(0deg); }
+                    100% { left: 75%; top: 25%; transform: translate(-50%, -50%) rotate(0deg); }
                   }
                   @keyframes dash {
                     to {
@@ -710,35 +716,74 @@ export default function BookingConfirmation() {
                 `}</style>
 
                 {/* Simulated Live Route Map */}
-                <div className="relative h-[200px] w-full bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 mt-5 shadow-inner">
-                  {/* Grid Background */}
-                  <div 
-                    className="absolute inset-0 opacity-40" 
-                    style={{
-                      backgroundImage: 'radial-gradient(#94a3b8 1.5px, transparent 1.5px)',
-                      backgroundSize: '20px 20px'
-                    }}
-                  />
-                  
-                  {/* Route Path (SVG) */}
-                  <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                <div className="relative h-[200px] w-full bg-[#f1f5f9] rounded-2xl overflow-hidden border border-slate-200 mt-5 shadow-inner select-none">
+                  {/* Vector Map Layer */}
+                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    {/* Water Body (River) */}
+                    <path d="M -20,180 Q 200,160 380,185 T 620,175" fill="none" stroke="#bae6fd" strokeWidth="24" strokeLinecap="round" opacity="0.6" />
+                    <path d="M -20,180 Q 200,160 380,185 T 620,175" fill="none" stroke="#e0f2fe" strokeWidth="20" strokeLinecap="round" opacity="0.8" />
+
+                    {/* Park Areas */}
+                    <path d="M 180,120 C 180,110 220,110 250,115 C 280,120 290,140 290,160 C 290,175 220,180 180,175 Z" fill="#dcfce7" stroke="#bbf7d0" strokeWidth="1" opacity="0.9" />
+                    <text x="235" y="145" fill="#15803d" fontSize="7" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">KBR Park</text>
+
+                    <rect x="470" y="10" width="110" height="60" rx="8" fill="#dcfce7" stroke="#bbf7d0" strokeWidth="1" opacity="0.8" />
+                    <text x="525" y="32" fill="#15803d" fontSize="7" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Apollo Green Zone</text>
+
+                    {/* Secondary Roads (Under-layer/Casing) */}
+                    <path d="M -10,35 L 610,35 M -10,75 L 610,75 M -10,115 L 610,115 M -10,155 L 610,155" stroke="white" strokeWidth="5" strokeLinecap="round" opacity="0.9" />
+                    <path d="M 110,-10 L 110,210 M 230,-10 L 230,210 M 350,-10 L 350,210 M 470,-10 L 470,210" stroke="white" strokeWidth="5" strokeLinecap="round" opacity="0.9" />
+                    <path d="M -10,190 L 210,-10 M 390,210 L 610,-10" stroke="white" strokeWidth="5" strokeLinecap="round" opacity="0.9" />
+
+                    {/* Secondary Roads (Top-layer) */}
+                    <path d="M -10,35 L 610,35 M -10,75 L 610,75 M -10,115 L 610,115 M -10,155 L 610,155" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+                    <path d="M 110,-10 L 110,210 M 230,-10 L 230,210 M 350,-10 L 350,210 M 470,-10 L 470,210" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+                    <path d="M -10,190 L 210,-10 M 390,210 L 610,-10" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+
+                    {/* Metro Line (Blue) */}
+                    <path d="M -10,100 L 610,100" stroke="#60a5fa" strokeWidth="2.5" strokeDasharray="4 4" opacity="0.8" />
+                    <text x="50" y="95" fill="#2563eb" fontSize="6.5" fontWeight="extrabold" fontFamily="sans-serif" opacity="0.8">Metro Blue Line</text>
+                    
+                    {/* Metro Station Icon */}
+                    <circle cx="230" cy="100" r="4.5" fill="white" stroke="#2563eb" strokeWidth="1.5" />
+                    <circle cx="230" cy="100" r="2" fill="#2563eb" />
+                    <text x="230" y="112" fill="#1e40af" fontSize="6" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Jubilee Hills Metro</text>
+
+                    {/* Landmark Text Labels */}
+                    <text x="60" y="150" fill="#64748b" fontSize="6.5" fontWeight="bold" fontFamily="sans-serif" opacity="0.7">Filmnagar Rd</text>
+                    <text x="360" y="70" fill="#64748b" fontSize="6.5" fontWeight="bold" fontFamily="sans-serif" opacity="0.7">Road No. 36</text>
+                    <text x="120" y="25" fill="#64748b" fontSize="6.5" fontWeight="bold" fontFamily="sans-serif" opacity="0.7">Jubilee Hills Rd</text>
+
+                    {/* GPS Navigation Route Track casing */}
                     <path 
-                      d="M 90,130 Q 240,64 360,116 T 450,50" 
+                      d="M 90,130 C 120,130 130,130 150,130 C 180,130 190,90 220,90 L 320,90 C 350,90 370,50 400,50 L 450,50" 
                       fill="none" 
-                      stroke="#cbd5e1" 
-                      strokeWidth="8" 
+                      stroke={travel.isPeak ? '#fef3c7' : '#d1fae5'} 
+                      strokeWidth="10" 
                       strokeLinecap="round"
                     />
+
+                    {/* GPS Route Line background path */}
                     <path 
-                      d="M 90,130 Q 240,64 360,116 T 450,50" 
+                      d="M 90,130 C 120,130 130,130 150,130 C 180,130 190,90 220,90 L 320,90 C 350,90 370,50 400,50 L 450,50" 
                       fill="none" 
                       stroke={travel.isPeak ? '#f59e0b' : '#10b981'} 
-                      strokeWidth="4" 
+                      strokeWidth="5.5" 
                       strokeLinecap="round"
-                      strokeDasharray="8 6"
-                      style={{ animation: 'dash 10s linear infinite' }}
+                    />
+
+                    {/* GPS Route Line animating dash path */}
+                    <path 
+                      d="M 90,130 C 120,130 130,130 150,130 C 180,130 190,90 220,90 L 320,90 C 350,90 370,50 400,50 L 450,50" 
+                      fill="none" 
+                      stroke="white" 
+                      strokeWidth="2" 
+                      strokeLinecap="round"
+                      strokeDasharray="6 6"
+                      style={{ animation: 'dash 12s linear infinite' }}
                     />
                   </svg>
+
                   
                   {/* Home Node */}
                   <div className="absolute left-[15%] top-[65%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
