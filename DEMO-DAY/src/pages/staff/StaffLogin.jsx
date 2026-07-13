@@ -33,9 +33,14 @@ export default function LoginPage() {
     setLoading(true);
     await new Promise(r => setTimeout(r, 600));
     setLoading(false);
-    localStorage.setItem('apollo_staff_logged_in', 'true');
-    toast.success('Welcome back, Anjali!');
-    navigate('/staff/dashboard');
+    
+    if (form.username === 'admin@apollo.com' && form.password === 'admin123') {
+      localStorage.setItem('apollo_staff_logged_in', 'true');
+      toast.success('Welcome back, Anjali!');
+      navigate('/staff/dashboard');
+    } else {
+      toast.error('Invalid username or password!');
+    }
   };
 
 
