@@ -716,7 +716,13 @@ export default function BookingConfirmation() {
                 `}</style>
 
                 {/* Simulated Live Route Map */}
-                <div className="relative h-[200px] w-full bg-[#f1f5f9] rounded-2xl overflow-hidden border border-slate-200 mt-5 shadow-inner select-none">
+                <a 
+                  href="https://www.google.com/maps/dir/?api=1&destination=Apollo+Hospitals+Jubilee+Hills"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative h-[200px] w-full bg-[#f1f5f9] rounded-2xl overflow-hidden border border-slate-200 mt-5 shadow-inner select-none block group cursor-pointer hover:border-primary-teal transition-colors"
+                  title="Click to open route in Google Maps"
+                >
                   {/* Vector Map Layer */}
                   <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                     {/* Water Body (River) */}
@@ -824,12 +830,13 @@ export default function BookingConfirmation() {
                     </p>
                   </div>
 
-                  <div className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-sm rounded-md px-2 py-0.5 shadow-sm">
+                  <div className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm flex items-center space-x-1.5 hover:bg-slate-800 transition-colors">
                     <span className="text-[9px] font-bold text-white tracking-widest font-display">
                       {realDistanceKm.toFixed(1)} km · {travel.formattedTime}
                     </span>
+                    <span className="text-[8px] font-bold text-teal-400 font-display border-l border-white/20 pl-1.5 shrink-0">MAPS ↗</span>
                   </div>
-                </div>
+                </a>
 
                 {/* Integrated Ride Services (Cab Facility) */}
                 <div className="mt-6 border-t border-slate-100 pt-5">

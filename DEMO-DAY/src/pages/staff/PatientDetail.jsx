@@ -401,14 +401,22 @@ export default function PatientDetailPage() {
 
               <div style={{ flex: 1, minWidth: 200, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>Transit Map Coordinates</span>
-                <div style={{ 
-                  height: 110, 
-                  background: '#f8fafc', 
-                  borderRadius: '6px', 
-                  border: '1px solid #e2e8f0', 
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}>
+                <a 
+                  href="https://www.google.com/maps/dir/?api=1&destination=Apollo+Hospitals+Jubilee+Hills"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ 
+                    height: 110, 
+                    background: '#f8fafc', 
+                    borderRadius: '6px', 
+                    border: '1px solid #e2e8f0', 
+                    position: 'relative',
+                    overflow: 'hidden',
+                    display: 'block',
+                    cursor: 'pointer'
+                  }}
+                  title="Click to open in Google Maps"
+                >
                                     {/* Vector Map Layer */}
                   <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 290 110" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                     {/* Water Body (River) */}
@@ -471,7 +479,7 @@ export default function PatientDetailPage() {
                     <Car size={8} color="#1b504c" />
                   </div>
 
-                </div>
+                </a>
                 <div style={{ fontSize: '0.75rem', color: '#374151', fontWeight: 500 }}>
                   {patientData.appointment.distance}
                 </div>
