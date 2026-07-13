@@ -20,7 +20,8 @@ import {
   Heart,
   Activity,
   QrCode,
-  Lock
+  Lock,
+  Gift
 } from 'lucide-react';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
@@ -888,6 +889,56 @@ export default function PatientProfile() {
                 </div>
               )}
             </div>
+
+            {/* Section 5: My Health Rewards & Priority Vouchers */}
+            {(user.priorityTokens > 0 || (user.earnedRewards && user.earnedRewards.length > 0)) && (
+              <div className="bg-white border border-[#e2e8f0]/60 rounded-3xl p-6 shadow-sm text-left animate-fade-in mt-6">
+                <h3 className="text-[14.5px] font-extrabold text-slate-800 flex items-center space-x-2 pb-3.5 border-b border-slate-100 mb-5">
+                  <Gift className="h-4.5 w-4.5 text-amber-500" />
+                  <span>My Health Rewards & Priority Tokens</span>
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {(user.earnedRewards || []).map((reward, idx) => (
+                    <div 
+                      key={idx}
+                      className="relative rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-200 to-yellow-600 text-slate-900 p-4.5 shadow-md border border-amber-300 overflow-hidden flex flex-col justify-between select-none"
+                    >
+                      {/* Card shimmer */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] animate-shimmer"></div>
+                      
+                      <div className="flex justify-between items-start text-left">
+                        <div>
+                          <div className="flex items-center space-x-1">
+                            <Activity className="h-3.5 w-3.5 text-amber-900" />
+                            <span className="text-[8px] font-black tracking-widest uppercase font-display text-amber-950">Apollo Priority</span>
+                          </div>
+                          <h4 className="text-[9px] font-black text-amber-950 mt-0.5 tracking-tight font-display">{reward.type || 'Priority Access'}</h4>
+                        </div>
+                        <div className="px-1.5 py-0.2 bg-amber-950 text-amber-200 text-[7px] font-black uppercase rounded tracking-wider border border-amber-700">
+                          {reward.discount || '15% Off'}
+                        </div>
+                      </div>
+
+                      <div className="text-left mt-3">
+                        <p className="text-[7px] text-amber-900 uppercase tracking-widest font-extrabold">Token Code</p>
+                        <p className="font-mono text-xs font-black tracking-widest text-amber-950 mt-0.5">{reward.tokenCode}</p>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-3 pt-2 border-t border-amber-950/10 text-left">
+                        <div>
+                          <p className="text-[7px] text-amber-950 uppercase tracking-widest font-extrabold">Earned On</p>
+                          <p className="text-[8.5px] font-bold text-amber-900 mt-0.5">{new Date(reward.earnedAt).toLocaleDateString()}</p>
+                        </div>
+                        <span className="text-[8px] font-black text-amber-950 bg-amber-950/10 px-2 py-0.5 rounded-full border border-amber-950/20">
+                          {reward.status === 'active' ? 'Active' : 'Redeemed'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
           </div>
 

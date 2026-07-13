@@ -14,7 +14,8 @@ import {
   Cloud,
   Car,
   Home,
-  ArrowRight
+  ArrowRight,
+  X
 } from 'lucide-react';
 import { runTransaction, doc, collection, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { predictNoShowRisk } from '../services/mlApi';
@@ -124,6 +125,13 @@ export default function BookingConfirmation() {
     relation: 'Son/Daughter'
   });
 
+  const [predictionRisk, setPredictionRisk] = useState(null);
+  const [predictionLoading, setPredictionLoading] = useState(false);
+  const [isSimulatedHighRisk, setIsSimulatedHighRisk] = useState(false);
+  const [showRewardModal, setShowRewardModal] = useState(false);
+  const [generatedTokenCode, setGeneratedTokenCode] = useState('');
+  const [incentiveClaimed, setIncentiveClaimed] = useState(false);
+
   // Ride booking simulation states
   const [selectedCab, setSelectedCab] = useState('ubergo');
   const [cabBookingStatus, setCabBookingStatus] = useState('idle'); // idle, booking, confirmed
@@ -209,6 +217,45 @@ export default function BookingConfirmation() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [booking?.dateString, closestHospital]);
   // ── End Weather Forecast ─────────────────────────────────────────────────────
+
+  // ── Initial ML Risk Prediction ──────────────────────────────────────────────
+  useEffect(() => {
+    if (!booking || !locationReady || !closestHospital) return;
+    
+    setPredictionLoading(true);
+    const dist = realDistanceKm ?? authUser.lastKnownLocation?.distanceFromHospitalKm ?? authUser.distanceKm ?? 10;
+    const leadDays = calculateLeadTimeDays(booking.dateString);
+    const weatherRain = weatherData?.willRain ?? false;
+    let dbPersona = 'default';
+    if (selectedPersona === 'Professional') dbPersona = 'working_professional';
+    else if (selectedPersona === 'Elderly') dbPersona = 'elderly';
+    else if (selectedPersona === 'Student') dbPersona = 'student';
+
+    predictNoShowRisk({
+      past_no_show_count:      authUser.totalNoShows  || 0,
+      past_visit_count:        (authUser.totalVisits  || 0) + 1,
+      distance_km:             dist,
+      lead_time_days:          leadDays,
+      age:                     authUser.age           || 30,
+      gender:                  (authUser.gender        || 'male').toLowerCase(),
+      appointmentDate:   booking.dateString,
+      appointmentTime:   booking.time,
+      department:        booking.dept,
+      persona:           dbPersona,
+      familyNotified:    selectedPersona === 'Elderly' && !!familyContact.name,
+      consultationType:  'new',
+      patientName:       authUser.name          || 'Patient',
+      weatherRain,
+      trafficCongestionScore: trafficInfo?.congestionScore ?? 0.3,
+    }).then(res => {
+      setPredictionRisk(res);
+      setPredictionLoading(false);
+    }).catch(err => {
+      console.warn("Prediction on load failed:", err);
+      setPredictionLoading(false);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [booking, locationReady, realDistanceKm, weatherData, selectedPersona, familyContact.name, closestHospital]);
 
   // ── Traffic Congestion Estimate ──────────────────────────────────────────────────
   // Rule-based: no paid API required. Derived from appointment time + rain data.
@@ -556,6 +603,53 @@ export default function BookingConfirmation() {
     }
   };
 
+  const handleClaimRescheduleIncentive = async () => {
+    if (processing) return;
+    setProcessing(true);
+    try {
+      const patientId = authUser.uid;
+      const patientRef = doc(db, COLLECTIONS.PATIENTS, patientId);
+      
+      // Update patient profile in Firestore: increment priorityTokens
+      const updatedTokens = (authUser.priorityTokens || 0) + 1;
+      const tokenCode = `APL-PRI-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      setGeneratedTokenCode(tokenCode);
+
+      const newReward = {
+        tokenCode,
+        type: "Priority Access",
+        discount: "15% Diagnostic Off",
+        earnedAt: new Date().toISOString(),
+        status: "active"
+      };
+
+      await updateDoc(patientRef, {
+        priorityTokens: updatedTokens,
+        earnedRewards: [
+          ...(authUser.earnedRewards || []),
+          newReward
+        ],
+        updatedAt: serverTimestamp()
+      });
+
+      updateMockSession({
+        priorityTokens: updatedTokens,
+        earnedRewards: [
+          ...(authUser.earnedRewards || []),
+          newReward
+        ]
+      });
+
+      setIncentiveClaimed(true);
+      setShowRewardModal(true);
+    } catch (e) {
+      console.error("Failed to claim incentive:", e);
+      setBookingError("Failed to claim reward. Please try again.");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   if (bookingSuccess) {
     return (
       <div className="min-h-[80vh] flex flex-col justify-center items-center font-sans text-center px-4">
@@ -585,13 +679,21 @@ export default function BookingConfirmation() {
       </div>
 
       {/* Title */}
-      <div className="text-center mb-10">
+      <div className="text-center mb-10 relative">
         <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-text-dark tracking-tight">
           Review & Confirm Booking
         </h1>
         <p className="text-sm text-text-light mt-2 max-w-[440px] mx-auto leading-relaxed">
           Verify your commute delay estimates, local weather parameters, and choose your notification preferences before finalizing.
         </p>
+        
+        {/* Sim Trigger Link for Hackathon Demo */}
+        <button
+          onClick={() => setIsSimulatedHighRisk(!isSimulatedHighRisk)}
+          className="absolute right-0 top-1/2 -translate-y-1/2 text-[10px] font-bold text-primary-teal bg-primary-teal/5 hover:bg-primary-teal/15 border border-primary-teal/15 px-3 py-1.5 rounded-xl transition-all cursor-pointer select-none active:scale-95"
+        >
+          🧪 {isSimulatedHighRisk ? 'Reset Risk Simulation' : 'Simulate High Risk'}
+        </button>
       </div>
 
       {/* Two Column Grid */}
@@ -1242,6 +1344,34 @@ export default function BookingConfirmation() {
             </div>
           )}
 
+          {/* Dynamic Incentive Model: Rescheduling Offer Banner */}
+          {((predictionRisk?.risk_score >= 70 || isSimulatedHighRisk) && !incentiveClaimed) && (
+            <div className="w-full bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4.5 text-left relative overflow-hidden shadow-sm animate-pulse-glow-amber">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl -mr-8 -mt-8 pointer-events-none"></div>
+              <div className="flex items-start space-x-2.5">
+                <div className="p-2 bg-amber-500/10 text-amber-600 rounded-xl shrink-0 mt-0.5">
+                  <Gift className="h-4.5 w-4.5 animate-bounce" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-amber-900 uppercase tracking-wider font-display">
+                    High No-Show Risk / High-Demand Offer
+                  </h4>
+                  <p className="text-[11px] text-amber-800 leading-relaxed mt-1 font-medium">
+                    ML analysis predicts high travel friction ({realDistanceKm?.toFixed(1) || '38'} km) and rain. Reschedule early to free this slot for local walk-in patients and claim your **Priority Access Token + 15% Diagnostic Voucher**!
+                  </p>
+                </div>
+              </div>
+              
+              <button
+                onClick={handleClaimRescheduleIncentive}
+                disabled={processing}
+                className="w-full mt-3.5 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-extrabold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-all shadow-md shadow-amber-500/15 cursor-pointer hover:from-amber-600 hover:to-amber-700"
+              >
+                <span>Claim Reward & Reschedule &rarr;</span>
+              </button>
+            </div>
+          )}
+
           {/* Confirm Booking Button */}
           <button
             onClick={handleDone}
@@ -1262,6 +1392,87 @@ export default function BookingConfirmation() {
         </div>
 
       </div>
+
+      {/* Priority Token Reward Modal */}
+      {showRewardModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-100 rounded-3xl p-6.5 max-w-[420px] w-full text-center shadow-2xl relative overflow-hidden animate-fade-in text-left">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+            
+            <button
+              onClick={() => {
+                setShowRewardModal(false);
+                navigate('/doctors'); // Navigate back to list so they can reschedule
+              }}
+              className="absolute right-4.5 top-4.5 p-1 bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 rounded-full cursor-pointer transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+
+            <div className="inline-flex items-center justify-center p-3 bg-amber-100 rounded-full text-amber-600 mb-4 shrink-0 animate-bounce mx-auto">
+              <Gift className="h-7 w-7" />
+            </div>
+
+            <h2 className="font-display font-extrabold text-xl text-slate-800 tracking-tight text-center">
+              Incentive Reward Claimed!
+            </h2>
+            <p className="text-xs text-slate-400 mt-1.5 leading-relaxed max-w-[320px] mx-auto text-center">
+              Thank you for releasing your high-demand slot early. Your priority token has been added to your account settings.
+            </p>
+
+            {/* Golden Skeuomorphic Card */}
+            <div className="relative w-full max-w-[340px] aspect-[1.586/1] mx-auto my-6 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-200 to-yellow-600 text-slate-900 p-5 shadow-lg border border-amber-300 overflow-hidden flex flex-col justify-between select-none">
+              {/* Card shimmer */}
+              <div 
+                className="absolute inset-0 opacity-[0.05] pointer-events-none"
+                style={{
+                  backgroundImage: 'radial-gradient(#78350f 1px, transparent 1px)',
+                  backgroundSize: '12px 12px'
+                }}
+              />
+              
+              <div className="flex justify-between items-start relative z-10 text-left">
+                <div>
+                  <div className="flex items-center space-x-1">
+                    <Activity className="h-4 w-4 text-amber-900" />
+                    <span className="text-[8px] font-black tracking-widest uppercase font-display text-amber-950">Apollo Priority</span>
+                  </div>
+                  <h4 className="text-[10px] font-black text-amber-950 mt-0.5 tracking-tight font-display">OPD Priority Access Token</h4>
+                </div>
+                <div className="px-2 py-0.5 bg-amber-950 text-amber-200 text-[8px] font-black uppercase rounded tracking-wider border border-amber-700">
+                  15% Off
+                </div>
+              </div>
+
+              <div className="text-left mt-3 relative z-10">
+                <p className="text-[7.5px] text-amber-900 uppercase tracking-widest font-extrabold">Token Code</p>
+                <p className="font-mono text-sm font-black tracking-widest text-amber-950 mt-0.5">{generatedTokenCode}</p>
+              </div>
+
+              <div className="flex items-center justify-between mt-4 pt-2.5 border-t border-amber-950/10 relative z-10 text-left">
+                <div>
+                  <p className="text-[7.5px] text-amber-950 uppercase tracking-widest font-extrabold">Token Holder</p>
+                  <p className="text-[10px] font-bold text-amber-900 mt-0.5">{authUser?.name}</p>
+                </div>
+                <div className="flex items-center space-x-1 bg-amber-950/15 border border-amber-950/20 px-2 py-0.5 rounded-full shrink-0">
+                  <span className="h-1 w-1 rounded-full bg-amber-800 animate-pulse"></span>
+                  <span className="text-[7.5px] font-extrabold uppercase text-amber-950 tracking-wider">Active Status</span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setShowRewardModal(false);
+                navigate('/doctors');
+              }}
+              className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer text-center"
+            >
+              Search New Appointments
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
