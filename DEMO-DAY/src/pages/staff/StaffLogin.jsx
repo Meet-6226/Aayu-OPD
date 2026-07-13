@@ -26,7 +26,10 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!form.username || !form.password) {
+    const cleanUsername = form.username.trim();
+    const cleanPassword = form.password.trim();
+    
+    if (!cleanUsername || !cleanPassword) {
       toast.error('Please enter credentials');
       return;
     }
@@ -34,7 +37,9 @@ export default function LoginPage() {
     await new Promise(r => setTimeout(r, 600));
     setLoading(false);
     
-    if (form.username === 'apollo_admin@apollo.com' && form.password === 'ApolloOPD#Staff2026!') {
+    console.log("[Staff Login] Attempting login for:", cleanUsername, "Password length:", cleanPassword.length);
+    
+    if (cleanUsername === 'apollo_admin@apollo.com' && cleanPassword === 'ApolloOPD#Staff2026!') {
       localStorage.setItem('apollo_staff_logged_in', 'true');
       toast.success('Welcome to Apollo OPD Platform!');
       navigate('/staff/dashboard');
