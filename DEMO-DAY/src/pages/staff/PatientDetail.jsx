@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin } from 'lucide-react';
+import { ArrowLeft, MapPin, Car } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import { useStaffPatients } from '../../hooks/useStaffPatients';
 import { db } from '../../firebase/config';
@@ -401,8 +401,56 @@ export default function PatientDetailPage() {
 
               <div style={{ flex: 1, minWidth: 200, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>Transit Map Coordinates</span>
-                <div style={{ height: 110, background: '#f1f5f9', borderRadius: '6px', border: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <MapPin size={24} color="#1b504c" />
+                <div style={{ 
+                  height: 110, 
+                  background: '#f8fafc', 
+                  borderRadius: '6px', 
+                  border: '1px solid #e2e8f0', 
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  {/* Grid background */}
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    opacity: 0.3,
+                    backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)',
+                    backgroundSize: '12px 12px'
+                  }} />
+                  
+                  {/* Route SVG */}
+                  <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+                    <path 
+                      d="M 30,80 Q 100,20 180,60 T 260,30" 
+                      fill="none" 
+                      stroke="#cbd5e1" 
+                      strokeWidth="5" 
+                      strokeLinecap="round"
+                    />
+                    <path 
+                      d="M 30,80 Q 100,20 180,60 T 260,30" 
+                      fill="none" 
+                      stroke={patientData.appointment.riskLevel === 'HIGH' ? '#ef4444' : '#10b981'} 
+                      strokeWidth="2.5" 
+                      strokeLinecap="round"
+                      strokeDasharray="4 3"
+                    />
+                  </svg>
+                  
+                  {/* Home Marker */}
+                  <div style={{ position: 'absolute', left: '30px', top: '80px', transform: 'translate(-50%, -50%)', background: '#0d9488', borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid white', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>
+                    <span style={{ fontSize: '7px', color: 'white', fontWeight: 'bold' }}>H</span>
+                  </div>
+
+                  {/* Hospital Pin */}
+                  <div style={{ position: 'absolute', left: '260px', top: '30px', transform: 'translate(-50%, -50%)', background: '#1b504c', borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid white' }}>
+                    <MapPin size={8} color="white" />
+                  </div>
+
+                  {/* Tiny Car Icon along path */}
+                  <div style={{ position: 'absolute', left: '130px', top: '40px', transform: 'translate(-50%, -50%)', background: 'white', borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #cbd5e1' }}>
+                    <Car size={8} color="#1b504c" />
+                  </div>
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#374151', fontWeight: 500 }}>
                   {patientData.appointment.distance}

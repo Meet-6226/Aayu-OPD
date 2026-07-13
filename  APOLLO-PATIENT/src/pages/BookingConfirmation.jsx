@@ -124,6 +124,25 @@ export default function BookingConfirmation() {
     relation: 'Son/Daughter'
   });
 
+  // Ride booking simulation states
+  const [selectedCab, setSelectedCab] = useState('ubergo');
+  const [cabBookingStatus, setCabBookingStatus] = useState('idle'); // idle, booking, confirmed
+  const [driverInfo, setDriverInfo] = useState(null);
+
+  const handleBookCab = () => {
+    if (cabBookingStatus !== 'idle') return;
+    setCabBookingStatus('booking');
+    setTimeout(() => {
+      setCabBookingStatus('confirmed');
+      setDriverInfo({
+        name: 'Suresh Kumar',
+        vehicle: 'White Maruti Dzire (TS-09-EX-4421)',
+        rating: '4.9 ★',
+        phone: '+91 98765 43210'
+      });
+    }, 2000);
+  };
+
   // ── Geolocation ─────────────────────────────────────────────────────────────
   const {
     latitude: userLat,
@@ -811,6 +830,204 @@ export default function BookingConfirmation() {
                   </p>
                 )}
               </div>
+            </div>
+
+            {/* Injected CSS keyframes for responsive car animation */}
+            <style>{`
+              @keyframes moveCar {
+                0% { left: 15%; top: 65%; transform: translate(-50%, -50%) rotate(-15deg); }
+                35% { left: 40%; top: 32%; transform: translate(-50%, -50%) rotate(5deg); }
+                70% { left: 60%; top: 58%; transform: translate(-50%, -50%) rotate(15deg); }
+                100% { left: 75%; top: 25%; transform: translate(-50%, -50%) rotate(-30deg); }
+              }
+              @keyframes dash {
+                to {
+                  stroke-dashoffset: -40;
+                }
+              }
+            `}</style>
+
+            {/* Simulated Live Route Map */}
+            <div className="relative h-[200px] w-full bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 mt-5 shadow-inner">
+              {/* Grid Background */}
+              <div 
+                className="absolute inset-0 opacity-40" 
+                style={{
+                  backgroundImage: 'radial-gradient(#94a3b8 1.5px, transparent 1.5px)',
+                  backgroundSize: '20px 20px'
+                }}
+              />
+              
+              {/* Route Path (SVG) */}
+              <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                <path 
+                  d="M 90,130 Q 240,64 360,116 T 450,50" 
+                  fill="none" 
+                  stroke="#cbd5e1" 
+                  strokeWidth="8" 
+                  strokeLinecap="round"
+                />
+                <path 
+                  d="M 90,130 Q 240,64 360,116 T 450,50" 
+                  fill="none" 
+                  stroke={travel.isPeak ? '#f59e0b' : '#10b981'} 
+                  strokeWidth="4" 
+                  strokeLinecap="round"
+                  strokeDasharray="8 6"
+                  style={{ animation: 'dash 10s linear infinite' }}
+                />
+              </svg>
+              
+              {/* Home Node */}
+              <div className="absolute left-[15%] top-[65%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                <div className="w-7 h-7 rounded-full bg-teal-600 border border-white flex items-center justify-center shadow text-white">
+                  <Home className="h-3.5 w-3.5" />
+                </div>
+                <span className="text-[8px] font-bold text-text-dark bg-white/95 px-1 py-0.2 rounded shadow mt-1 border border-slate-100">Home</span>
+              </div>
+
+              {/* Hospital Node */}
+              <div className="absolute left-[75%] top-[25%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                <div className="w-8 h-8 rounded-full bg-primary-teal border-2 border-white flex items-center justify-center shadow text-white animate-pulse">
+                  <MapPin className="h-4 w-4" />
+                </div>
+                <span className="text-[8px] font-bold text-primary-teal bg-white/95 px-1.5 py-0.2 rounded shadow mt-1 border border-teal-100">Apollo Hospital</span>
+              </div>
+
+              {/* Animating Car Marker along the path */}
+              <div 
+                className="absolute w-6 h-6 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-primary-teal"
+                style={{
+                  animation: 'moveCar 8s ease-in-out infinite',
+                }}
+              >
+                <Car className="h-3.5 w-3.5" />
+              </div>
+
+              {/* Traffic Delay Float Overlay */}
+              <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm border border-slate-200/80 rounded-lg px-2.5 py-1.5 shadow-sm text-left max-w-[220px]">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
+                  <span className="text-[8.5px] font-bold text-red-600 uppercase tracking-wider font-display">Live Route Traffic</span>
+                </div>
+                <p className="text-[10px] font-semibold text-text-dark leading-tight">
+                  {travel.isPeak 
+                    ? 'Jubilee Hills Flyover: Heavy Congestion (+15m delay)' 
+                    : 'Clear flow: Normal speeds along inner ring route'}
+                </p>
+              </div>
+
+              <div className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-sm rounded-md px-2 py-0.5 shadow-sm">
+                <span className="text-[9px] font-bold text-white tracking-widest font-display">
+                  {realDistanceKm.toFixed(1)} km · {travel.formattedTime}
+                </span>
+              </div>
+            </div>
+
+            {/* Integrated Ride Services (Cab Facility) */}
+            <div className="mt-6 border-t border-slate-100 pt-5">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-1.5">
+                  <Car className="h-4.5 w-4.5 text-primary-teal" />
+                  <h5 className="text-[12px] font-bold text-text-dark tracking-wider uppercase font-display">
+                    INTEGRATED RIDE SERVICES
+                  </h5>
+                </div>
+                <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  Apollo Transit Partner
+                </span>
+              </div>
+
+              {cabBookingStatus === 'idle' && (
+                <>
+                  <p className="text-[11px] text-text-light mb-3">
+                    Ensure an on-time arrival. Pre-book your ride to Apollo Hospital with our transit partners:
+                  </p>
+                  <div className="grid grid-cols-1 gap-2">
+                    {[
+                      { id: 'ubergo', name: 'Uber Go', price: '₹180', eta: '3 min away', desc: 'Standard sedan, fast response' },
+                      { id: 'uberauto', name: 'Uber Auto', price: '₹110', eta: '5 min away', desc: 'Convenient 3-wheeler commute' },
+                      { id: 'apolloassist', name: 'Apollo Care Cab', price: '₹290', eta: '4 min away', desc: 'Wheelchair & oxygen assist, priority entry' }
+                    ].map(opt => (
+                      <div 
+                        key={opt.id}
+                        onClick={() => setSelectedCab(opt.id)}
+                        className={`border rounded-xl p-3 flex items-center justify-between cursor-pointer transition-all ${
+                          selectedCab === opt.id 
+                            ? 'border-primary-teal bg-teal-50/10' 
+                            : 'border-slate-200 hover:border-slate-300 bg-white'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${selectedCab === opt.id ? 'bg-primary-teal text-white' : 'bg-slate-100 text-slate-500'}`}>
+                            <Car className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-bold text-text-dark">{opt.name}</span>
+                              <span className="text-[9.5px] font-medium text-text-light">({opt.eta})</span>
+                            </div>
+                            <p className="text-[10px] text-text-light mt-0.5 leading-snug">{opt.desc}</p>
+                          </div>
+                        </div>
+                        <span className="text-xs font-extrabold text-primary-teal">{opt.price}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <button
+                    onClick={handleBookCab}
+                    className="w-full mt-3 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-all shadow cursor-pointer"
+                  >
+                    <span>Pre-book Ride with Uber &rarr;</span>
+                  </button>
+                </>
+              )}
+
+              {cabBookingStatus === 'booking' && (
+                <div className="bg-slate-50 border border-slate-100 rounded-xl p-6 text-center flex flex-col items-center justify-center">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary-teal mb-2" />
+                  <p className="text-xs font-bold text-text-dark">Connecting to drivers...</p>
+                  <p className="text-[10px] text-text-light mt-1">Assigning the closest partner cab to your location</p>
+                </div>
+              )}
+
+              {cabBookingStatus === 'confirmed' && driverInfo && (
+                <div className="bg-emerald-50/45 border border-emerald-100 rounded-xl p-4.5 text-left">
+                  <div className="flex items-center justify-between mb-3 border-b border-emerald-100/50 pb-2.5">
+                    <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest font-display flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Ride Confirmed
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+                      Dispatched on Appointment Day
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
+                        {driverInfo.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-text-dark">{driverInfo.name}</span>
+                          <span className="text-[10px] bg-white border border-emerald-200 px-1.5 py-0.2 rounded text-emerald-700 font-bold">{driverInfo.rating}</span>
+                        </div>
+                        <p className="text-[10.5px] text-text-light mt-0.5">{driverInfo.vehicle}</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setCabBookingStatus('idle');
+                        setDriverInfo(null);
+                      }}
+                      className="text-[10.5px] font-semibold text-red-600 hover:text-red-700 underline cursor-pointer"
+                    >
+                      Cancel Ride
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         );
