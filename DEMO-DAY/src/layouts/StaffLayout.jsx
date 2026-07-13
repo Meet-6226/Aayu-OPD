@@ -238,11 +238,11 @@ function Sidebar() {
             color: 'white', fontSize: '0.68rem', fontWeight: 700,
             fontFamily: 'Space Grotesk, sans-serif', flexShrink: 0,
           }}>
-            AV
+            OA
           </div>
           <div>
-            <div style={{ fontSize: '0.78rem', fontWeight: 500, color: '#1a1a2e', lineHeight: 1.2 }}>Anjali Verma</div>
-            <div style={{ fontSize: '0.62rem', color: '#94a3b8' }}>Receptionist</div>
+            <div style={{ fontSize: '0.78rem', fontWeight: 500, color: '#1a1a2e', lineHeight: 1.2 }}>OPD Administrator</div>
+            <div style={{ fontSize: '0.62rem', color: '#94a3b8' }}>Admin Staff</div>
           </div>
         </div>
       </div>

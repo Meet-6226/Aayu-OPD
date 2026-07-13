@@ -34,9 +34,9 @@ export default function LoginPage() {
     await new Promise(r => setTimeout(r, 600));
     setLoading(false);
     
-    if (form.username === 'admin@apollo.com' && form.password === 'admin123') {
+    if (form.username === 'apollo_admin@apollo.com' && form.password === 'ApolloOPD#Staff2026!') {
       localStorage.setItem('apollo_staff_logged_in', 'true');
-      toast.success('Welcome back, Anjali!');
+      toast.success('Welcome to Apollo OPD Platform!');
       navigate('/staff/dashboard');
     } else {
       toast.error('Invalid username or password!');

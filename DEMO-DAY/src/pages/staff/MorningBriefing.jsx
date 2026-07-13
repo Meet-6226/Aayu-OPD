@@ -293,7 +293,7 @@ export default function MorningBriefingPage() {
       {/* GREETING */}
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '1.75rem', fontWeight: 700, color: '#1a1a2e', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>
-          {greeting}, Anjali
+          {greeting}, OPD Admin
         </h1>
         <div style={{ fontSize: '0.85rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <span>{dayStr}</span>
