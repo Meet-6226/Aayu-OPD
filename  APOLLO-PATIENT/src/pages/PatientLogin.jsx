@@ -549,26 +549,26 @@ export default function PatientLogin() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#f9fafb] font-sans select-none overflow-hidden">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-slate-50 font-sans select-none overflow-hidden">
       
       {/* Invisible reCAPTCHA container */}
       <div id="recaptcha-container"></div>
 
       {/* Toast Notification Simulation */}
       {showToast && (
-        <div className="fixed top-4 right-4 left-4 sm:left-auto sm:w-[360px] bg-text-dark text-white p-4 rounded-xl shadow-lg border border-gray-700/50 flex items-start space-x-3.5 z-50 animate-bounce duration-300">
-          <div className="p-2 rounded-lg bg-primary-teal text-white shrink-0">
-            <Activity className="h-5 w-5" />
+        <div className="fixed top-6 right-6 left-6 sm:left-auto sm:w-[380px] bg-slate-950 text-white p-4.5 rounded-3xl shadow-2xl border border-slate-800/90 flex items-start space-x-4 z-50 animate-bounce duration-300">
+          <div className="p-3 rounded-2xl bg-gradient-to-tr from-primary-teal to-[#10b981] text-white shrink-0 shadow-lg shadow-primary-teal/20">
+            <Activity className="h-5 w-5 animate-pulse" />
           </div>
           <div className="flex-1 text-left">
-            <p className="text-xs font-bold text-primary-teal font-display">APOLLO-SMS</p>
-            <p className="text-[12px] text-gray-300 mt-1 font-medium leading-relaxed">
-              Use <span className="text-white font-bold text-sm bg-primary-teal/20 px-1.5 py-0.5 rounded border border-primary-teal/30">{generatedOtp}</span> as verification code for Apollo login.
+            <p className="text-[10px] font-black text-primary-teal font-display uppercase tracking-widest leading-none">APOLLO-SMS</p>
+            <p className="text-[12.5px] text-slate-300 mt-1.5 font-bold leading-relaxed">
+              Use <span className="text-white font-black text-sm bg-primary-teal/20 px-2 py-0.5 rounded-lg border border-primary-teal/30 font-display font-mono">${generatedOtp}</span> as verification code for Apollo login.
             </p>
           </div>
           <button
             onClick={() => setShowToast(false)}
-            className="text-gray-400 hover:text-white transition-colors pt-0.5 shrink-0"
+            className="text-slate-500 hover:text-white transition-colors pt-0.5 shrink-0"
           >
             <X className="h-4 w-4" />
           </button>
@@ -576,28 +576,30 @@ export default function PatientLogin() {
       )}
 
       {/* Left Panel (Form Section) */}
-      <div className="w-full lg:w-[50%] min-h-screen flex flex-col justify-center items-center p-4 sm:p-8 md:p-12 lg:p-16 bg-gradient-to-br from-[#f2fcfb] via-white to-slate-50 overflow-y-auto relative">
+      <div className="w-full lg:w-[50%] min-h-screen flex flex-col justify-center items-center p-4 sm:p-8 md:p-12 lg:p-16 bg-gradient-to-br from-[#f0fcf9] via-white to-slate-50 overflow-y-auto relative">
         {/* Subtle grid pattern overlay */}
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none bg-[radial-gradient(#1b504c_1.5px,transparent_1.5px)] [background-size:24px_24px]"></div>
         
         {/* Branding Logo inside Form Panel (lg only to match mockup) */}
         <div className="hidden lg:flex absolute top-8 left-8 items-center space-x-2.5 select-none group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary-teal to-[#10b981] flex items-center justify-center text-white font-bold text-[16px] shadow-md shadow-primary-teal/10 transition-transform duration-300 group-hover:rotate-12">
-            A
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-primary-teal to-[#10b981] p-[2px] transition-transform duration-300 group-hover:rotate-12 shadow-md">
+            <div className="w-full h-full rounded-[14px] bg-[#f8fafc] flex items-center justify-center font-display font-black text-lg text-transparent bg-clip-text bg-gradient-to-tr from-[#0d9488] to-[#10b981]">
+              A
+            </div>
           </div>
           <div className="text-left leading-none">
-            <p className="font-display font-bold text-[15px] text-[#1b504c] tracking-tight">Apollo <span className="text-[#10b981]">OPD</span></p>
-            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mt-0.5">Intelligence</p>
+            <p className="font-display font-black text-[15.5px] text-slate-800 tracking-tight">Apollo <span className="text-primary-teal">OPD</span></p>
+            <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Intelligence</p>
           </div>
         </div>
 
         {/* Outer Card Container (Glassmorphic on all screens) */}
-        <div className="w-full max-w-[430px] glass-panel border border-white/60 rounded-2xl shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh] md:max-h-none glow-shadow-teal">
+        <div className="w-full max-w-[430px] bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.04)] relative overflow-hidden flex flex-col max-h-[90vh] md:max-h-none glow-shadow-teal">
         
         {/* STEP PROGRESS BAR */}
-        <div className="w-full h-[4px] bg-border-light absolute top-0 left-0 right-0 z-10">
+        <div className="w-full h-[5px] bg-[#e2e8f0] absolute top-0 left-0 right-0 z-10">
           <div
-            className="h-full bg-gradient-to-r from-primary-teal to-[#10b981] transition-all duration-300 ease-out"
+            className="h-full bg-gradient-to-r from-[#0d9488] via-[#10b981] to-[#059669] transition-all duration-500 ease-out shadow-[0_1px_10px_rgba(16,185,129,0.3)]"
             style={{
               width:
                 currentStep === 1
@@ -647,49 +649,49 @@ export default function PatientLogin() {
 
               {/* Headings */}
               <div className="mt-6 text-center">
-                <h1 className="text-[22px] font-semibold text-gray-900 leading-tight">
-                  Book smarter. Never miss a visit.
+                <h1 className="text-2xl font-black text-slate-800 tracking-tight leading-tight">
+                  Book smarter. <span className="text-[#0d9488]">Never miss a visit.</span>
                 </h1>
-                <p className="text-[14px] text-gray-500 mt-1.5">
+                <p className="text-sm text-slate-450 mt-1.5 font-medium leading-relaxed">
                   AI-powered reminders that adapt to your schedule
                 </p>
               </div>
 
               {/* Value-prop badges strip */}
-              <div className="flex flex-row items-center justify-center gap-3.5 text-[11px] text-gray-500 mt-5 mb-1.5">
+              <div className="flex flex-row items-center justify-center gap-3.5 text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-5 mb-1.5 font-display select-none">
                 <div className="flex items-center space-x-1">
-                  <Clock className="h-3 w-3 text-[#1b504c] shrink-0" />
+                  <Clock className="h-3.5 w-3.5 text-primary-teal shrink-0" />
                   <span>Instant booking</span>
                 </div>
-                <span className="text-gray-300 font-bold text-[8px] select-none">&#183;</span>
+                <span className="text-slate-200 select-none">&#124;</span>
                 <div className="flex items-center space-x-1">
-                  <Bell className="h-3 w-3 text-[#1b504c] shrink-0" />
+                  <Bell className="h-3.5 w-3.5 text-primary-teal shrink-0" />
                   <span>Smart reminders</span>
                 </div>
-                <span className="text-gray-300 font-bold text-[8px] select-none">&#183;</span>
+                <span className="text-slate-200 select-none">&#124;</span>
                 <div className="flex items-center space-x-1">
-                  <Shield className="h-3 w-3 text-[#1b504c] shrink-0" />
+                  <Shield className="h-3.5 w-3.5 text-primary-teal shrink-0" />
                   <span>ABDM secure</span>
                 </div>
               </div>
 
               {/* Phone Form Input */}
               <div className="mt-5 text-left">
-                <label className="block text-[13px] font-medium text-[#374151] mb-2">
+                <label className="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">
                   Mobile number
                 </label>
                 <div
-                  className={`flex rounded-lg overflow-hidden border transition-all duration-200 ${
+                  className={`flex rounded-xl overflow-hidden border-2 transition-all duration-300 ${
                     phoneFocused
-                      ? 'border-[#1b504c] ring-2 ring-[#1b504c]/10'
-                      : 'border-[#e5e7eb]'
+                      ? 'border-[#0d9488] bg-white shadow-[0_0_15px_rgba(13,148,136,0.1)]'
+                      : 'border-slate-250 bg-slate-50/50'
                   }`}
                 >
-                  <span className="bg-[#f9fafb] border-r border-[#e5e7eb] text-[#6b7280] text-[15px] font-medium px-3.5 h-[48px] flex items-center select-none shrink-0">
+                  <span className="bg-slate-100 border-r border-slate-250 text-slate-600 text-[15px] font-black px-4.5 h-[48px] flex items-center select-none shrink-0">
                     +91
                   </span>
                   <div className="flex items-center flex-1 px-3.5 space-x-2">
-                    <Phone className="h-[16px] w-[16px] text-gray-300 shrink-0" />
+                    <Phone className="h-[16px] w-[16px] text-slate-350 shrink-0" />
                     <input
                       type="text"
                       inputMode="numeric"
@@ -699,58 +701,58 @@ export default function PatientLogin() {
                       onFocus={() => setPhoneFocused(true)}
                       onBlur={() => setPhoneFocused(false)}
                       onKeyDown={(e) => handleKeyPress(e, handlePhoneSubmit)}
-                      className="bg-transparent border-none outline-none w-full h-[48px] text-[16px] text-[#111827] placeholder-[#d1d5db] p-0"
+                      className="bg-transparent border-none outline-none w-full h-[48px] text-[15px] text-slate-800 placeholder-slate-300 p-0 font-semibold"
                     />
                   </div>
                 </div>
-                <p className="text-[11px] text-gray-400 mt-1.5 text-left leading-none">
-                  We'll send a one-time code to verify
+                <p className="text-[10px] text-slate-455 mt-2 text-left leading-none font-medium">
+                  We'll send a one-time code to verify your phone
                 </p>
                 {step1Error && (
-                  <p className="text-xs text-red-500 mt-2 font-medium">{step1Error}</p>
+                  <p className="text-xs text-red-500 mt-2.5 font-bold">{step1Error}</p>
                 )}
               </div>
 
               {/* WhatsApp Consent Card */}
-              <div className="bg-[#e8faee] border border-green-100 rounded-xl p-3.5 mt-4 mb-4 flex row items-start gap-2.5">
+              <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-2xl p-4 mt-4 mb-4 flex items-start gap-3.5 transition-all">
                 {/* Custom Checkbox */}
                 <button
                   type="button"
                   onClick={() => setWhatsappOptInStep1(!whatsappOptInStep1)}
-                  className={`h-5 w-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all duration-200 cursor-pointer ${
+                  className={`h-5 w-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all duration-205 cursor-pointer ${
                     whatsappOptInStep1
-                      ? 'border-[#25D366] bg-[#25D366] text-white'
-                      : 'border-gray-300 bg-white'
+                      ? 'border-emerald-500 bg-emerald-500 text-white shadow-sm'
+                      : 'border-slate-300 bg-white'
                   }`}
                 >
-                  {whatsappOptInStep1 && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                  {whatsappOptInStep1 && <Check className="h-3.5 w-3.5 stroke-[3.5]" />}
                 </button>
 
                 <div className="flex-1 text-left">
                   {/* Heading Row */}
                   <div className="flex items-center space-x-1.5">
                     <svg
-                      className="text-[#25D366] shrink-0"
-                      width="16"
-                      height="16"
+                      className="text-emerald-500 shrink-0"
+                      width="15"
+                      height="15"
                       viewBox="0 0 24 24"
                       fill="currentColor"
                     >
                       <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.528 1.977 14.07 .953 11.453.953 6.014.953 1.59 5.325 1.586 10.75c-.001 1.7.447 3.361 1.299 4.816L1.87 20.27l4.777-1.116z" />
                     </svg>
-                    <span className="text-[13px] font-medium text-gray-900 leading-none">
+                    <span className="text-xs font-bold text-slate-800 leading-none">
                       Enable WhatsApp reminders
                     </span>
                   </div>
 
-                  <p className="text-[12px] text-gray-600 mt-1 leading-relaxed">
-                    Get instant appointment confirmations and reminders on WhatsApp
+                  <p className="text-[10.5px] text-slate-500 mt-1 leading-relaxed font-medium">
+                    Get instant appointment confirmations and delay alerts on WhatsApp
                   </p>
 
                   {/* Discount incentive line badge */}
-                  <div className="inline-flex items-center space-x-1 bg-[#fff3d6] text-amber-700 rounded-full px-2 py-0.5 mt-2 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                  <div className="inline-flex items-center space-x-1.5 bg-amber-500/10 text-amber-700 rounded-full px-2.5 py-0.5 mt-2.5 border border-amber-500/15">
                     <Gift className="h-3 w-3 text-amber-600 shrink-0" />
-                    <span className="text-[11px] font-medium text-amber-700 leading-none">
+                    <span className="text-[10px] font-bold uppercase tracking-wider leading-none">
                       10% off your first visit
                     </span>
                   </div>
@@ -761,9 +763,9 @@ export default function PatientLogin() {
               <button
                 onClick={handlePhoneSubmit}
                 disabled={!isStep1Valid || loading}
-                className={`group w-full h-[48px] rounded-xl font-medium text-[15px] flex items-center justify-center space-x-1.5 transition-all duration-200 ${
+                className={`group w-full h-[50px] rounded-xl font-extrabold text-[14px] flex items-center justify-center space-x-1.5 transition-all duration-200 active:scale-98 ${
                   isStep1Valid && !loading
-                    ? 'bg-[#1b504c] text-white hover:bg-[#133b38] cursor-pointer shadow-sm shadow-[#1b504c]/20'
+                    ? 'bg-[#1b504c] text-white hover:bg-[#133b38] cursor-pointer shadow-md shadow-[#1b504c]/20'
                     : 'bg-[#e5e7eb] text-[#9ca3af] cursor-not-allowed shadow-none'
                 }`}
               >
@@ -789,7 +791,7 @@ export default function PatientLogin() {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
-                className="w-full h-[48px] bg-white border border-[#e5e7eb] hover:border-primary-teal/30 hover:bg-slate-50 text-[#1f2937] text-[15px] font-bold rounded-xl flex items-center justify-center space-x-2.5 transition-all shadow-sm cursor-pointer"
+                className="w-full h-12 bg-white border border-slate-200 hover:border-slate-350 text-[#1f2937] text-[14px] font-bold rounded-xl flex items-center justify-center space-x-2.5 transition-all shadow-sm cursor-pointer active:scale-98"
               >
                 <svg className="h-[18px] w-[18px] shrink-0" viewBox="0 0 24 24">
                   <path
@@ -816,9 +818,9 @@ export default function PatientLogin() {
               <div className="mt-5 border-t border-[#f3f4f6] pt-4 text-center">
                 <p className="text-[12px] text-[#9ca3af] leading-relaxed">
                   By continuing, you agree to our{' '}
-                  <a href="#" className="underline text-primary-teal hover:text-primary-dark font-medium">Terms of Service</a>{' '}
+                  <a href="#" className="underline text-[#0d9488] hover:text-[#0b332e] font-semibold">Terms of Service</a>{' '}
                   and{' '}
-                  <a href="#" className="underline text-primary-teal hover:text-primary-dark font-medium">Privacy Policy</a>
+                  <a href="#" className="underline text-[#0d9488] hover:text-[#0b332e] font-semibold">Privacy Policy</a>
                 </p>
               </div>
 
@@ -827,8 +829,8 @@ export default function PatientLogin() {
                 <p className="text-[14px] text-[#6b7280]">
                   Are you hospital staff?{' '}
                   <a
-                    href="http://localhost:5173/staff/login"
-                    className="text-primary-teal font-medium hover:underline inline-block ml-0.5"
+                    href="http://localhost:5178/staff/login"
+                    className="text-[#0d9488] font-extrabold hover:underline inline-block ml-0.5"
                   >
                     Login here &rarr;
                   </a>
@@ -1125,7 +1127,6 @@ export default function PatientLogin() {
                 </div>
               </div>
 
-
               {step3Error && (
                 <p className="text-xs text-red-500 mt-4 font-medium text-center">{step3Error}</p>
               )}
@@ -1153,7 +1154,7 @@ export default function PatientLogin() {
                   disabled={loading}
                   className="text-xs font-semibold text-[#6b7280] hover:text-text-medium transition-colors"
                 >
-                  {loading ? 'Processing...' : 'Skip for now \u2192'}
+                  {loading ? 'Processing...' : 'Skip for now →'}
                 </button>
               </div>
             </div>
@@ -1433,7 +1434,7 @@ export default function PatientLogin() {
     </div>
 
       {/* Right Panel (Indian Doctor Promo Graphic Section) */}
-      <div className="hidden lg:flex w-[50%] min-h-screen bg-gradient-to-br from-[#1b504c] to-[#113330] relative flex-col justify-center items-center p-12 text-white overflow-hidden select-none">
+      <div className="hidden lg:flex w-[50%] min-h-screen bg-gradient-to-br from-[#0c2d29] via-[#114b45] to-[#165e56] relative flex-col justify-center items-center p-12 text-white overflow-hidden select-none">
         {/* Abstract Background Vectors */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#fff_1.5px,transparent_1.5px)] [background-size:24px_24px]"></div>
         
@@ -1453,21 +1454,24 @@ export default function PatientLogin() {
           <Clock className="h-6 w-6 text-amber-300" />
         </div>
 
+        {/* Glowing Background Blur */}
+        <div className="absolute w-[350px] h-[350px] bg-primary-teal/20 rounded-full blur-[100px] pointer-events-none opacity-40"></div>
+
         {/* Doctor Monitor Frame */}
-        <div className="relative w-full max-w-[440px] aspect-[4/5] bg-[#22635f] rounded-3xl border border-white/10 shadow-2xl p-5 flex flex-col justify-between overflow-hidden group">
+        <div className="relative w-full max-w-[430px] aspect-[4/5] bg-gradient-to-br from-[#124541] to-[#0a2725] rounded-[2rem] border border-white/10 shadow-2xl p-5 flex flex-col justify-between overflow-hidden group hover:scale-[1.01] transition-transform duration-500">
           {/* Inner image container */}
           <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-cover bg-center" style={{ backgroundImage: "url('/indian_doctor.png')" }}>
             {/* Dark gradient fade-in at the bottom */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#113330]/90 via-transparent to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a2725]/90 via-transparent to-transparent"></div>
             
             {/* Live Consultant Badge */}
-            <div className="absolute bottom-4 left-4 right-4 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-xl flex items-center justify-between text-left shadow-lg">
+            <div className="absolute bottom-4 left-4 right-4 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center justify-between text-left shadow-lg">
               <div>
                 <p className="text-[10px] font-bold text-green-400 uppercase tracking-widest leading-none">Apollo Hospital Panel</p>
                 <p className="text-base font-extrabold text-white mt-1 leading-tight font-display">Dr. Priya Sharma, MD</p>
                 <p className="text-xs text-white/70 leading-none mt-0.5">Consultant Cardiologist</p>
               </div>
-              <div className="bg-[#25D366] text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center space-x-1.5 shrink-0 shadow-md shadow-[#25D366]/20">
+              <div className="bg-[#25D366] text-white px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center space-x-1.5 shrink-0 shadow-md shadow-[#25D366]/20">
                 <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
                 <span>Active</span>
               </div>
@@ -1476,33 +1480,36 @@ export default function PatientLogin() {
 
           {/* Subtext info */}
           <div className="mt-5 text-left border-t border-white/10 pt-4 shrink-0">
-            <h4 className="text-[17px] font-extrabold font-display tracking-tight text-white leading-tight">
+            <h4 className="text-[16px] font-black font-display tracking-tight text-white leading-tight mb-4">
               Apollo OPD Platform Benefits
             </h4>
             
             <ul className="mt-3.5 space-y-2.5 text-xs text-white/90">
-              <li className="flex items-center space-x-2.5">
-                <span className="h-5 w-5 rounded-full bg-[#25D366]/20 flex items-center justify-center shrink-0">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#25D366]"></span>
+              <li className="flex items-start space-x-3 p-2.5 rounded-2xl hover:bg-white/5 transition-colors">
+                <span className="h-5.5 w-5.5 rounded-full bg-[#25D366]/20 border border-[#25D366]/30 flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse"></span>
                 </span>
                 <div>
-                  <strong className="text-white font-semibold">Instant Booking:</strong> Reserve consultation slots dynamically in 30 seconds.
+                  <strong className="text-white font-bold block text-[13px]">Instant Booking</strong>
+                  <span className="text-[11px] text-white/70 block mt-0.5">Reserve consultation slots dynamically in 30 seconds.</span>
                 </div>
               </li>
-              <li className="flex items-center space-x-2.5">
-                <span className="h-5 w-5 rounded-full bg-[#25D366]/20 flex items-center justify-center shrink-0">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#25D366]"></span>
+              <li className="flex items-start space-x-3 p-2.5 rounded-2xl hover:bg-white/5 transition-colors">
+                <span className="h-5.5 w-5.5 rounded-full bg-[#25D366]/20 border border-[#25D366]/30 flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse"></span>
                 </span>
                 <div>
-                  <strong className="text-white font-semibold">Live Queue Status:</strong> Track patient flow in real-time to eliminate wait times.
+                  <strong className="text-white font-bold block text-[13px]">Live Queue Status</strong>
+                  <span className="text-[11px] text-white/70 block mt-0.5">Track patient flow in real-time to eliminate wait times.</span>
                 </div>
               </li>
-              <li className="flex items-center space-x-2.5">
-                <span className="h-5 w-5 rounded-full bg-[#25D366]/20 flex items-center justify-center shrink-0">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#25D366]"></span>
+              <li className="flex items-start space-x-3 p-2.5 rounded-2xl hover:bg-white/5 transition-colors">
+                <span className="h-5.5 w-5.5 rounded-full bg-[#25D366]/20 border border-[#25D366]/30 flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse"></span>
                 </span>
                 <div>
-                  <strong className="text-white font-semibold">Slot Recovery:</strong> Opt-in to secure earlier slots when cancellations happen.
+                  <strong className="text-white font-bold block text-[13px]">Slot Recovery</strong>
+                  <span className="text-[11px] text-white/70 block mt-0.5">Opt-in to secure earlier slots when cancellations happen.</span>
                 </div>
               </li>
             </ul>
