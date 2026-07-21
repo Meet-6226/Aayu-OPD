@@ -225,37 +225,34 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* RIGHT COLUMN — SaaS Overlapping Pop-Out Hero Mockup */}
+            {/* RIGHT COLUMN — SaaS 3D Overlapping Pop-Out Hero Component */}
             <div className="hidden lg:block lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-[420px] overflow-visible my-6">
+              <div className="relative mx-auto max-w-[420px] overflow-visible my-8">
 
-                {/* Soft Organic Background Glow */}
+                {/* Soft Organic Background Aura */}
                 <div className="absolute -top-10 -right-10 w-[320px] h-[320px] rounded-full bg-gradient-to-tr from-primary-teal/15 via-[#10b981]/20 to-teal-100/30 blur-3xl pointer-events-none" />
 
-                {/* 1. White Card Backdrop (Fixed Base Frame) */}
-                <div className="w-full h-[380px] bg-white/95 backdrop-blur-md rounded-[32px] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.08)] border border-gray-200/80 relative z-10 overflow-hidden">
-                  {/* Subtle card internal background gradient */}
+                {/* 1. White Background Card (Acts ONLY as background panel) */}
+                <div className="w-full h-[340px] bg-white rounded-[32px] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.08)] border border-gray-100 relative z-10 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 via-white to-teal-50/20 pointer-events-none" />
                 </div>
 
-                {/* 2. Doctors Cutout Image — OVERFLOWING/BREAKING OUT of the White Card */}
-                <div className="absolute bottom-[-55px] left-1/2 -translate-x-1/2 z-20 w-[420px] pointer-events-none flex justify-center overflow-visible">
-                  <img
-                    src="/indian_doctors_cutout.png"
-                    alt="Apollo OPD Expert Doctors"
-                    className="w-[390px] h-auto object-contain block mix-blend-multiply drop-shadow-[0_15px_30px_rgba(0,0,0,0.12)] select-none"
-                  />
-                </div>
+                {/* 2. Doctor Image (Absolute, bottom: -80px, z-20 above card) */}
+                <img
+                  src="/indian_doctors_cutout_transparent.png"
+                  alt="Apollo OPD Expert Doctors"
+                  className="absolute bottom-[-80px] left-1/2 -translate-x-1/2 z-20 w-[410px] max-w-none h-[470px] object-contain block select-none drop-shadow-[0_15px_30px_rgba(0,0,0,0.12)] pointer-events-none"
+                />
 
-                {/* 3. Floating Micro Badges — Positioned with z-30 layer above doctors */}
+                {/* 3. Floating Micro Badges (z-30 layer above doctors) */}
                 
-                {/* Badge 1 — Top Right (Expert Apollo Doctors) */}
+                {/* Badge 1 — Expert Apollo Doctors */}
                 <div className="absolute -top-4 -right-4 z-30 bg-[#0f4d42] text-white border border-[#0f4d42]/30 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-2.5 animate-bounce-subtle">
                   <Star className="h-4 w-4 fill-current text-[#10b981]" />
                   <span className="text-[13px] font-bold tracking-tight">Expert Apollo Doctors</span>
                 </div>
 
-                {/* Badge 2 — Middle Left (WhatsApp Confirmed) */}
+                {/* Badge 2 — WhatsApp Confirmed */}
                 <div className="absolute top-1/2 -left-8 -translate-y-1/2 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
                     <MessageSquare className="h-4 w-4 fill-current" />
@@ -266,8 +263,8 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Badge 3 — Bottom Right (0-Min Queue Wait) */}
-                <div className="absolute -bottom-2 -right-4 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
+                {/* Badge 3 — 0-Min Queue Wait */}
+                <div className="absolute -bottom-6 -right-4 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-teal-100 text-primary-teal flex items-center justify-center shrink-0">
                     <Clock className="h-4 w-4" />
                   </div>
