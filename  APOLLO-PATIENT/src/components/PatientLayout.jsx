@@ -9,7 +9,6 @@ export default function PatientLayout() {
   const { user: authUser } = useAuth();
   const { unreadCount } = useNotifications(authUser?.uid);
 
-  // Extract initials for the avatar circle
   const getInitials = () => {
     if (authUser?.initials) return authUser.initials;
     if (authUser?.name) {
@@ -23,154 +22,128 @@ export default function PatientLayout() {
     return 'PS';
   };
 
+  const navItems = [
+    { to: '/home', icon: Home, label: 'Home' },
+    { to: '/appointments', icon: Calendar, label: 'Appointments' },
+    { to: '/notifications', icon: Bell, label: 'Alerts', badge: unreadCount > 0 },
+    { to: '/profile', icon: User, label: 'Profile' },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-[#f4fcfb] via-[#f8fafc] to-[#f1fcfb] text-text-medium font-sans flex flex-col relative overflow-hidden">
-      {/* Dynamic blurred mesh gradient circles in background */}
-      <div className="absolute top-24 -left-32 w-96 h-96 rounded-full bg-primary-teal/5 blur-[120px] pointer-events-none z-0"></div>
-      <div className="absolute bottom-24 right-10 w-[450px] h-[450px] rounded-full bg-[#10b981]/5 blur-[140px] pointer-events-none z-0"></div>
-      <div className="absolute top-1/2 left-1/3 w-[300px] h-[300px] rounded-full bg-primary-teal/3 blur-[100px] pointer-events-none z-0"></div>
-      {/* HEADER (Fixed top, all pages) */}
-      <header className="fixed top-0 left-0 right-0 h-14 lg:h-16 bg-white/80 backdrop-blur-md border-b border-border-custom/50 z-50">
+    <div className="min-h-screen bg-[#f8fafc] text-text-medium font-sans flex flex-col relative">
+      {/* ── HEADER ──────────────────────────────────────────────────── */}
+      <header className="fixed top-0 left-0 right-0 h-14 lg:h-16 bg-white border-b border-gray-100 z-50">
         <div className="max-w-[1200px] mx-auto px-5 md:px-8 h-full flex items-center justify-between">
-          {/* Left Logo */}
-          <Link to="/home" className="flex items-center space-x-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary-teal to-[#10b981] flex items-center justify-center shrink-0 shadow-md shadow-primary-teal/15 transition-transform duration-300 group-hover:rotate-12">
-              <span className="text-white font-bold text-[14px]">A</span>
+
+          {/* Logo */}
+          <Link to="/home" className="flex items-center space-x-2 group shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary-teal to-[#10b981] flex items-center justify-center shadow-sm">
+              <span className="text-white font-bold text-[13px]">A</span>
             </div>
-            <span className="font-display font-bold text-[18px] text-primary-teal tracking-tight">
+            <span className="font-display font-bold text-[17px] text-primary-teal tracking-tight">
               Apollo <span className="text-[#10b981]">OPD</span>
             </span>
           </Link>
 
-          {/* Center (Desktop only, 1024px+) */}
-          <nav className="hidden lg:flex items-center space-x-8 h-full">
-            <NavLink
-              to="/home"
-              className={({ isActive }) =>
-                `text-[14px] font-medium transition-colors duration-200 ${
-                  isActive ? 'text-primary-teal' : 'text-text-light hover:text-text-dark'
-                }`
-              }
-            >
-              Home
-            </NavLink>
-            <NavLink
-              to="/doctors"
-              className={({ isActive }) =>
-                `text-[14px] font-medium transition-colors duration-200 ${
-                  isActive ? 'text-primary-teal' : 'text-text-light hover:text-text-dark'
-                }`
-              }
-            >
-              Find Doctors
-            </NavLink>
-            <NavLink
-              to="/appointments"
-              className={({ isActive }) =>
-                `text-[14px] font-medium transition-colors duration-200 ${
-                  isActive ? 'text-primary-teal' : 'text-text-light hover:text-text-dark'
-                }`
-              }
-            >
-              My Appointments
-            </NavLink>
-            <NavLink
-              to="/notifications"
-              className={({ isActive }) =>
-                `text-[14px] font-medium transition-colors duration-200 ${
-                  isActive ? 'text-primary-teal' : 'text-text-light hover:text-text-dark'
-                }`
-              }
-            >
-              Notifications
-            </NavLink>
+          {/* Desktop Nav */}
+          <nav className="hidden lg:flex items-center gap-1 h-full">
+            {[
+              { to: '/home', label: 'Home' },
+              { to: '/doctors', label: 'Find Doctors' },
+              { to: '/appointments', label: 'My Appointments' },
+              { to: '/notifications', label: 'Notifications' },
+            ].map(({ to, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  `relative px-4 py-2 text-[13.5px] font-medium rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? 'text-primary-teal bg-primary-teal/6'
+                      : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {label}
+                    {isActive && (
+                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-primary-teal" />
+                    )}
+                  </>
+                )}
+              </NavLink>
+            ))}
           </nav>
 
-          {/* Right Group */}
-          <div className="flex items-center space-x-4">
-            <span className="hidden lg:inline-block text-[14px] text-text-medium">
-              {authUser?.name || 'Priya Sharma'}
-            </span>
-            
-            {/* Bell Icon with red unread notification dot */}
-            <Link to="/notifications" className="relative p-1 text-text-light hover:text-text-dark transition-colors duration-200">
-              <Bell className="h-5 w-5" />
+          {/* Right: Bell + Avatar */}
+          <div className="flex items-center gap-3">
+            {/* Bell */}
+            <Link
+              to="/notifications"
+              className="relative p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-all"
+            >
+              <Bell className="h-[18px] w-[18px]" />
               {unreadCount > 0 && (
-                <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-red-500"></span>
+                <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-red-500 ring-2 ring-white" />
               )}
             </Link>
 
-            {/* Avatar Circle */}
-            <Link to="/profile" className="w-8 h-8 rounded-full bg-light-teal flex items-center justify-center shrink-0 border border-transparent hover:border-primary-teal/20 transition-all">
-              <span className="text-[12px] font-semibold text-primary-teal">{getInitials()}</span>
+            {/* Avatar */}
+            <Link
+              to="/profile"
+              className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-teal/20 to-[#10b981]/20 flex items-center justify-center border border-primary-teal/15 hover:border-primary-teal/40 transition-all"
+            >
+              <span className="text-[11px] font-bold text-primary-teal">{getInitials()}</span>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* BOTTOM NAVIGATION (Mobile only, hidden on desktop 1024px+) */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-[#f3f4f6] z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] lg:hidden">
-        <div className="grid grid-cols-4 max-w-[420px] mx-auto h-full">
-          {/* Home Tab */}
-          <NavLink
-            to="/home"
-            className={({ isActive }) =>
-              `flex flex-col items-center justify-center h-full border-t-2 transition-all ${
-                isActive ? 'border-primary-teal text-primary-teal' : 'border-transparent text-text-light'
-              }`
-            }
-          >
-            <Home className="h-5 w-5" />
-            <span className="text-[10px] font-medium mt-1">Home</span>
-          </NavLink>
-
-          {/* Appointments Tab */}
-          <NavLink
-            to="/appointments"
-            className={({ isActive }) =>
-              `flex flex-col items-center justify-center h-full border-t-2 transition-all ${
-                isActive ? 'border-primary-teal text-primary-teal' : 'border-transparent text-text-light'
-              }`
-            }
-          >
-            <Calendar className="h-5 w-5" />
-            <span className="text-[10px] font-medium mt-1">Appointments</span>
-          </NavLink>
-
-          {/* Notifications Tab */}
-          <NavLink
-            to="/notifications"
-            className={({ isActive }) =>
-              `flex flex-col items-center justify-center h-full border-t-2 transition-all ${
-                isActive ? 'border-primary-teal text-primary-teal' : 'border-transparent text-text-light'
-              }`
-            }
-          >
-            <div className="relative">
-              <Bell className="h-5 w-5" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-500"></span>
+      {/* ── BOTTOM NAV (Mobile only) ─────────────────────────────────── */}
+      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-t border-gray-100 z-50 shadow-[0_-1px_0_0_rgba(0,0,0,0.04)] lg:hidden">
+        <div className="grid grid-cols-4 max-w-[440px] mx-auto h-full px-2">
+          {navItems.map(({ to, icon: Icon, label, badge }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `flex flex-col items-center justify-center h-full gap-1 transition-all duration-200 ${
+                  isActive ? 'text-primary-teal' : 'text-gray-400'
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <div
+                    className={`relative flex items-center justify-center w-10 h-6 rounded-full transition-all duration-200 ${
+                      isActive ? 'bg-primary-teal/10' : ''
+                    }`}
+                  >
+                    <Icon
+                      className={`h-[18px] w-[18px] transition-all duration-200 ${
+                        isActive ? 'stroke-[2.5]' : 'stroke-[1.7]'
+                      }`}
+                    />
+                    {badge && (
+                      <span className="absolute top-0 right-1 h-1.5 w-1.5 rounded-full bg-red-500 ring-1 ring-white" />
+                    )}
+                  </div>
+                  <span
+                    className={`text-[10px] font-medium leading-none transition-all ${
+                      isActive ? 'font-semibold' : ''
+                    }`}
+                  >
+                    {label}
+                  </span>
+                </>
               )}
-            </div>
-            <span className="text-[10px] font-medium mt-1">Notifications</span>
-          </NavLink>
-
-          {/* Profile Tab */}
-          <NavLink
-            to="/profile"
-            className={({ isActive }) =>
-              `flex flex-col items-center justify-center h-full border-t-2 transition-all ${
-                isActive ? 'border-primary-teal text-primary-teal' : 'border-transparent text-text-light'
-              }`
-            }
-          >
-            <User className="h-5 w-5" />
-            <span className="text-[10px] font-medium mt-1">Profile</span>
-          </NavLink>
+            </NavLink>
+          ))}
         </div>
       </nav>
 
-      {/* Main Content Area */}
+      {/* ── Main Content ─────────────────────────────────────────────── */}
       <main className="flex-grow pt-14 lg:pt-16 pb-[72px] lg:pb-0">
         <Outlet />
       </main>

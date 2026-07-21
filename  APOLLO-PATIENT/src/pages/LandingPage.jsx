@@ -225,113 +225,49 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* RIGHT COLUMN */}
+            {/* RIGHT COLUMN — Smartphone App Preview Mockup */}
             <div className="hidden lg:block lg:col-span-5 relative">
-              <div className="m-5 relative animate-float">
-                {/* Main Card (Glassmorphic) */}
-                <div className="glass-panel border border-white/60 rounded-3xl p-6.5 shadow-2xl relative z-20 glow-shadow-teal">
-                  {/* Card Header */}
-                  <div className="flex items-center justify-between pb-4.5 border-b border-[#e5e7eb]/40">
-                    <div className="text-left">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#10b981] font-display">
-                        MORNING BRIEFING
-                      </p>
-                      <h3 className="text-base font-bold text-text-dark mt-0.5 font-display">
-                        Today · 24 consultations
-                      </h3>
-                    </div>
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary-teal to-[#10b981] flex items-center justify-center text-white shrink-0 shadow-md">
-                      <Activity className="h-4.5 w-4.5" />
-                    </div>
+              <div className="relative mx-auto max-w-[340px]">
+                
+                {/* Real Smartphone Frame Container */}
+                <div className="relative z-20 rounded-[44px] p-3 bg-gradient-to-b from-gray-800 via-gray-900 to-black shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] border-4 border-gray-700/50">
+                  {/* Dynamic Island / Notch */}
+                  <div className="absolute top-5 left-1/2 -translate-x-1/2 w-24 h-4 bg-black rounded-full z-30 flex items-center justify-center">
+                    <div className="w-2.5 h-2.5 rounded-full bg-gray-900 border border-gray-800 ml-auto mr-3" />
                   </div>
-
-                  {/* Alert strip (Pulsing Glow) */}
-                  <div className="mt-4 bg-amber-500/[0.06] border border-amber-500/20 rounded-2xl p-4 flex items-start space-x-3 text-left">
-                    <AlertTriangle className="h-4.5 w-4.5 text-amber-500 shrink-0 mt-0.5" />
-                    <p className="text-[13.5px] font-semibold text-amber-800 leading-tight">
-                      3 high-risk patients · ₹1.8L revenue at risk
-                    </p>
-                  </div>
-
-                  {/* Patient list */}
-                  <div className="mt-5 space-y-4">
-                    {/* Patient 1 */}
-                    <div className="flex items-center justify-between py-1 border-b border-[#e5e7eb]/20 text-left">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-9.5 h-9.5 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-xs shrink-0 font-display">
-                          PS
-                        </div>
-                        <div>
-                          <p className="text-[14px] font-bold text-text-dark leading-none">Priya Sharma</p>
-                          <p className="text-[12px] text-text-light mt-1">10:00 AM · Cardiology</p>
-                        </div>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-lg bg-red-50 text-red-600 text-[10.5px] font-bold tracking-wide">
-                        84% RISK
-                      </span>
-                    </div>
-
-                    {/* Patient 2 */}
-                    <div className="flex items-center justify-between py-1 border-b border-[#e5e7eb]/20 text-left">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-9.5 h-9.5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-xs shrink-0 font-display">
-                          RK
-                        </div>
-                        <div>
-                          <p className="text-[14px] font-bold text-text-dark leading-none">Rahul Kumar</p>
-                          <p className="text-[12px] text-text-light mt-1">10:30 AM · Orthopedics</p>
-                        </div>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-600 text-[10.5px] font-bold tracking-wide">
-                        55% RISK
-                      </span>
-                    </div>
-
-                    {/* Patient 3 */}
-                    <div className="flex items-center justify-between py-1 text-left">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-9.5 h-9.5 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-xs shrink-0 font-display">
-                          SN
-                        </div>
-                        <div>
-                          <p className="text-[14px] font-bold text-text-dark leading-none">Sneha Nair</p>
-                          <p className="text-[12px] text-text-light mt-1">11:00 AM · Dermatology</p>
-                        </div>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-lg bg-green-50 text-green-600 text-[10.5px] font-bold tracking-wide">
-                        18% RISK
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Bottom Stats */}
-                  <div className="mt-4 pt-4 border-t border-[#e5e7eb]/30 flex justify-between items-center text-xs">
-                    <span className="text-text-medium font-medium">2 slots recovered today</span>
-                    <span className="font-bold text-primary-teal bg-light-teal px-2 py-0.5 rounded-md">₹60K saved ↑</span>
+                  
+                  {/* Screen Content Image */}
+                  <div className="rounded-[36px] overflow-hidden bg-white shadow-inner">
+                    <img
+                      src="/patient_hero_phone.png"
+                      alt="Apollo OPD Patient Booking Interface"
+                      className="w-full h-auto object-cover block select-none"
+                    />
                   </div>
                 </div>
 
-                {/* Floating Card 1 */}
-                <div className="absolute -top-5 -right-5 z-30 bg-white border border-border-custom/80 rounded-2xl p-3.5 shadow-xl flex items-center space-x-3 max-w-[210px] text-left">
-                  <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
-                    <Check className="h-4.5 w-4.5 stroke-[2.5]" />
+                {/* Floating Badge 1 — Top Right */}
+                <div className="absolute -top-4 -right-8 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl p-3.5 shadow-xl flex items-center gap-3 animate-bounce-subtle">
+                  <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <Check className="h-4 w-4 stroke-[2.5]" />
                   </div>
-                  <div>
-                    <p className="text-[12px] font-bold text-text-dark leading-none">Slot Recovered</p>
-                    <p className="text-[10px] text-text-light mt-1 leading-none">Rahul confirmed · 11:15 AM</p>
+                  <div className="text-left">
+                    <p className="text-[12px] font-bold text-gray-900 leading-none">Slot Confirmed</p>
+                    <p className="text-[10px] text-emerald-600 font-medium mt-1 leading-none">WhatsApp alert sent ✓</p>
                   </div>
                 </div>
 
-                {/* Floating Card 2 */}
-                <div className="absolute -bottom-5 -left-5 z-30 bg-white border border-border-custom/80 rounded-2xl p-3.5 shadow-xl flex items-center space-x-3 max-w-[210px] text-left">
-                  <div className="w-8 h-8 rounded-full bg-light-teal text-primary-teal flex items-center justify-center shrink-0">
-                    <Brain className="h-4.5 w-4.5" />
+                {/* Floating Badge 2 — Bottom Left */}
+                <div className="absolute -bottom-4 -left-8 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl p-3.5 shadow-xl flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-teal-100 text-primary-teal flex items-center justify-center shrink-0">
+                    <Clock className="h-4 w-4" />
                   </div>
-                  <div>
-                    <p className="text-[12px] font-bold text-text-dark leading-none">SHAP Analysis</p>
-                    <p className="text-[10px] text-text-light mt-1 leading-none">Distance +32% · Rain +6%</p>
+                  <div className="text-left">
+                    <p className="text-[12px] font-bold text-gray-900 leading-none">Live GPS Transit</p>
+                    <p className="text-[10px] text-gray-500 mt-1 leading-none">15 mins drive to clinic</p>
                   </div>
                 </div>
+
               </div>
             </div>
 
