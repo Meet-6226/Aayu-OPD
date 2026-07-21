@@ -30,6 +30,7 @@ import { calculateDistanceKm } from '../utils/calculateDistance';
 import { APOLLO_HOSPITALS } from '../utils/hospitalLocation';
 import { getWeatherForecast, isWithinForecastWindow } from '../utils/weatherService';
 import { estimateTrafficLevel } from '../utils/trafficEstimate';
+import { getRoadDistanceAndTraffic, reverseGeocode, getDirectionsUrl } from '../services/googleMapsService';
 
 // Calculate days between appointment date and today — IST-anchored via appTime.js
 const calculateLeadTimeDays = (appDateStr) => {
@@ -160,6 +161,11 @@ export default function BookingConfirmation() {
   const [cabBookingStatus, setCabBookingStatus] = useState('idle'); // idle, booking, confirmed
   const [driverInfo, setDriverInfo] = useState(null);
 
+  // ── Google Maps real road data ─────────────────────────────────────────────
+  const [mapsData, setMapsData] = useState(null);        // null = not yet fetched
+  const [mapsLoading, setMapsLoading] = useState(false);
+  const [userAddress, setUserAddress] = useState(null);  // reverse-geocoded address
+
   const handleBookCab = () => {
     if (cabBookingStatus !== 'idle') return;
     setCabBookingStatus('booking');
@@ -202,8 +208,39 @@ export default function BookingConfirmation() {
     : { hospital: APOLLO_HOSPITALS[0], distance: null };
 
   const closestHospital = closestHospitalDetails.hospital;
-  const realDistanceKm = closestHospitalDetails.distance;
+  // Haversine straight-line distance (fallback when Google Maps unavailable)
+  const haversineDistanceKm = closestHospitalDetails.distance;
+  // Use Google Maps road distance if available, else fall back to Haversine
+  const realDistanceKm = mapsData?.distanceKm ?? haversineDistanceKm;
   // ── End Geolocation ──────────────────────────────────────────────────────────
+
+  // ── Google Maps: fetch road distance + traffic when user location is ready ──
+  useEffect(() => {
+    if (!locationReady || userLat == null || userLon == null || !closestHospital) return;
+    if (mapsData || mapsLoading) return; // already fetched or fetching
+
+    setMapsLoading(true);
+
+    // Parallel: road data + reverse geocoding
+    Promise.all([
+      getRoadDistanceAndTraffic(userLat, userLon, closestHospital.latitude, closestHospital.longitude),
+      reverseGeocode(userLat, userLon),
+    ]).then(([roadData, address]) => {
+      if (roadData) {
+        setMapsData(roadData);
+        console.log('[BookingConfirmation] Google Maps road data:', roadData);
+      } else {
+        console.warn('[BookingConfirmation] Google Maps unavailable, using Haversine fallback');
+      }
+      if (address) setUserAddress(address);
+    }).catch(err => {
+      console.warn('[BookingConfirmation] Google Maps fetch error:', err);
+    }).finally(() => {
+      setMapsLoading(false);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locationReady, userLat, userLon, closestHospital]);
+  // ── End Google Maps ──────────────────────────────────────────────────────────
 
   // ── Weather Forecast ────────────────────────────────────────────────────────
   const [weatherData, setWeatherData] = useState(null);  // null = not yet fetched
@@ -280,17 +317,41 @@ export default function BookingConfirmation() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [booking, locationReady, realDistanceKm, weatherData, selectedPersona, familyContact.name, closestHospital]);
 
-  // ── Traffic Congestion Estimate ──────────────────────────────────────────────────
-  // Rule-based: no paid API required. Derived from appointment time + rain data.
-  // Re-derived on every render (cheap pure function, no async needed).
-  const trafficInfo = (booking?.dateString && booking?.time)
+  // ── Traffic Congestion Estimate ────────────────────────────────────────────────────
+  // Primary: Google Maps real-time traffic (mapsData.congestionScore / congestionLevel)
+  // Fallback: Rule-based estimate derived from appointment time + rain.
+  const ruleBasedTrafficInfo = (booking?.dateString && booking?.time)
     ? estimateTrafficLevel(
-        // Combine date + time into a single datetime string for getHours()
         `${booking.dateString}T${booking.time.replace(/\s*(AM|PM)/i, '')}`,
         weatherData?.willRain ?? false
       )
     : null;
-  // ── End Traffic Estimate ──────────────────────────────────────────────────────────
+
+  // Merge: if Google Maps gave us real traffic data, use it; else use rule-based
+  const trafficInfo = mapsData
+    ? {
+        congestionScore: mapsData.congestionScore,
+        level: mapsData.congestionLevel,
+        description:
+          mapsData.trafficDelayMins > 0
+            ? `+${mapsData.trafficDelayMins} min delay in current traffic`
+            : 'Light traffic — no significant delays',
+        factors: [
+          `Google Maps live traffic`,
+          mapsData.durationInTrafficText
+            ? `${mapsData.durationInTrafficText} in traffic (normally ${mapsData.durationText})`
+            : `${mapsData.durationText} drive`,
+          ...(ruleBasedTrafficInfo?.factors ?? []),
+        ],
+        // Extra Google-specific fields for UI display
+        isLive: true,
+        durationText: mapsData.durationText,
+        durationInTrafficText: mapsData.durationInTrafficText,
+        distanceText: mapsData.distanceText,
+        trafficDelayMins: mapsData.trafficDelayMins,
+      }
+    : ruleBasedTrafficInfo;
+  // ── End Traffic Estimate ────────────────────────────────────────────────────────────
 
   // Redirect to doctors search if user lands on this page without a slot selected
   useEffect(() => {
@@ -1239,22 +1300,57 @@ export default function BookingConfirmation() {
           {/* Renders as a vertical list on desktop for high-density space-saving, and as grid on mobile */}
           <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4">
             
-            {/* 1. Distance Card */}
+            {/* 1. Distance Card — real road distance from Google Maps */}
             <div className="glass-panel border border-white/60 rounded-2xl p-4.5 flex flex-col justify-between shadow-md text-left">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-bold text-[#0d9488] tracking-widest uppercase font-display">Distance</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-bold text-[#0d9488] tracking-widest uppercase font-display">Distance</span>
+                  {mapsData && (
+                    <span className="text-[8px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Live</span>
+                  )}
+                </div>
                 <div className="p-1 bg-[#0d9488]/10 rounded-lg text-[#0d9488]">
                   <MapPin className="h-4 w-4" />
                 </div>
               </div>
-              {locationReady ? (
+              {mapsLoading ? (
+                <div className="flex items-center space-x-1.5 py-1">
+                  <Loader2 className="h-3 w-3 animate-spin text-[#0d9488]" />
+                  <span className="text-[10.5px] text-text-light font-bold">Fetching road data...</span>
+                </div>
+              ) : locationReady ? (
                 <div>
                   <p className="text-lg font-extrabold text-text-dark font-display">
-                    {realDistanceKm != null ? `${realDistanceKm.toFixed(1)} km` : 'Calculating...'}
+                    {mapsData?.distanceText ?? (realDistanceKm != null ? `${realDistanceKm.toFixed(1)} km` : 'Calculating...')}
                   </p>
-                  <p className="text-[9.5px] text-[#0d9488] font-bold mt-0.5 truncate" title={closestHospital.name}>
-                    to Apollo {closestHospital.city}
-                  </p>
+                  {mapsData?.durationInTrafficText ? (
+                    <p className="text-[9.5px] text-[#0d9488] font-bold mt-0.5">
+                      {mapsData.durationInTrafficText} in traffic · normally {mapsData.durationText}
+                    </p>
+                  ) : mapsData?.durationText ? (
+                    <p className="text-[9.5px] text-[#0d9488] font-bold mt-0.5">
+                      ~{mapsData.durationText} drive
+                    </p>
+                  ) : (
+                    <p className="text-[9.5px] text-[#0d9488] font-bold mt-0.5 truncate" title={closestHospital.name}>
+                      to Apollo {closestHospital.city}
+                    </p>
+                  )}
+                  {userAddress && (
+                    <p className="text-[8.5px] text-text-light mt-1 truncate" title={userAddress}>
+                      📍 {userAddress.split(',').slice(0, 2).join(',')}
+                    </p>
+                  )}
+                  {mapsData && userLat && userLon && (
+                    <a
+                      href={getDirectionsUrl(userLat, userLon, closestHospital.latitude, closestHospital.longitude)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 mt-2 text-[9px] font-bold text-[#0d9488] hover:underline"
+                    >
+                      <Navigation className="h-2.5 w-2.5" /> Get Directions
+                    </a>
+                  )}
                 </div>
               ) : (
                 <button
@@ -1299,13 +1395,18 @@ export default function BookingConfirmation() {
               )}
             </div>
 
-            {/* 3. Traffic Card */}
+            {/* 3. Traffic Card — live from Google Maps or rule-based fallback */}
             {trafficInfo ? (
               <div className="glass-panel border border-white/60 rounded-2xl p-4.5 flex flex-col justify-between shadow-md text-left">
                 <div className="flex items-center justify-between mb-2">
-                  <span className={`text-[10px] font-bold tracking-widest uppercase font-display ${
-                    trafficInfo.level === 'High' ? 'text-red-500' : trafficInfo.level === 'Moderate' ? 'text-amber-500' : 'text-emerald-500'
-                  }`}>Traffic</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-[10px] font-bold tracking-widest uppercase font-display ${
+                      trafficInfo.level === 'High' ? 'text-red-500' : trafficInfo.level === 'Moderate' ? 'text-amber-500' : 'text-emerald-500'
+                    }`}>Traffic</span>
+                    {trafficInfo.isLive && (
+                      <span className="text-[8px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Live</span>
+                    )}
+                  </div>
                   <div className={`p-1 rounded-lg ${
                     trafficInfo.level === 'High' ? 'bg-red-500/10 text-red-500' : trafficInfo.level === 'Moderate' ? 'bg-amber-500/10 text-amber-500' : 'bg-emerald-50/10 text-emerald-500'
                   }`}>
@@ -1318,9 +1419,20 @@ export default function BookingConfirmation() {
                       trafficInfo.level === 'High' ? 'text-red-600' : trafficInfo.level === 'Moderate' ? 'text-amber-600' : 'text-emerald-600'
                     }`}>{trafficInfo.level}</span>
                   </div>
-                  <p className="text-[10px] text-text-light mt-0.5 font-medium">
-                    {trafficInfo.level === 'High' ? 'Allow extra buffer time' : trafficInfo.level === 'Moderate' ? 'Expected delays' : 'Clear roads'}
-                  </p>
+                  {trafficInfo.isLive && trafficInfo.trafficDelayMins > 0 ? (
+                    <p className="text-[10px] text-red-500 mt-0.5 font-semibold">
+                      +{trafficInfo.trafficDelayMins} min delay right now
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-text-light mt-0.5 font-medium">
+                      {trafficInfo.level === 'High' ? 'Allow extra buffer time' : trafficInfo.level === 'Moderate' ? 'Expected delays' : 'Clear roads'}
+                    </p>
+                  )}
+                  {trafficInfo.isLive && trafficInfo.durationInTrafficText && (
+                    <p className="text-[8.5px] text-text-light mt-1">
+                      ETA: {trafficInfo.durationInTrafficText}
+                    </p>
+                  )}
                 </div>
               </div>
             ) : (
