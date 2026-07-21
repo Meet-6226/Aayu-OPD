@@ -274,23 +274,25 @@ export default function PatientLogin() {
     const otpCode = otp.join('');
     if (otpCode.length !== 6) return;
 
-    // STEP 1: Open a blank window IMMEDIATELY, synchronously, as the very first line inside the click handler
-    let whatsappWindow = null;
-    if (whatsappOptInStep1) {
-      whatsappWindow = window.open('', '_blank');
-    }
-
     setStep2Error('');
-    setLoading(true);
 
     if (otpCode !== generatedOtp) {
       setStep2Error('Incorrect OTP. Please check and try again');
-      setLoading(false);
-      if (whatsappWindow) {
-        whatsappWindow.close();
-      }
       return;
     }
+
+    // Direct, synchronous window.open with actual WhatsApp target URL on valid OTP user click
+    if (whatsappOptInStep1) {
+      const sandboxCode = DEMO_CONFIG.twilioSandboxCode || 'just-noise';
+      const whatsappUrl = `https://wa.me/14155238886?text=${encodeURIComponent('join ' + sandboxCode)}`;
+      try {
+        window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      } catch (err) {
+        console.warn("Direct WhatsApp redirection failed:", err);
+      }
+    }
+
+    setLoading(true);
 
     try {
       const formattedPhone = `+91${getRawPhoneNumber()}`;
@@ -329,13 +331,6 @@ export default function PatientLogin() {
         }
       }
 
-      // STEP 3: OTP verified successfully — NOW navigate the already-open blank window to the WhatsApp URL
-      if (whatsappWindow && whatsappOptInStep1) {
-        const sandboxCode = DEMO_CONFIG.twilioSandboxCode || 'just-noise';
-        const whatsappUrl = `https://wa.me/14155238886?text=${encodeURIComponent('join ' + sandboxCode)}`;
-        whatsappWindow.location.href = whatsappUrl;
-      }
-
       setShowSuccessAnimation(true);
       setTimeout(() => {
         setShowSuccessAnimation(false);
@@ -348,9 +343,6 @@ export default function PatientLogin() {
     } catch (error) {
       console.error("OTP confirmation error:", error);
       setStep2Error('Something went wrong. Please try again');
-      if (whatsappWindow) {
-        whatsappWindow.close();
-      }
     } finally {
       setLoading(false);
     }
