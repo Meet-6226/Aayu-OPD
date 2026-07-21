@@ -108,22 +108,45 @@ const getTravelDetails = (distance, trafficLevel, appointmentTime) => {
   return { mode, formattedTime, departureTime: departureTimeStr, isPeak, delayMins };
 };
 
+const getInitialPersona = (user) => {
+  if (!user || !user.persona) return 'Professional';
+  const p = user.persona;
+  if (p === 'working_professional' || p === 'Professional') return 'Professional';
+  if (p === 'elderly' || p === 'Elderly') return 'Elderly';
+  if (p === 'student' || p === 'Student') return 'Student';
+  return 'Other';
+};
+
 export default function BookingConfirmation() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user: authUser, updateMockSession } = useAuth();
 
-  const [selectedPersona, setSelectedPersona] = useState('Professional');
+  const [selectedPersona, setSelectedPersona] = useState(() => getInitialPersona(authUser));
   const [processing, setProcessing] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingError, setBookingError] = useState('');
 
   // Family contact details for Elderly persona
   const [familyContact, setFamilyContact] = useState({
-    name: '',
-    phone: '',
-    relation: 'Son/Daughter'
+    name: authUser?.familyContactName || '',
+    phone: authUser?.familyContactPhone || '',
+    relation: authUser?.familyContactRelation || 'Son/Daughter'
   });
+
+  useEffect(() => {
+    if (authUser && authUser.persona) {
+      const mapped = getInitialPersona(authUser);
+      setSelectedPersona(mapped);
+      if (authUser.familyContactName || authUser.familyContactPhone) {
+        setFamilyContact({
+          name: authUser.familyContactName || '',
+          phone: authUser.familyContactPhone || '',
+          relation: authUser.familyContactRelation || 'Son/Daughter'
+        });
+      }
+    }
+  }, [authUser]);
 
   const [predictionRisk, setPredictionRisk] = useState(null);
   const [predictionLoading, setPredictionLoading] = useState(false);
@@ -1052,12 +1075,19 @@ export default function BookingConfirmation() {
           {/* ── Persona Selection ── */}
           <div className="w-full bg-white border border-border-custom rounded-2xl p-5 shadow-sm text-left animate-fade-in">
             <div>
-              <h2 className="font-display font-bold text-base text-text-dark tracking-tight flex items-center gap-1.5">
+              <h2 className="font-display font-bold text-base text-text-dark tracking-tight flex items-center gap-1.5 flex-wrap">
                 <span>Notification Persona</span>
                 <span className="text-[9px] bg-primary-teal/10 text-primary-teal px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Risk Tuning</span>
+                {authUser?.persona && (
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold border border-emerald-300/50">
+                    ✓ Pre-selected from your profile
+                  </span>
+                )}
               </h2>
               <p className="text-xs text-text-light mt-1.5">
-                Choose a profile that matches your schedule. This trains the ML model to optimize reminders.
+                {authUser?.persona
+                  ? "Your saved profile persona is pre-selected below. You can tune it for this specific appointment if needed."
+                  : "Choose a profile that matches your schedule. This trains the ML model to optimize reminders."}
               </p>
             </div>
 
