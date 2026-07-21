@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Check,
   ArrowRight,
@@ -154,7 +155,12 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
             
             {/* LEFT COLUMN */}
-            <div className="lg:col-span-7 flex flex-col items-start text-left">
+            <motion.div
+              initial={{ opacity: 0, y: 35 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="lg:col-span-7 flex flex-col items-start text-left"
+            >
               {/* Pill badge */}
               <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-primary-teal/5 border border-primary-teal/10 text-primary-teal mb-8 select-none animate-pulse-glow">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
@@ -205,10 +211,15 @@ export default function LandingPage() {
                   <span className="text-[13px] font-semibold">Hindi Voice Calls</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* RIGHT COLUMN — Free-standing Indian Doctors with Radial Glow & Floating Badges (Exact 99% Match to Reference) */}
-            <div className="hidden lg:block lg:col-span-5 relative">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+              className="hidden lg:block lg:col-span-5 relative"
+            >
               <div className="relative mx-auto max-w-[480px] flex items-center justify-center min-h-[500px] overflow-visible">
 
                 {/* Soft Mint Radial Glow Behind Doctors */}
@@ -224,13 +235,23 @@ export default function LandingPage() {
                 </div>
 
                 {/* Floating Card 1 — Top Right (Expert Apollo Doctors) */}
-                <div className="absolute top-4 right-0 z-30 bg-[#0f4d42] text-white border border-[#0f4d42]/30 rounded-2xl px-4 py-2.5 shadow-xl flex items-center gap-2.5 animate-bounce-subtle">
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="absolute top-4 right-0 z-30 bg-[#0f4d42] text-white border border-[#0f4d42]/30 rounded-2xl px-4 py-2.5 shadow-xl flex items-center gap-2.5 animate-bounce-subtle"
+                >
                   <Star className="h-4 w-4 fill-current text-[#10b981]" />
                   <span className="text-[13px] font-bold tracking-tight">Expert Apollo Doctors</span>
-                </div>
+                </motion.div>
 
                 {/* Floating Card 2 — Middle Left (WhatsApp Confirmed) */}
-                <div className="absolute top-[48%] -left-10 -translate-y-1/2 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
+                <motion.div
+                  initial={{ opacity: 0, x: -15 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.5 }}
+                  className="absolute top-[48%] -left-10 -translate-y-1/2 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3"
+                >
                   <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
                     <MessageSquare className="h-4 w-4 fill-current" />
                   </div>
@@ -238,10 +259,15 @@ export default function LandingPage() {
                     <p className="text-[12.5px] font-bold text-gray-900 leading-none">WhatsApp Confirmed</p>
                     <p className="text-[10.5px] text-emerald-600 font-semibold mt-1 leading-none">Instant slot alerts sent ✓</p>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Floating Card 3 — Bottom Right (0-Min Queue Wait) */}
-                <div className="absolute bottom-12 -right-6 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.6 }}
+                  className="absolute bottom-12 -right-6 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3"
+                >
                   <div className="w-8 h-8 rounded-full bg-teal-100 text-primary-teal flex items-center justify-center shrink-0">
                     <Clock className="h-4 w-4" />
                   </div>
@@ -249,10 +275,10 @@ export default function LandingPage() {
                     <p className="text-[12.5px] font-bold text-gray-900 leading-none">0-Min Queue Wait</p>
                     <p className="text-[10.5px] text-primary-teal font-semibold mt-1 leading-none">Live GPS OPD Sync</p>
                   </div>
-                </div>
+                </motion.div>
 
               </div>
-            </div>
+            </motion.div>
 
           </div>
         </div>
