@@ -184,24 +184,6 @@ export default function LandingPage() {
                   <span>Book Appointment</span>
                   <ArrowRight className="h-[18px] w-[18px]" />
                 </Link>
-
-                {/* ── Try Demo Button ── */}
-                <button
-                  onClick={handleTryDemo}
-                  disabled={demoLoading}
-                  className="group relative flex items-center gap-2.5 px-7 py-4 font-bold text-base rounded-xl border-2 border-primary-teal/30 bg-gradient-to-r from-primary-teal/5 to-[#10b981]/5 text-primary-teal hover:border-primary-teal hover:bg-primary-teal/10 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] overflow-hidden"
-                >
-                  {/* Shimmer sweep */}
-                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
-                  {/* Pulsing dot */}
-                  <span className="relative flex h-2.5 w-2.5 shrink-0">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#10b981]" />
-                  </span>
-                  <Play className="h-4 w-4 fill-current" />
-                  <span>Try Live Demo</span>
-                  <span className="text-[10px] font-semibold bg-primary-teal text-white px-2 py-0.5 rounded-full ml-0.5">No signup</span>
-                </button>
               </div>
 
               {/* Trust Badges */}
