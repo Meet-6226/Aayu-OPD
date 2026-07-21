@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Check,
   ArrowRight,
@@ -21,11 +21,75 @@ import {
   Calendar,
   Brain,
   AlertTriangle,
-  ChevronRight
+  ChevronRight,
+  Play,
+  Loader2,
+  X
 } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+  const { loginDemoUser } = useAuth();
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [showDemoModal, setShowDemoModal] = useState(false);
+
+  const handleTryDemo = useCallback(() => {
+    setShowDemoModal(true);
+    setDemoLoading(true);
+    // 2-second dramatic "logging in" moment, then redirect
+    setTimeout(() => {
+      loginDemoUser();
+      setDemoLoading(false);
+      setShowDemoModal(false);
+      navigate('/home');
+    }, 2000);
+  }, [loginDemoUser, navigate]);
+
   return (
+    <>
+    {/* ── Demo Loading Overlay ─────────────────────────────────────────── */}
+    {showDemoModal && (
+      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="bg-white rounded-3xl p-10 shadow-2xl max-w-sm w-full mx-4 text-center relative overflow-hidden">
+          {/* Animated background glow */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-teal/5 via-transparent to-[#10b981]/5 pointer-events-none" />
+          {/* Pulsing ring */}
+          <div className="relative mx-auto w-20 h-20 mb-6">
+            <div className="absolute inset-0 rounded-full bg-primary-teal/20 animate-ping" />
+            <div className="relative w-20 h-20 rounded-full bg-gradient-to-tr from-primary-teal to-[#10b981] flex items-center justify-center shadow-lg">
+              <Activity className="h-9 w-9 text-white" />
+            </div>
+          </div>
+          <h2 className="font-display font-extrabold text-xl text-text-dark tracking-tight">Loading Demo</h2>
+          <p className="text-sm text-text-light mt-2 leading-relaxed">
+            Signing in as <span className="font-bold text-primary-teal">Priya Sharma</span> — demo patient
+          </p>
+          {/* Progress steps */}
+          <div className="mt-6 space-y-2.5 text-left">
+            {[
+              { label: 'Loading patient profile...', done: true },
+              { label: 'Fetching appointments...', done: true },
+              { label: 'Connecting AI risk engine...', done: demoLoading },
+            ].map((step, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                  step.done ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100'
+                }`}>
+                  {step.done
+                    ? <Check className="h-3 w-3 stroke-[2.5]" />
+                    : <Loader2 className="h-3 w-3 animate-spin text-gray-400" />}
+                </div>
+                <span className={`text-xs font-medium ${
+                  step.done ? 'text-text-dark' : 'text-text-light'
+                }`}>{step.label}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-text-light mt-6">This is a hackathon demo — no real data is used.</p>
+        </div>
+      </div>
+    )}
     <div className="min-h-screen bg-white text-text-medium font-sans selection:bg-light-teal selection:text-primary-teal">
       
       {/* SECTION 1 — NAVBAR */}
@@ -120,12 +184,24 @@ export default function LandingPage() {
                   <span>Book Appointment</span>
                   <ArrowRight className="h-[18px] w-[18px]" />
                 </Link>
-                <a
-                  href="#solution"
-                  className="px-8 py-4 border border-border-custom hover:border-primary-teal text-text-dark font-semibold text-base rounded-xl transition-all duration-200 bg-white/60 hover:bg-white active:scale-[0.97]"
+
+                {/* ── Try Demo Button ── */}
+                <button
+                  onClick={handleTryDemo}
+                  disabled={demoLoading}
+                  className="group relative flex items-center gap-2.5 px-7 py-4 font-bold text-base rounded-xl border-2 border-primary-teal/30 bg-gradient-to-r from-primary-teal/5 to-[#10b981]/5 text-primary-teal hover:border-primary-teal hover:bg-primary-teal/10 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] overflow-hidden"
                 >
-                  See How It Works
-                </a>
+                  {/* Shimmer sweep */}
+                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
+                  {/* Pulsing dot */}
+                  <span className="relative flex h-2.5 w-2.5 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#10b981]" />
+                  </span>
+                  <Play className="h-4 w-4 fill-current" />
+                  <span>Try Live Demo</span>
+                  <span className="text-[10px] font-semibold bg-primary-teal text-white px-2 py-0.5 rounded-full ml-0.5">No signup</span>
+                </button>
               </div>
 
               {/* Trust Badges */}
@@ -1128,7 +1204,9 @@ export default function LandingPage() {
               Patient Portal
             </Link>
             <a
-              href="http://localhost:5173/staff/login"
+              href="https://apollo-opd-staff.vercel.app/staff/login"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-text-light hover:text-[#374151] transition-colors duration-200"
             >
               Staff Login
@@ -1139,5 +1217,6 @@ export default function LandingPage() {
       </footer>
 
     </div>
+    </>
   );
 }

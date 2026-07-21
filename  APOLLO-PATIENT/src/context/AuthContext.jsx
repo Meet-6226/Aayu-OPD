@@ -206,6 +206,41 @@ export function AuthProvider({ children }) {
     localStorage.setItem('apollo_patient_session', JSON.stringify(newSession));
   };
 
+  // ── Demo Login ────────────────────────────────────────────────────────────
+  // Instantly logs in a pre-filled demo patient. No OTP, no Firebase call.
+  // Used by "Try Demo" CTA on Landing Page for hackathon judges.
+  const loginDemoUser = () => {
+    const demoPatient = {
+      uid: '9199750000',
+      phone: '+919199750000',
+      name: 'Priya Sharma',
+      age: 28,
+      gender: 'Female',
+      city: 'Hyderabad',
+      email: 'priya.sharma@demo.in',
+      bloodGroup: 'B+',
+      persona: 'working_professional',
+      abhaId: 'ABHA-2891-7634-5521',
+      whatsappOptedIn: true,
+      totalVisits: 3,
+      totalNoShows: 0,
+      trustScore: 95,
+      priorityTokens: 1,
+      distanceKm: 12.4,
+      familyContactName: '',
+      familyContactPhone: '',
+      familyContactRelation: '',
+      earnedRewards: [],
+      isNew: false,
+      isDemoUser: true,
+    };
+    setUser(demoPatient);
+    setIsAuthenticated(true);
+    localStorage.setItem('apollo_patient_session', JSON.stringify(demoPatient));
+    return demoPatient;
+  };
+  // ── End Demo Login ────────────────────────────────────────────────────────
+
   const signOutUser = async () => {
     setLoading(true);
     try {
@@ -221,7 +256,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAuthenticated, loginMockUser, loginGoogleUser, updateMockSession, signOutUser }}>
+    <AuthContext.Provider value={{ user, loading, isAuthenticated, loginMockUser, loginGoogleUser, loginDemoUser, updateMockSession, signOutUser }}>
       {children}
     </AuthContext.Provider>
   );
