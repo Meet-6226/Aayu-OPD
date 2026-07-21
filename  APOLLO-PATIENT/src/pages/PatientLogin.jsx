@@ -34,7 +34,7 @@ import { triggerPatientRegistrationDemo } from '../utils/demoTriggers';
 
 export default function PatientLogin() {
   const navigate = useNavigate();
-  const { loginMockUser, loginGoogleUser, updateMockSession, user: authUser, isAuthenticated, loading: authLoading } = useAuth();
+  const { loginMockUser, loginGoogleUser, updateMockSession, signOutUser, user: authUser, isAuthenticated, loading: authLoading } = useAuth();
 
   // Auto-request location permission on login screen mount to preload GPS coordinates
   useEffect(() => {
@@ -142,6 +142,24 @@ export default function PatientLogin() {
       }
     }
   }, [isAuthenticated, authUser, navigate]);
+
+  const handleUseDifferentNumber = async () => {
+    setLoading(true);
+    try {
+      if (signOutUser) {
+        await signOutUser();
+      }
+    } catch (e) {
+      console.warn("signOutUser failed:", e);
+    }
+    setPhoneNumber('');
+    setOtp(['', '', '', '', '', '']);
+    setStep1Error('');
+    setStep2Error('');
+    setStep3Error('');
+    setCurrentStep(1);
+    setLoading(false);
+  };
 
   if (authLoading) {
     return (
@@ -1144,9 +1162,18 @@ export default function PatientLogin() {
                   type="button"
                   onClick={handleProfileSkip}
                   disabled={loading}
-                  className="text-xs font-semibold text-[#6b7280] hover:text-text-medium transition-colors"
+                  className="text-xs font-semibold text-[#6b7280] hover:text-text-medium transition-colors block w-full text-center"
                 >
                   {loading ? 'Processing...' : 'Skip for now →'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleUseDifferentNumber}
+                  disabled={loading}
+                  className="text-xs font-extrabold text-[#0d9488] hover:underline transition-colors block w-full text-center pt-1"
+                >
+                  ← Use a different phone number
                 </button>
               </div>
             </div>
@@ -1348,12 +1375,12 @@ export default function PatientLogin() {
                       <h4 className="text-[13px] font-semibold text-text-dark leading-none">
                         Family member details
                       </h4>
-                      <p className="text-[12px] text-[#6b7280] mt-1 leading-normal">
-                        They'll receive appointment reminders and can confirm on your behalf
+                      <p className="text-xs text-[#6b7280] mt-1">
+                        We'll send reminders to this relative as well.
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="grid grid-cols-2 gap-2 text-xs">
                       <input
                         type="text"
                         placeholder="Family member name"
@@ -1410,9 +1437,18 @@ export default function PatientLogin() {
                   type="button"
                   onClick={handleFinalSkip}
                   disabled={loading}
-                  className="text-xs font-semibold text-[#6b7280] hover:text-text-medium transition-colors"
+                  className="text-xs font-semibold text-[#6b7280] hover:text-text-medium transition-colors block w-full text-center"
                 >
                   Skip for now &rarr;
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleUseDifferentNumber}
+                  disabled={loading}
+                  className="text-xs font-extrabold text-[#0d9488] hover:underline transition-colors block w-full text-center pt-1"
+                >
+                  ← Use a different phone number
                 </button>
               </div>
 
