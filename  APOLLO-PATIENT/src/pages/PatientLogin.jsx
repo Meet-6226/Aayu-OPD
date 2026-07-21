@@ -129,10 +129,23 @@ export default function PatientLogin() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && authUser) {
-      if (authUser.isNew) {
+      const hasCompleteProfile = Boolean(
+        authUser.name &&
+        authUser.name.trim() !== '' &&
+        authUser.age &&
+        authUser.gender
+      );
+
+      if (authUser.isNew || !hasCompleteProfile) {
         if (!authUser.phone) {
           setCurrentStep(1);
-        } else if (!authUser.age || !authUser.gender) {
+        } else if (!authUser.age || !authUser.gender || !authUser.name) {
+          if (authUser.name) setFullName(authUser.name);
+          if (authUser.age) setAge(String(authUser.age));
+          if (authUser.gender) setGender(authUser.gender);
+          if (authUser.city) setCity(authUser.city);
+          if (authUser.bloodGroup) setBloodGroup(authUser.bloodGroup);
+          if (authUser.email) setEmail(authUser.email);
           setCurrentStep(3);
         } else {
           setCurrentStep(4);
@@ -217,23 +230,45 @@ export default function PatientLogin() {
       const result = await signInWithPopup(auth, provider);
       const googleUser = result.user;
       
-      console.log("[Google Sign-In] Success:", googleUser.email);
-      const loggedUser = await loginGoogleUser(googleUser);
-      
-      if (loggedUser && !loggedUser.isNew) {
-        // If they already exist in Firestore, direct to home page
-        setShowSuccessAnimation(true);
-        setTimeout(() => {
-          setShowSuccessAnimation(false);
-          navigate('/home');
-        }, 800);
+      let loggedUser = await loginGoogleUser(googleUser);
+
+      // Store optimistic opt-in inside Firestore immediately if they had it checked
+      if (whatsappOptInStep1 && loggedUser) {
+        const userRef = doc(db, COLLECTIONS.PATIENTS, loggedUser.uid);
+        await updateDoc(userRef, {
+          whatsappOptedIn: true,
+          "preferences.whatsapp": true,
+          updatedAt: serverTimestamp()
+        }).catch(err => console.log("Failed to update whatsappOptedIn for Google user:", err));
+        
+        updateMockSession({
+          whatsappOptedIn: true,
+          preferences: {
+            ...loggedUser.preferences,
+            whatsapp: true
+          }
+        });
+      }
+
+      const hasCompleteProfile = Boolean(
+        loggedUser &&
+        loggedUser.name &&
+        loggedUser.name.trim() !== '' &&
+        loggedUser.age &&
+        loggedUser.gender
+      );
+
+      if (!loggedUser.isNew && hasCompleteProfile) {
+        navigate('/home');
       } else {
-        // For new Google users, prefill step 3 details
-        setFullName(googleUser.displayName || '');
-        setEmail(googleUser.email || '');
+        if (loggedUser?.name) setFullName(loggedUser.name);
+        if (loggedUser?.age) setAge(String(loggedUser.age));
+        if (loggedUser?.gender) setGender(loggedUser.gender);
+        if (loggedUser?.city) setCity(loggedUser.city);
+        if (loggedUser?.bloodGroup) setBloodGroup(loggedUser.bloodGroup);
+        if (loggedUser?.email) setEmail(loggedUser.email);
         setIsGoogleOnboarding(true);
-        // Move to step 1 (phone number) to link their phone number
-        setCurrentStep(1);
+        setCurrentStep(3);
       }
     } catch (err) {
       console.error("[Google Sign-In] Error:", err);
@@ -245,34 +280,20 @@ export default function PatientLogin() {
 
   // OTP inputs handling
   const handleOtpChange = (index, value) => {
-    const cleanDigit = value.replace(/\D/g, '');
-    if (!cleanDigit) {
-      const newOtp = [...otp];
-      newOtp[index] = '';
-      setOtp(newOtp);
-      return;
-    }
-
+    const digit = value.replace(/\D/g, '').slice(-1);
     const newOtp = [...otp];
-    newOtp[index] = cleanDigit.substring(cleanDigit.length - 1);
+    newOtp[index] = digit;
     setOtp(newOtp);
 
-    // Auto advance focus
-    if (index < 5 && newOtp[index] !== '') {
+    if (digit && index < 5) {
       otpInputsRef.current[index + 1]?.focus();
     }
   };
 
   const handleOtpKeyDown = (index, e) => {
     if (e.key === 'Backspace') {
-      const newOtp = [...otp];
-      if (newOtp[index] === '' && index > 0) {
+      if (!otp[index] && index > 0) {
         otpInputsRef.current[index - 1]?.focus();
-        newOtp[index - 1] = '';
-        setOtp(newOtp);
-      } else {
-        newOtp[index] = '';
-        setOtp(newOtp);
       }
     }
   };
@@ -330,14 +351,14 @@ export default function PatientLogin() {
 
       // Store optimistic opt-in inside Firestore immediately if they had it checked
       if (whatsappOptInStep1) {
-        if (loggedUser && !loggedUser.isNew) {
-          // Existing user doc exists: update immediately
+        if (loggedUser) {
+          // Update opt-in status in Firestore
           const userRef = doc(db, COLLECTIONS.PATIENTS, loggedUser.uid);
           await updateDoc(userRef, {
             whatsappOptedIn: true,
             "preferences.whatsapp": true,
             updatedAt: serverTimestamp()
-          }).catch(err => console.log("Failed to update whatsappOptedIn for existing user:", err));
+          }).catch(err => console.log("Failed to update whatsappOptedIn for user:", err));
           
           updateMockSession({
             whatsappOptedIn: true,
@@ -352,9 +373,23 @@ export default function PatientLogin() {
       setShowSuccessAnimation(true);
       setTimeout(() => {
         setShowSuccessAnimation(false);
-        if (loggedUser && !loggedUser.isNew) {
+        const hasCompleteProfile = Boolean(
+          loggedUser &&
+          loggedUser.name &&
+          loggedUser.name.trim() !== '' &&
+          loggedUser.age &&
+          loggedUser.gender
+        );
+
+        if (loggedUser && !loggedUser.isNew && hasCompleteProfile) {
           navigate('/home');
         } else {
+          if (loggedUser?.name) setFullName(loggedUser.name);
+          if (loggedUser?.age) setAge(String(loggedUser.age));
+          if (loggedUser?.gender) setGender(loggedUser.gender);
+          if (loggedUser?.city) setCity(loggedUser.city);
+          if (loggedUser?.bloodGroup) setBloodGroup(loggedUser.bloodGroup);
+          if (loggedUser?.email) setEmail(loggedUser.email);
           setCurrentStep(3);
         }
       }, 800);
