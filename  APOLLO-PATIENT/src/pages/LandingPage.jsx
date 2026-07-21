@@ -28,6 +28,229 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
+// ── Interactive Hero Widget Component ───────────────────────────────────────
+function HeroInteractiveWidget() {
+  const [activeTab, setActiveTab] = useState('gps'); // 'gps' | 'ai' | 'whatsapp'
+  const [whatsappSent, setWhatsappSent] = useState(false);
+
+  return (
+    <div className="hidden lg:block lg:col-span-5 relative select-none">
+      {/* Glow shadow backdrop */}
+      <div className="absolute -inset-1.5 bg-gradient-to-r from-primary-teal via-[#10b981] to-emerald-600 rounded-[32px] blur-xl opacity-30 animate-pulse-glow" />
+
+      {/* Main Glass Widget Box */}
+      <div className="relative bg-gradient-to-b from-gray-900/95 via-gray-900 to-black border border-white/15 rounded-[28px] p-6 shadow-2xl backdrop-blur-xl text-left overflow-hidden">
+        
+        {/* Widget Header & Live Status */}
+        <div className="flex items-center justify-between pb-4 border-b border-white/10">
+          <div className="flex items-center space-x-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+            </span>
+            <span className="text-[11px] font-bold tracking-widest text-emerald-400 uppercase font-display">
+              APOLLO OPD ENGINE · LIVE
+            </span>
+          </div>
+          <span className="text-[11px] font-semibold bg-white/10 text-white/80 px-2.5 py-1 rounded-full border border-white/10">
+            Real-Time
+          </span>
+        </div>
+
+        {/* Interactive Tab Controls */}
+        <div className="grid grid-cols-3 gap-1.5 p-1 bg-white/5 rounded-xl my-4 border border-white/5">
+          <button
+            onClick={() => setActiveTab('gps')}
+            className={`py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center space-x-1.5 ${
+              activeTab === 'gps'
+                ? 'bg-primary-teal text-white shadow-lg shadow-primary-teal/30'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Clock className="h-3.5 w-3.5" />
+            <span>GPS Transit</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('ai')}
+            className={`py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center space-x-1.5 ${
+              activeTab === 'ai'
+                ? 'bg-primary-teal text-white shadow-lg shadow-primary-teal/30'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Brain className="h-3.5 w-3.5" />
+            <span>AI Risk</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('whatsapp')}
+            className={`py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center space-x-1.5 ${
+              activeTab === 'whatsapp'
+                ? 'bg-primary-teal text-white shadow-lg shadow-primary-teal/30'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <MessageSquare className="h-3.5 w-3.5" />
+            <span>WhatsApp</span>
+          </button>
+        </div>
+
+        {/* TAB 1: GPS TRANSIT INTERACTIVE VIEW */}
+        {activeTab === 'gps' && (
+          <div className="space-y-4 animate-fadeIn">
+            {/* Vector Route Visualization */}
+            <div className="relative h-32 bg-gradient-to-tr from-gray-800/80 to-gray-900 border border-white/10 rounded-2xl p-4 overflow-hidden flex flex-col justify-between">
+              {/* Grid Lines Overlay */}
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:16px_16px]" />
+              
+              {/* Animated Path SVG */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
+                <path
+                  d="M 30 80 Q 120 20, 220 70 T 320 30"
+                  fill="none"
+                  stroke="#10b981"
+                  strokeWidth="3"
+                  strokeDasharray="6 4"
+                  className="animate-pulse"
+                />
+              </svg>
+
+              {/* Start & End Pins */}
+              <div className="relative z-10 flex justify-between items-center text-xs">
+                <div className="flex items-center space-x-2 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10">
+                  <div className="w-2 h-2 rounded-full bg-sky-400 animate-ping" />
+                  <span className="text-white font-semibold">Jubilee Hills (Home)</span>
+                </div>
+                <div className="flex items-center space-x-2 bg-emerald-500/20 backdrop-blur-md px-2.5 py-1 rounded-lg border border-emerald-500/30">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <span className="text-emerald-300 font-bold">Apollo Hospital</span>
+                </div>
+              </div>
+
+              {/* Center Transit Indicator */}
+              <div className="relative z-10 flex items-center justify-between mt-auto">
+                <div className="text-left">
+                  <p className="text-[10px] text-gray-400 font-medium">Road Distance</p>
+                  <p className="text-lg font-extrabold text-white leading-none">14.3 km</p>
+                </div>
+                <div className="bg-emerald-500 text-black font-extrabold text-xs px-3 py-1.5 rounded-xl shadow-lg">
+                  28 min in traffic
+                </div>
+              </div>
+            </div>
+
+            {/* Traffic Metrics Strip */}
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+                <p className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">Live Route Traffic</p>
+                <p className="text-emerald-400 font-extrabold mt-1 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                  Clear Road (Green)
+                </p>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+                <p className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">Target Arrival</p>
+                <p className="text-white font-extrabold mt-1">10:32 AM (No Delay)</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: AI RISK ENGINE VIEW */}
+        {activeTab === 'ai' && (
+          <div className="space-y-4 animate-fadeIn">
+            {/* Risk Gauge Header */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">XGBoost Risk Score</p>
+                <p className="text-2xl font-extrabold text-emerald-400 leading-tight mt-0.5">14% Low Risk</p>
+                <p className="text-[11px] text-gray-400 mt-1">High probability of on-time attendance</p>
+              </div>
+              <div className="w-14 h-14 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center font-extrabold text-emerald-400 text-base shadow-inner">
+                14%
+              </div>
+            </div>
+
+            {/* SHAP Feature Contributions */}
+            <div className="space-y-2.5 bg-black/40 border border-white/10 rounded-2xl p-3.5">
+              <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-2">SHAP Explainability Factors</p>
+              {[
+                { label: 'Commute Distance (14.3km)', impact: '+4%', isRisk: true, width: '40%' },
+                { label: 'Morning Consultation Slot', impact: '-6%', isRisk: false, width: '60%' },
+                { label: '100% Past Attendance Record', impact: '-12%', isRisk: false, width: '85%' },
+              ].map((factor, i) => (
+                <div key={i} className="space-y-1">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-gray-300 font-medium">{factor.label}</span>
+                    <span className={`font-bold ${factor.isRisk ? 'text-amber-400' : 'text-emerald-400'}`}>{factor.impact}</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${factor.isRisk ? 'bg-amber-400' : 'bg-emerald-400'}`}
+                      style={{ width: factor.width }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: WHATSAPP AUTOMATION VIEW */}
+        {activeTab === 'whatsapp' && (
+          <div className="space-y-3 animate-fadeIn">
+            {/* Simulated Chat Window */}
+            <div className="bg-[#0b141a] border border-white/10 rounded-2xl p-3.5 space-y-3 text-xs">
+              {/* Bot Message */}
+              <div className="bg-[#202c33] text-gray-100 p-3 rounded-2xl rounded-tl-none max-w-[88%] border border-white/5 space-y-1">
+                <p className="text-[10px] font-bold text-emerald-400">Apollo OPD Assistant</p>
+                <p className="leading-relaxed">
+                  Namaste Priya! Your appointment with Dr. Kavita Reddy is set for tomorrow at 10:30 AM.
+                </p>
+                <p className="text-[10px] text-gray-400 pt-1">Reply <span className="text-white font-bold">1</span> to Confirm or <span className="text-white font-bold">2</span> to Reschedule.</p>
+              </div>
+
+              {/* Patient Response */}
+              <div className="bg-[#005c4b] text-white p-2.5 rounded-2xl rounded-tr-none max-w-[40%] ml-auto text-right font-bold">
+                1
+              </div>
+
+              {/* Bot Confirmation */}
+              <div className="bg-[#202c33] text-gray-100 p-3 rounded-2xl rounded-tl-none max-w-[88%] border border-white/5">
+                <p className="text-emerald-400 font-bold">✅ Confirmed!</p>
+                <p className="text-[11px] text-gray-300 mt-1">Live GPS Directions link sent: maps.google.com/apollo</p>
+              </div>
+            </div>
+
+            {/* Test Trigger Button */}
+            <button
+              onClick={() => {
+                setWhatsappSent(true);
+                setTimeout(() => setWhatsappSent(false), 3000);
+              }}
+              className="w-full py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-black font-extrabold text-xs rounded-xl flex items-center justify-center space-x-2 transition-all shadow-lg shadow-[#25D366]/20"
+            >
+              <Zap className="h-4 w-4 fill-current" />
+              <span>{whatsappSent ? '✓ Live Message Sent to Twilio!' : 'Test Live WhatsApp Notification'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Footer Microcopy */}
+        <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-gray-400">
+          <span className="flex items-center gap-1">
+            <Shield className="h-3.5 w-3.5 text-emerald-400" />
+            ABDM & HIPAA Secure
+          </span>
+          <span className="font-semibold text-white">Click tabs to test engine</span>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const navigate = useNavigate();
   const { loginDemoUser } = useAuth();
@@ -225,51 +448,8 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* RIGHT COLUMN — Smartphone App Preview Mockup */}
-            <div className="hidden lg:block lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-[340px]">
-                
-                {/* Real Smartphone Frame Container */}
-                <div className="relative z-20 rounded-[44px] p-3 bg-gradient-to-b from-gray-800 via-gray-900 to-black shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] border-4 border-gray-700/50">
-                  {/* Dynamic Island / Notch */}
-                  <div className="absolute top-5 left-1/2 -translate-x-1/2 w-24 h-4 bg-black rounded-full z-30 flex items-center justify-center">
-                    <div className="w-2.5 h-2.5 rounded-full bg-gray-900 border border-gray-800 ml-auto mr-3" />
-                  </div>
-                  
-                  {/* Screen Content Image */}
-                  <div className="rounded-[36px] overflow-hidden bg-white shadow-inner">
-                    <img
-                      src="/patient_hero_phone.png"
-                      alt="Apollo OPD Patient Booking Interface"
-                      className="w-full h-auto object-cover block select-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Floating Badge 1 — Top Right */}
-                <div className="absolute -top-4 -right-8 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl p-3.5 shadow-xl flex items-center gap-3 animate-bounce-subtle">
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                    <Check className="h-4 w-4 stroke-[2.5]" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[12px] font-bold text-gray-900 leading-none">Slot Confirmed</p>
-                    <p className="text-[10px] text-emerald-600 font-medium mt-1 leading-none">WhatsApp alert sent ✓</p>
-                  </div>
-                </div>
-
-                {/* Floating Badge 2 — Bottom Left */}
-                <div className="absolute -bottom-4 -left-8 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl p-3.5 shadow-xl flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-teal-100 text-primary-teal flex items-center justify-center shrink-0">
-                    <Clock className="h-4 w-4" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[12px] font-bold text-gray-900 leading-none">Live GPS Transit</p>
-                    <p className="text-[10px] text-gray-500 mt-1 leading-none">15 mins drive to clinic</p>
-                  </div>
-                </div>
-
-              </div>
-            </div>
+            {/* RIGHT COLUMN — Next-Gen Interactive Intelligence Widget */}
+            <HeroInteractiveWidget />
 
           </div>
         </div>
