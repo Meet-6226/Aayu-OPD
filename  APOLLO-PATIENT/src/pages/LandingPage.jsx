@@ -225,35 +225,30 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* RIGHT COLUMN — SaaS 3D Overlapping Pop-Out Hero Component */}
+            {/* RIGHT COLUMN — Free-standing Indian Doctors with Radial Glow & Floating Badges (Exact 99% Match to Reference) */}
             <div className="hidden lg:block lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-[420px] overflow-visible my-8">
+              <div className="relative mx-auto max-w-[480px] flex items-center justify-center min-h-[500px] overflow-visible">
 
-                {/* Soft Organic Background Aura */}
-                <div className="absolute -top-10 -right-10 w-[320px] h-[320px] rounded-full bg-gradient-to-tr from-primary-teal/15 via-[#10b981]/20 to-teal-100/30 blur-3xl pointer-events-none" />
+                {/* Soft Mint Radial Glow Behind Doctors */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[440px] h-[440px] rounded-full bg-gradient-to-tr from-[#10b981]/20 via-teal-100/35 to-transparent blur-3xl pointer-events-none" />
 
-                {/* 1. White Background Card (Acts ONLY as background panel) */}
-                <div className="w-full h-[340px] bg-white rounded-[32px] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.08)] border border-gray-100 relative z-10 overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 via-white to-teal-50/20 pointer-events-none" />
+                {/* Free-standing Transparent Indian Doctors Cutout (NO WHITE CARD AT ALL) */}
+                <div className="relative z-20 w-full flex justify-center">
+                  <img
+                    src="/indian_doctors_cutout_transparent.png"
+                    alt="Apollo OPD Expert Doctors"
+                    className="w-[460px] h-auto object-contain block select-none drop-shadow-[0_15px_30px_rgba(0,0,0,0.08)] pointer-events-none"
+                  />
                 </div>
 
-                {/* 2. Doctor Image (Absolute, bottom: -80px, z-20 above card) */}
-                <img
-                  src="/indian_doctors_cutout_transparent.png"
-                  alt="Apollo OPD Expert Doctors"
-                  className="absolute bottom-[-80px] left-1/2 -translate-x-1/2 z-20 w-[410px] max-w-none h-[470px] object-contain block select-none drop-shadow-[0_15px_30px_rgba(0,0,0,0.12)] pointer-events-none"
-                />
-
-                {/* 3. Floating Micro Badges (z-30 layer above doctors) */}
-                
-                {/* Badge 1 — Expert Apollo Doctors */}
-                <div className="absolute -top-4 -right-4 z-30 bg-[#0f4d42] text-white border border-[#0f4d42]/30 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-2.5 animate-bounce-subtle">
+                {/* Floating Card 1 — Top Right (Expert Apollo Doctors) */}
+                <div className="absolute top-4 right-0 z-30 bg-[#0f4d42] text-white border border-[#0f4d42]/30 rounded-2xl px-4 py-2.5 shadow-xl flex items-center gap-2.5 animate-bounce-subtle">
                   <Star className="h-4 w-4 fill-current text-[#10b981]" />
                   <span className="text-[13px] font-bold tracking-tight">Expert Apollo Doctors</span>
                 </div>
 
-                {/* Badge 2 — WhatsApp Confirmed */}
-                <div className="absolute top-1/2 -left-8 -translate-y-1/2 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
+                {/* Floating Card 2 — Middle Left (WhatsApp Confirmed) */}
+                <div className="absolute top-[48%] -left-10 -translate-y-1/2 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
                     <MessageSquare className="h-4 w-4 fill-current" />
                   </div>
@@ -263,8 +258,8 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Badge 3 — 0-Min Queue Wait */}
-                <div className="absolute -bottom-6 -right-4 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
+                {/* Floating Card 3 — Bottom Right (0-Min Queue Wait) */}
+                <div className="absolute bottom-12 -right-6 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-teal-100 text-primary-teal flex items-center justify-center shrink-0">
                     <Clock className="h-4 w-4" />
                   </div>
