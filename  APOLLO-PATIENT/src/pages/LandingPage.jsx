@@ -225,116 +225,52 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* RIGHT COLUMN — Pure Native Interactive Preview Card */}
+            {/* RIGHT COLUMN — Indian Doctors Hero Graphic & Micro Cards */}
             <div className="hidden lg:block lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-[420px]">
+              <div className="relative mx-auto max-w-[460px] flex items-center justify-center">
 
-                {/* Main Interactive Card */}
-                <div className="bg-white/90 backdrop-blur-xl border border-gray-200/80 rounded-3xl p-6 shadow-[0_20px_50px_-12px_rgba(16,185,129,0.12)] space-y-4 text-left relative z-20">
-                  
-                  {/* Card Header */}
-                  <div className="flex items-center justify-between pb-3.5 border-b border-gray-100">
-                    <div className="flex items-center gap-2">
-                      <span className="relative flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#10b981]" />
-                      </span>
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-primary-teal">
-                        Live OPD Desk Stream
-                      </span>
-                    </div>
-                    <span className="text-[10.5px] font-semibold text-gray-400 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-full">
-                      Real-time Sync
-                    </span>
-                  </div>
+                {/* Soft Organic Teal Background Aura */}
+                <div className="absolute inset-0 rounded-[50px] bg-gradient-to-tr from-primary-teal/20 via-[#10b981]/15 to-transparent blur-2xl transform rotate-3 scale-95 pointer-events-none" />
 
-                  {/* Doctor & Patient Interaction Card */}
-                  <div className="bg-gradient-to-br from-teal-50/60 to-emerald-50/40 border border-teal-100/80 rounded-2xl p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-primary-teal to-[#10b981] text-white flex items-center justify-center font-bold text-sm shadow-md">
-                          KR
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-gray-900 leading-tight">Dr. Kavita Reddy</p>
-                          <p className="text-[11.5px] text-gray-500 mt-0.5">Cardiology · Apollo Jubilee Hills</p>
-                        </div>
-                      </div>
-                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100/60 px-2.5 py-1 rounded-full">
-                        ★ 4.9 (142)
-                      </span>
-                    </div>
-
-                    {/* Booking time badge */}
-                    <div className="flex items-center justify-between bg-white/90 rounded-xl px-3.5 py-2.5 border border-teal-100/60 text-xs">
-                      <span className="font-semibold text-gray-700">Today, 10:00 AM</span>
-                      <span className="font-bold text-primary-teal bg-primary-teal/10 px-2 py-0.5 rounded-md">
-                        Slot Confirmed ✓
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Live Travel & Traffic Strip */}
-                  <div className="bg-white border border-gray-100 rounded-2xl p-3.5 flex items-center justify-between gap-3 shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-teal-50 text-primary-teal flex items-center justify-center shrink-0">
-                        <Clock className="h-4.5 w-4.5" />
-                      </div>
-                      <div>
-                        <p className="text-[12px] font-bold text-gray-800 leading-none">GPS Traffic Transit</p>
-                        <p className="text-[11px] text-emerald-600 font-semibold mt-1 leading-none">15 mins (5.2 km) · Clear Route 🟢</p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase">Live Map</span>
-                  </div>
-
-                  {/* WhatsApp Automated Alert Preview */}
-                  <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-3.5 flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#25D366] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                      <MessageSquare className="h-4 w-4 fill-current" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="text-[11.5px] font-bold text-gray-900 leading-none">WhatsApp Confirmation</p>
-                        <span className="text-[9.5px] text-emerald-600 font-bold">Delivered</span>
-                      </div>
-                      <p className="text-[11px] text-gray-600 mt-1 leading-relaxed truncate">
-                        "Hi Priya! Your appointment is confirmed with Dr. Kavita for 10:00 AM."
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* AI Risk Score Pill */}
-                  <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <Brain className="h-4 w-4 text-primary-teal" />
-                      <span className="font-semibold text-gray-700">AI Risk Score:</span>
-                      <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">12% (Low Risk)</span>
-                    </div>
-                    <span className="text-[11px] font-semibold text-primary-teal">SHAP Verified</span>
-                  </div>
-
+                {/* Indian Doctors Hero Image */}
+                <div className="relative z-20 overflow-hidden rounded-[36px] max-h-[500px]">
+                  <img
+                    src="/indian_doctors_hero.png"
+                    alt="Apollo OPD Expert Doctors"
+                    className="w-full h-auto object-cover block select-none mix-blend-multiply drop-shadow-lg"
+                  />
                 </div>
 
-                {/* Floating Decorative Accent 1 — Top Right */}
-                <div className="absolute -top-4 -right-6 z-30 bg-white border border-gray-200 rounded-2xl p-3 shadow-xl flex items-center gap-2.5 animate-bounce-subtle">
-                  <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                    <Check className="h-3.5 w-3.5 stroke-[3]" />
+                {/* Floating Badge 1 — Top Right (Expert Doctors) */}
+                <div className="absolute top-8 -right-4 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3 animate-bounce-subtle">
+                  <div className="w-8.5 h-8.5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <Star className="h-4 w-4 fill-current text-emerald-500" />
                   </div>
                   <div className="text-left">
-                    <p className="text-[11.5px] font-bold text-gray-900 leading-none">0 Min Waiting</p>
-                    <p className="text-[9.5px] text-gray-400 mt-0.5 leading-none">OPD Queue Synced</p>
+                    <p className="text-[12.5px] font-bold text-gray-900 leading-none">Expert Apollo Doctors</p>
+                    <p className="text-[10.5px] text-emerald-600 font-semibold mt-1 leading-none">Top Specialists Ready ✓</p>
                   </div>
                 </div>
 
-                {/* Floating Decorative Accent 2 — Bottom Left */}
-                <div className="absolute -bottom-4 -left-6 z-30 bg-white border border-gray-200 rounded-2xl p-3 shadow-xl flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                    <Zap className="h-3.5 w-3.5 fill-current" />
+                {/* Floating Badge 2 — Middle Left (WhatsApp Alert) */}
+                <div className="absolute top-1/2 -left-8 -translate-y-1/2 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
+                  <div className="w-8.5 h-8.5 rounded-full bg-[#25D366]/15 text-[#25D366] flex items-center justify-center shrink-0">
+                    <MessageSquare className="h-4 w-4 fill-current" />
                   </div>
                   <div className="text-left">
-                    <p className="text-[11.5px] font-bold text-gray-900 leading-none">₹60K Revenue Saved</p>
-                    <p className="text-[9.5px] text-amber-700 font-medium mt-0.5 leading-none">No-show auto recovered</p>
+                    <p className="text-[12.5px] font-bold text-gray-900 leading-none">WhatsApp Confirmed</p>
+                    <p className="text-[10.5px] text-gray-500 font-medium mt-1 leading-none">Instant slot alerts sent</p>
+                  </div>
+                </div>
+
+                {/* Floating Badge 3 — Bottom Right (0 Min Wait) */}
+                <div className="absolute bottom-6 -right-4 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
+                  <div className="w-8.5 h-8.5 rounded-full bg-teal-100 text-primary-teal flex items-center justify-center shrink-0">
+                    <Clock className="h-4 w-4" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[12.5px] font-bold text-gray-900 leading-none">0 Min Queue Wait</p>
+                    <p className="text-[10.5px] text-primary-teal font-semibold mt-1 leading-none">Live GPS OPD Sync</p>
                   </div>
                 </div>
 
