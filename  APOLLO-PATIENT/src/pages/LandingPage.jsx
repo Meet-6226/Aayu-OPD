@@ -63,7 +63,9 @@ export default function LandingPage() {
           {/* Right Group */}
           <div className="flex items-center space-x-6">
             <a
-              href="http://localhost:5173/staff/login"
+              href="https://apollo-opd-staff.vercel.app/staff/login"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hidden md:inline-block text-[14px] font-medium text-text-medium hover:text-primary-teal transition-colors duration-200"
             >
               Staff Login
