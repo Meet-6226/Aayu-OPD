@@ -20,6 +20,7 @@ import MyAppointments from './pages/MyAppointments';
 import AppointmentDetail from './pages/AppointmentDetail';
 import PatientProfile from './pages/PatientProfile';
 import PatientNotifications from './pages/PatientNotifications';
+import MyReports from './pages/MyReports';
 import SeedDb from './pages/SeedDb';
 
 // Page Transition Wrapper
@@ -58,6 +59,7 @@ function AnimatedAppRoutes() {
           <Route path="/appointments" element={<AnimatedPage><MyAppointments /></AnimatedPage>} />
           <Route path="/appointment/:id" element={<AnimatedPage><AppointmentDetail /></AnimatedPage>} />
           <Route path="/profile" element={<AnimatedPage><PatientProfile /></AnimatedPage>} />
+          <Route path="/reports" element={<AnimatedPage><MyReports /></AnimatedPage>} />
           <Route path="/notifications" element={<AnimatedPage><PatientNotifications /></AnimatedPage>} />
         </Route>
       </Routes>

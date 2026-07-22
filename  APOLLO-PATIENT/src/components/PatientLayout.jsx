@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
-import { Home, Calendar, Bell, User } from 'lucide-react';
+import { Home, Calendar, Bell, User, FileText } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
 
@@ -25,6 +25,7 @@ export default function PatientLayout() {
   const navItems = [
     { to: '/home', icon: Home, label: 'Home' },
     { to: '/appointments', icon: Calendar, label: 'Appointments' },
+    { to: '/reports', icon: FileText, label: 'Reports' },
     { to: '/notifications', icon: Bell, label: 'Alerts', badge: unreadCount > 0 },
     { to: '/profile', icon: User, label: 'Profile' },
   ];
@@ -51,6 +52,7 @@ export default function PatientLayout() {
               { to: '/home', label: 'Home' },
               { to: '/doctors', label: 'Find Doctors' },
               { to: '/appointments', label: 'My Appointments' },
+              { to: '/reports', label: 'My Reports' },
               { to: '/notifications', label: 'Notifications' },
             ].map(({ to, label }) => (
               <NavLink
