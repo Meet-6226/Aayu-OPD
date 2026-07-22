@@ -414,7 +414,7 @@ export default function BookingConfirmation() {
     setBookingError('');
 
     try {
-      const patientId = authUser.uid;
+      const patientId = authUser?.uid || authUser?.id || (authUser?.phoneNumber ? authUser.phoneNumber.replace(/\D/g, '') : null) || (authUser?.email ? authUser.email.replace(/[^a-zA-Z0-9_-]/g, '') : null) || 'patient_priya_demo';
       const slotRef = doc(db, COLLECTIONS.DOCTOR_SLOTS, booking.slotId);
 
       // Generate dynamic booking ID

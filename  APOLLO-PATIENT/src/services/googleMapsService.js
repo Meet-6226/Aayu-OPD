@@ -97,9 +97,15 @@ export async function getRoadDistanceAndTraffic(originLat, originLng, destLat, d
       `&units=metric` +
       `&key=${MAPS_API_KEY}`;
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Distance Matrix HTTP ${res.status}`);
-    const data = await res.json();
+    let data = null;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Distance Matrix HTTP ${res.status}`);
+      data = await res.json();
+    } catch (corsErr) {
+      console.warn('[GoogleMaps] Direct Distance Matrix REST fetch blocked by browser CORS, using Haversine calculation fallback.');
+      return null;
+    }
 
     if (data.status !== 'OK') {
       console.warn('[GoogleMaps] Distance Matrix status:', data.status, data.error_message);
