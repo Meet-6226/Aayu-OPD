@@ -4,7 +4,6 @@ import { Search, Calendar, MapPin, Clock, FileText, X, Star, ChevronRight, Gift,
 import { useAuth } from '../hooks/useAuth';
 import { useDoctors } from '../hooks/useDoctors';
 import { useAppointments } from '../hooks/useAppointments';
-import AIOpdFlightControl from '../components/AIOpdFlightControl';
 
 // Avatar color palette — 6 muted colors based on name initial
 const AVATAR_COLORS = [
@@ -89,9 +88,6 @@ export default function PatientHome() {
           </div>
         )}
       </div>
-
-      {/* ── AUTONOMOUS AI OPD FLIGHT CONTROL & QUEUE SWAP ────────── */}
-      <AIOpdFlightControl />
 
       {/* ── UPCOMING APPOINTMENT BANNER (if exists) ───────────────── */}
       {!apptsLoading && upcoming.length > 0 && (
