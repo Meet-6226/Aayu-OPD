@@ -15,7 +15,7 @@ import {
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { COLLECTIONS } from '../firebase/collections';
-import { useAppointments } from '../hooks/useAppointments';
+import MedicalPrescriptionCard from '../components/MedicalPrescriptionCard';
 
 // Format YYYY-MM-DD to human readable date
 const formatApptDate = (dateStr) => {
@@ -321,6 +321,9 @@ export default function AppointmentDetail() {
               </a>
             </div>
           </div>
+
+          {/* 📄 DIGITAL PRESCRIPTION & MEDICAL REPORT CARD */}
+          <MedicalPrescriptionCard appointment={appointment} />
 
           {/* Card: Vertical Reminder Timeline */}
           {appointment.status !== 'cancelled' && (

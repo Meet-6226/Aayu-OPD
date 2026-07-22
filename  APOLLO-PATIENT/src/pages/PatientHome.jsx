@@ -25,6 +25,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useDoctors } from '../hooks/useDoctors';
 import { useAppointments } from '../hooks/useAppointments';
 
+import MedicalPrescriptionCard from '../components/MedicalPrescriptionCard';
+
 // Avatar color palette — 6 muted colors based on name initial
 const AVATAR_COLORS = [
   { bg: 'bg-teal-100',   text: 'text-teal-700'   },
@@ -403,6 +405,9 @@ export default function PatientHome() {
               </div>
             )}
           </div>
+
+          {/* 📄 DIGITAL PRESCRIPTION & MEDICAL REPORT CARD */}
+          <MedicalPrescriptionCard />
 
         </div>
 
