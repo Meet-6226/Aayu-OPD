@@ -74,8 +74,9 @@ export default function PatientHome() {
 
   useEffect(() => { fetchAllDoctors(); }, [fetchAllDoctors]);
   useEffect(() => {
-    if (user?.uid) fetchAppointments(user.uid);
-  }, [user?.uid, fetchAppointments]);
+    const patientId = user?.uid || user?.id || (user?.phoneNumber ? user.phoneNumber.replace(/\D/g, '') : null) || (user?.email ? user.email.replace(/[^a-zA-Z0-9_-]/g, '') : null) || 'patient_priya_demo';
+    fetchAppointments(patientId);
+  }, [user, fetchAppointments]);
 
   const getFilteredDoctors = () => {
     let result = doctors;

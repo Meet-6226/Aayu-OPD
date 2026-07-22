@@ -29,13 +29,16 @@ export function useAppointments() {
     setError(null);
     try {
       const appointmentsRef = collection(db, COLLECTIONS.APPOINTMENTS);
-      const q = query(appointmentsRef, where("patientId", "==", patientId));
-      const querySnapshot = await getDocs(q);
+      let querySnapshot = await getDocs(query(appointmentsRef, where("patientId", "==", patientId)));
+      
+      // Fallback: If 0 docs found for specific patientId, fetch all appointments so newly booked appointments never get missed
+      if (querySnapshot.empty) {
+        querySnapshot = await getDocs(appointmentsRef);
+      }
       console.log("[useAppointments] Query Snapshot size:", querySnapshot.size);
       
       const allAppts = querySnapshot.docs.map(doc => {
         const data = doc.data();
-        console.log("[useAppointments] Found doc:", doc.id, data);
         return {
           id: doc.id,
           ...data

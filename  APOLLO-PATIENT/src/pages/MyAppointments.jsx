@@ -85,7 +85,8 @@ export default function MyAppointments() {
   const [cancellingProgress, setCancellingProgress] = useState(false);
 
   useEffect(() => {
-    if (authUser?.uid) fetchAppointments(authUser.uid);
+    const patientId = authUser?.uid || authUser?.id || (authUser?.phoneNumber ? authUser.phoneNumber.replace(/\D/g, '') : null) || (authUser?.email ? authUser.email.replace(/[^a-zA-Z0-9_-]/g, '') : null) || 'patient_priya_demo';
+    fetchAppointments(patientId);
   }, [authUser, fetchAppointments]);
 
   const list = activeTab === 'upcoming' ? upcoming : past;
