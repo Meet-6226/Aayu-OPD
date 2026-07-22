@@ -107,7 +107,7 @@ export function useStaffAppointments() {
       ...appt,
       time: appt.appointmentTime || '',
       // Patient properties
-      name: pat.name || appt.patientName || 'Unknown Patient',
+      name: pat.name || appt.patientName || (appt.patientId === 'patient_priya_demo' ? 'Priya Sharma' : 'Sahil Pandey'),
       phone: pat.phone || '',
       age: pat.age || 30,
       gender: pat.gender || 'M',

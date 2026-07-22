@@ -438,8 +438,11 @@ export default function BookingConfirmation() {
       const leadDays = calculateLeadTimeDays(booking.dateString);
       const randomRoom = `OPD ${Math.floor(101 + Math.random() * 299)}`;
 
+      const patientName = authUser?.name || 'Priya Sharma';
+
       const appointmentData = {
         patientId,
+        patientName,
         doctorId: booking.doctorId,
         doctorName: booking.doctorName,
         department: booking.dept,
