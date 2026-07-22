@@ -19,11 +19,14 @@ import {
   Stethoscope,
   PhoneCall,
   User,
-  CheckCircle2
+  CheckCircle2,
+  Mic,
+  Bot
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useDoctors } from '../hooks/useDoctors';
 import { useAppointments } from '../hooks/useAppointments';
+import ApolloVoiceAssistant from '../components/ApolloVoiceAssistant';
 
 // Avatar color palette — 6 muted colors based on name initial
 const AVATAR_COLORS = [
@@ -67,6 +70,7 @@ export default function PatientHome() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeChip, setActiveChip] = useState('All');
   const [showReminders, setShowReminders] = useState(true);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const { doctors, loading: doctorsLoading, fetchAllDoctors } = useDoctors();
@@ -119,13 +123,22 @@ export default function PatientHome() {
               Book expert doctor consultations, view live OPD queue status, manage ABHA digital health records, and receive instant WhatsApp appointment updates.
             </p>
 
-            {/* ABHA Badge */}
-            <div className="pt-1 flex flex-wrap items-center gap-3">
-              <div className="inline-flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-semibold px-3 py-1 rounded-full">
+            {/* CTA Action Buttons — Including Voice AI Assistant */}
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => setIsVoiceModalOpen(true)}
+                className="px-4 py-2.5 bg-gradient-to-r from-teal-400 to-emerald-400 text-slate-950 text-xs font-bold rounded-xl shadow-lg shadow-teal-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
+              >
+                <div className="w-5 h-5 rounded-full bg-slate-950/20 flex items-center justify-center">
+                  <Mic className="h-3 w-3 text-slate-950 fill-current" />
+                </div>
+                <span>Speak to Gemini Voice AI Scribe</span>
+              </button>
+
+              <div className="inline-flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-semibold px-3 py-2 rounded-xl">
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 ABHA ID: 91-8273-9182-10
               </div>
-              <span className="text-xs text-teal-200/60">Verified Patient Profile</span>
             </div>
           </div>
 
@@ -536,6 +549,12 @@ export default function PatientHome() {
         </div>
 
       </div>
+
+      {/* ── 5. GEMINI VOICE AI MEDICAL ASSISTANT MODAL ───────────────── */}
+      <ApolloVoiceAssistant
+        isOpen={isVoiceModalOpen}
+        onClose={() => setIsVoiceModalOpen(false)}
+      />
 
     </div>
   );
