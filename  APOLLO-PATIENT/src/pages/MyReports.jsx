@@ -8,14 +8,19 @@ import {
   Search,
   CheckCircle2,
   Filter,
-  FileCheck
+  FileCheck,
+  Stethoscope,
+  Plus
 } from 'lucide-react';
 import MedicalPrescriptionCard from '../components/MedicalPrescriptionCard';
+import DoctorRxGeneratorModal from '../components/DoctorRxGeneratorModal';
 import { useAuth } from '../hooks/useAuth';
 
 export default function MyReports() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('prescriptions');
+  const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false);
+  const [customPrescription, setCustomPrescription] = useState(null);
 
   const labReports = [
     {
@@ -66,13 +71,22 @@ export default function MyReports() {
           </p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-4 text-xs space-y-1.5 shrink-0">
-          <div className="flex items-center gap-2 text-emerald-300 font-bold">
-            <CheckCircle2 className="h-4 w-4" />
-            <span>ABHA Health ID Synced</span>
+        <div className="flex flex-col gap-2 shrink-0">
+          <button
+            onClick={() => setIsDoctorModalOpen(true)}
+            className="px-4 py-2.5 bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 text-xs font-bold rounded-2xl shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
+            <Stethoscope className="h-4 w-4" />
+            <span>Doctor Demo: Create Rx (1-Click)</span>
+          </button>
+
+          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3 text-xs space-y-1">
+            <div className="flex items-center justify-between text-emerald-300 font-bold">
+              <span>ABHA ID Synced</span>
+              <CheckCircle2 className="h-3.5 w-3.5" />
+            </div>
+            <p className="font-mono text-white font-bold">91-8273-9182-10</p>
           </div>
-          <p className="font-mono text-white font-bold text-sm">91-8273-9182-10</p>
-          <p className="text-[11px] text-teal-200/80">Patient: {user?.name || 'Priya Sharma'}</p>
         </div>
       </div>
 
@@ -159,6 +173,12 @@ export default function MyReports() {
           </div>
         </div>
       )}
+
+      {/* ── DOCTOR SMART RX GENERATOR MODAL ──────────────────────────── */}
+      <DoctorRxGeneratorModal
+        isOpen={isDoctorModalOpen}
+        onClose={() => setIsDoctorModalOpen(false)}
+      />
 
     </div>
   );
