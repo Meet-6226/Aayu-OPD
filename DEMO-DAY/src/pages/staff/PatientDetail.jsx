@@ -175,7 +175,7 @@ export default function PatientDetailPage() {
   }
 
   const patientData = {
-    name: data.patient.name || 'Unknown Patient',
+    name: (data.patient.name && data.patient.name !== 'User' ? data.patient.name : null) || (data.appointment.patientName && data.appointment.patientName !== 'User' ? data.appointment.patientName : null) || (data.patient.id ? `Patient ${String(data.patient.id).slice(-4)}` : 'Unknown Patient'),
     phone: data.patient.phone || '',
     persona: data.patient.persona === 'working_professional' ? 'Working Professional' :
              data.patient.persona === 'elderly' ? 'Elderly' :

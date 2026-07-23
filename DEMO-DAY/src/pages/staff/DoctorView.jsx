@@ -11,6 +11,7 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { getTodayDateString } from '../../utils/dataFormat';
 import { todayDisplayLong } from '../../utils/appTime';
+import DoctorRxGeneratorModal from '../../components/shared/DoctorRxGeneratorModal';
 
 // ─── Case History Generator ───
 const getPatientMedicalHistory = (patientId, patientName) => {
@@ -149,6 +150,10 @@ export default function DoctorViewPage() {
   // EMR drawer state
   const [selectedPatientForHistory, setSelectedPatientForHistory] = useState(null);
 
+  // Rx Modal state
+  const [isRxModalOpen, setIsRxModalOpen] = useState(false);
+  const [rxPatient, setRxPatient] = useState(null);
+
   // Check mobile viewport size
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -274,12 +279,39 @@ export default function DoctorViewPage() {
         const currentDoctor = doctorsList.find(d => d.id === selectedDocId) || { name: 'Dr. Rajesh Mehta', department: 'Cardiology', avatar: 'RM' };
         const initials = currentDoctor.avatar || (currentDoctor.name ? currentDoctor.name.replace('Dr. ', '').split(' ').map(n => n[0]).join('') : 'DR');
 
-        const totalCount = docAppointments.length;
-        const confirmedCount = docAppointments.filter(a => a.status === 'confirmed').length;
-        const atRiskCount = docAppointments.filter(a => (a.riskLevel || '').toUpperCase() === 'HIGH').length;
-        const utilization = Math.min(100, Math.round((docAppointments.filter(a => ['confirmed', 'completed', 'walk-in'].includes(a.status)).length / 12) * 100));
+        const DEMO_PATIENT_IDS = new Set([
+          'patient_priya_demo',
+          '9199750000',
+          '919199750000',
+        ]);
+        const isDemoId = (id) =>
+          !id ||
+          DEMO_PATIENT_IDS.has(id) ||
+          /^p-\d+$/.test(id);
 
-        const cancelledAppt = docAppointments.find(a => a.status === 'cancelled');
+        const isRealPatient = (appt, pat) => {
+          if (isDemoId(appt.patientId)) return false;
+          const apptName = (appt.patientName || '').trim();
+          const patName = (pat.name || '').trim();
+          const patPhone = (pat.phone || '').trim();
+          const isStub =
+            (apptName === 'User' || apptName === '') &&
+            (patName === 'User' || patName === '') &&
+            !patPhone;
+          return !isStub;
+        };
+
+        const filteredAppts = docAppointments.filter(appt => {
+          const pat = patientsMap[appt.patientId] || {};
+          return isRealPatient(appt, pat);
+        });
+
+        const totalCount = filteredAppts.length;
+        const confirmedCount = filteredAppts.filter(a => a.status === 'confirmed').length;
+        const atRiskCount = filteredAppts.filter(a => (a.riskLevel || '').toUpperCase() === 'HIGH').length;
+        const utilization = Math.min(100, Math.round((filteredAppts.filter(a => ['confirmed', 'completed', 'walk-in'].includes(a.status)).length / 12) * 100));
+
+        const cancelledAppt = filteredAppts.find(a => a.status === 'cancelled');
 
         return (
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.3fr 1fr', gap: '2rem' }}>
@@ -401,7 +433,7 @@ export default function DoctorViewPage() {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                  {docAppointments.length === 0 ? (
+                  {filteredAppts.length === 0 ? (
                     <div style={{ background: 'white', borderRadius: '12px', padding: '2.5rem 1.5rem', border: '1px solid #e2e8f0', textAlign: 'center' }}>
                       <div style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>📭</div>
                       <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>
@@ -409,7 +441,7 @@ export default function DoctorViewPage() {
                       </p>
                     </div>
                   ) : (
-                    docAppointments.slice(0, 3).map((appt, i) => {
+                    filteredAppts.slice(0, 3).map((appt, i) => {
                       const pat = patientsMap[appt.patientId] || {};
                       const isCancelled = appt.status === 'cancelled' || appt.status === 'rescheduled';
                       
@@ -425,7 +457,7 @@ export default function DoctorViewPage() {
                               — Slot Available —
                             </h3>
                             <p style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '0.2rem', margin: 0 }}>
-                              Rescheduled: {pat.name || appt.patientName || 'Patient'}
+                              Rescheduled: {(pat.name && pat.name !== 'User' ? pat.name : null) || (appt.patientName && appt.patientName !== 'User' ? appt.patientName : null) || 'Patient'}
                             </p>
                             <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#d97706', fontSize: '0.78rem', fontWeight: 500 }}>
                               <RefreshCw size={12} style={{ animation: 'spin 1.5s linear infinite' }} />
@@ -450,7 +482,17 @@ export default function DoctorViewPage() {
                       return (
                         <div 
                           key={appt.id} 
-                          onClick={() => setSelectedPatientForHistory({ id: appt.patientId, name: pat.name || appt.patientName, ...pat })}
+                          onClick={() => setSelectedPatientForHistory({ 
+                            id: appt.patientId, 
+                            name: (pat.name && pat.name !== 'User' ? pat.name : null) || (appt.patientName && appt.patientName !== 'User' ? appt.patientName : null) || 'Patient', 
+                            appointmentId: appt.id, 
+                            doctorId: appt.doctorId, 
+                            doctorName: appt.doctorName, 
+                            department: appt.department, 
+                            hospital: appt.hospital || 'Apollo Hospitals', 
+                            vitals: { bp: appt.bp || '120/80 mmHg', hr: appt.heartRate || '72 bpm' }, 
+                            ...pat 
+                          })}
                           style={{ 
                             background: 'white', borderRadius: '12px', padding: '1.25rem', 
                             border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.015)', 
@@ -476,7 +518,7 @@ export default function DoctorViewPage() {
                             </span>
                           </div>
                           <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '1.2rem', fontWeight: 600, color: '#1a1a2e', margin: 0 }}>
-                            {pat.name || appt.patientName || 'Unknown Patient'}
+                            {(pat.name && pat.name !== 'User' ? pat.name : null) || (appt.patientName && appt.patientName !== 'User' ? appt.patientName : null) || (appt.patientId ? `Patient ${String(appt.patientId).slice(-4)}` : 'Unknown Patient')}
                           </h3>
                           <p style={{ fontSize: '0.82rem', color: '#64748b', marginTop: '0.25rem', margin: 0 }}>
                             {appt.department || currentDoctor.department} Consultation · {appt.notes || 'Routine checkup'}
@@ -516,12 +558,12 @@ export default function DoctorViewPage() {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {docAppointments.length === 0 ? (
+                  {filteredAppts.length === 0 ? (
                     <div style={{ fontSize: '0.8rem', color: '#64748b', fontStyle: 'italic', padding: '1.5rem 0', textAlign: 'center' }}>
                       No appointments scheduled today.
                     </div>
                   ) : (
-                    docAppointments.map((slot, idx) => {
+                    filteredAppts.map((slot, idx) => {
                       const pat = patientsMap[slot.patientId] || {};
                       const isCancelled = slot.status === 'cancelled' || slot.status === 'rescheduled';
                       
@@ -543,7 +585,17 @@ export default function DoctorViewPage() {
                           key={slot.id}
                           onClick={() => {
                             if (!isCancelled) {
-                              setSelectedPatientForHistory({ id: slot.patientId, name: pat.name || slot.patientName, ...pat });
+                              setSelectedPatientForHistory({ 
+                                id: slot.patientId, 
+                                name: (pat.name && pat.name !== 'User' ? pat.name : null) || (slot.patientName && slot.patientName !== 'User' ? slot.patientName : null) || 'Patient', 
+                                appointmentId: slot.id, 
+                                doctorId: slot.doctorId, 
+                                doctorName: slot.doctorName, 
+                                department: slot.department, 
+                                hospital: slot.hospital || 'Apollo Hospitals', 
+                                vitals: { bp: slot.bp || '120/80 mmHg', hr: slot.heartRate || '72 bpm' }, 
+                                ...pat 
+                              });
                             }
                           }}
                           style={{
@@ -567,7 +619,7 @@ export default function DoctorViewPage() {
                           </span>
 
                           <span style={{ fontSize: '0.85rem', fontWeight: 600, color: isCancelled ? '#94a3b8' : '#1a1a2e', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: '1rem' }}>
-                            {isCancelled ? '— Slot Available —' : (pat.name || slot.patientName || 'Unknown Patient')}
+                            {isCancelled ? '— Slot Available —' : ((pat.name && pat.name !== 'User' ? pat.name : null) || (slot.patientName && slot.patientName !== 'User' ? slot.patientName : null) || (slot.patientId ? `Patient ${String(slot.patientId).slice(-4)}` : 'Unknown Patient'))}
                           </span>
 
                           <span style={{
@@ -893,20 +945,46 @@ export default function DoctorViewPage() {
                 <button
                   onClick={() => setSelectedPatientForHistory(null)}
                   style={{
-                    flex: 1, height: 38, background: '#1b504c', color: 'white',
+                    flex: 1, height: 38, background: '#cbd5e1', color: '#334155',
                     border: 'none', borderRadius: '6px', fontSize: '0.85rem',
                     fontWeight: 600, cursor: 'pointer', display: 'flex',
                     alignItems: 'center', justifyContent: 'center', gap: '0.35rem'
                   }}
                 >
-                  <CheckCircle size={16} /> Close File
+                  <X size={16} /> Close File
                 </button>
+                {selectedPatientForHistory.appointmentId && (
+                  <button
+                    onClick={() => {
+                      setRxPatient(selectedPatientForHistory);
+                      setIsRxModalOpen(true);
+                    }}
+                    style={{
+                      flex: 1.5, height: 38, background: 'linear-gradient(135deg, #1b504c 0%, #153f3c 100%)', color: 'white',
+                      border: 'none', borderRadius: '6px', fontSize: '0.85rem',
+                      fontWeight: 600, cursor: 'pointer', display: 'flex',
+                      alignItems: 'center', justifyContent: 'center', gap: '0.35rem',
+                      boxShadow: '0 4px 12px rgba(27, 80, 76, 0.15)'
+                    }}
+                  >
+                    <Sparkles size={16} color="#86efac" /> Write AI Prescription (Rx)
+                  </button>
+                )}
               </div>
 
             </motion.div>
           </>
         )}
       </AnimatePresence>
+
+      <DoctorRxGeneratorModal
+        isOpen={isRxModalOpen}
+        onClose={() => {
+          setIsRxModalOpen(false);
+          setSelectedPatientForHistory(null);
+        }}
+        patient={rxPatient}
+      />
 
       <Toaster position="top-right" />
     </div>

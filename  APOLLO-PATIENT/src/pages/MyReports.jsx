@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FileText,
   ShieldCheck,
@@ -13,14 +13,26 @@ import {
   Plus
 } from 'lucide-react';
 import MedicalPrescriptionCard from '../components/MedicalPrescriptionCard';
-import DoctorRxGeneratorModal from '../components/DoctorRxGeneratorModal';
 import { useAuth } from '../hooks/useAuth';
+import { useAppointments } from '../hooks/useAppointments';
 
 export default function MyReports() {
   const { user } = useAuth();
+  const { upcoming, past, fetchAppointments } = useAppointments();
   const [activeTab, setActiveTab] = useState('prescriptions');
-  const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false);
   const [customPrescription, setCustomPrescription] = useState(null);
+
+  useEffect(() => {
+    if (user?.uid) {
+      fetchAppointments(user.uid);
+    }
+  }, [user, fetchAppointments]);
+
+  // Find the latest appointment (past or upcoming) that has a prescription field saved
+  const latestApptWithPrescription = [...upcoming, ...past]
+    .filter(appt => appt.prescription)
+    .sort((a, b) => b.appointmentDate.localeCompare(a.appointmentDate))[0];
+
 
   const labReports = [
     {
@@ -72,13 +84,6 @@ export default function MyReports() {
         </div>
 
         <div className="flex flex-col gap-2 shrink-0">
-          <button
-            onClick={() => setIsDoctorModalOpen(true)}
-            className="px-4 py-2.5 bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 text-xs font-bold rounded-2xl shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-          >
-            <Stethoscope className="h-4 w-4" />
-            <span>Doctor Demo: Create Rx (1-Click)</span>
-          </button>
 
           <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3 text-xs space-y-1">
             <div className="flex items-center justify-between text-emerald-300 font-bold">
@@ -127,11 +132,15 @@ export default function MyReports() {
             <h2 className="text-base font-bold text-gray-900 font-display">
               Latest Doctor OPD Prescription & Medical Report
             </h2>
-            <span className="text-xs text-gray-500">Last visit: 22 July 2026</span>
+            <span className="text-xs text-gray-500">
+              {latestApptWithPrescription 
+                ? `Report Date: ${latestApptWithPrescription.prescription.date}` 
+                : "Last visit: 22 July 2026"}
+            </span>
           </div>
 
           {/* Full Prescription Component */}
-          <MedicalPrescriptionCard />
+          <MedicalPrescriptionCard appointment={latestApptWithPrescription} />
         </div>
       ) : (
         <div className="space-y-4">
@@ -174,11 +183,6 @@ export default function MyReports() {
         </div>
       )}
 
-      {/* ── DOCTOR SMART RX GENERATOR MODAL ──────────────────────────── */}
-      <DoctorRxGeneratorModal
-        isOpen={isDoctorModalOpen}
-        onClose={() => setIsDoctorModalOpen(false)}
-      />
 
     </div>
   );

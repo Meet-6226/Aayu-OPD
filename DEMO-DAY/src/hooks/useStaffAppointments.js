@@ -84,8 +84,44 @@ export function useStaffAppointments() {
     };
   }, []);
 
-  // Expose populated appointments
-  const populatedAppointments = appointments.map(appt => {
+  // ── IDs that should NEVER appear in staff view ───────────────────────────
+  // • demo user seeded in AuthContext loginDemoUser()
+  // • old mock IDs from staffMockData.js (p-1, p-2, …)
+  // • 9199750000 = hardcoded demo UID in AuthContext
+  const DEMO_PATIENT_IDS = new Set([
+    'patient_priya_demo',
+    '9199750000',
+    '919199750000',
+  ]);
+  const isDemoId = (id) =>
+    !id ||
+    DEMO_PATIENT_IDS.has(id) ||
+    /^p-\d+$/.test(id);       // mock data IDs like p-1, p-2 …
+
+  // ── Decide if a patient/appointment pair is a real booking ───────────────
+  const isRealPatient = (appt, pat) => {
+    if (isDemoId(appt.patientId)) return false;
+
+    const apptName  = (appt.patientName || '').trim();
+    const patName   = (pat.name || '').trim();
+    const patPhone  = (pat.phone || '').trim();
+
+    // Both name slots are placeholder AND no phone recorded → stub only
+    const isStub =
+      (apptName === 'User' || apptName === '') &&
+      (patName  === 'User' || patName  === '') &&
+      !patPhone;
+
+    return !isStub;
+  };
+
+  // Expose populated appointments — real patients only
+  const populatedAppointments = appointments
+    .filter(appt => {
+      const pat = patients[appt.patientId] || {};
+      return isRealPatient(appt, pat);
+    })
+    .map(appt => {
     const pat = patients[appt.patientId] || {};
     const docInfo = doctors[appt.doctorId] || {};
     
@@ -107,7 +143,7 @@ export function useStaffAppointments() {
       ...appt,
       time: appt.appointmentTime || '',
       // Patient properties
-      name: pat.name || appt.patientName || (appt.patientId === 'patient_priya_demo' ? 'Priya Sharma' : 'Sahil Pandey'),
+      name: (pat.name && pat.name !== 'User' ? pat.name : null) || (appt.patientName && appt.patientName !== 'User' ? appt.patientName : null) || (appt.patientId ? `Patient ${String(appt.patientId).slice(-4)}` : 'Guest Patient'),
       phone: pat.phone || '',
       age: pat.age || 30,
       gender: pat.gender || 'M',

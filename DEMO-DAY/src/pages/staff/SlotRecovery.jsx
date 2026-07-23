@@ -7,7 +7,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import { useSlotRecovery } from '../../hooks/useSlotRecovery';
 import { useStaffAppointments } from '../../hooks/useStaffAppointments';
 
-import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot, doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { todayDateString, formatTimestampDisplay } from '../../utils/appTime';
 
@@ -20,6 +20,136 @@ export default function SlotRecoveryPage() {
 
   const [expandedSlots, setExpandedSlots] = useState({});
   const [feed, setFeed] = useState([]);
+
+  const handleSimulateRecovery = async () => {
+    try {
+      const todayStr = todayDateString();
+      
+      const patientsToSeed = [
+        { id: 'sim_pat_1', name: 'Rohan Verma', phone: '+919900000001', trustScore: 85, persona: 'Lifestyle Juggler' },
+        { id: 'sim_pat_2', name: 'Karan Malhotra', phone: '+919900000002', trustScore: 70, persona: 'Young Professional' },
+        { id: 'sim_wait_1', name: 'Amit Patel', phone: '+919975027178', trustScore: 92, persona: 'Health Conscious' },
+        { id: 'sim_wait_2', name: 'Neha Sen', phone: '+919876543210', trustScore: 78, persona: 'Chronic Worrier' },
+        { id: 'sim_wait_3', name: 'Rahul Verma', phone: '+919999999999', trustScore: 88, persona: 'Senior Independent' }
+      ];
+
+      const appointmentsToSeed = [
+        {
+          id: 'sim_appt_1',
+          patientId: 'sim_pat_1',
+          doctorId: 'doc_001',
+          doctorName: 'Dr. Rajesh Mehta',
+          department: 'Cardiology',
+          appointmentDate: todayStr,
+          appointmentTime: '09:30 AM',
+          status: 'cancelled',
+          consultationFee: 1500,
+          cancelledReason: 'Caught in massive traffic jam',
+          hospital: 'Apollo Hospital, Jubilee Hills',
+          room: 'OPD Room 302',
+          riskScore: 85,
+          riskLevel: 'HIGH',
+          bookingId: 'APL-2026-9021',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 'sim_appt_2',
+          patientId: 'sim_pat_2',
+          doctorId: 'doc_003',
+          doctorName: 'Dr. Sunil Nair',
+          department: 'Dermatology',
+          appointmentDate: todayStr,
+          appointmentTime: '11:45 AM',
+          status: 'cancelled',
+          consultationFee: 1800,
+          cancelledReason: 'Last minute client meeting',
+          hospital: 'Apollo Hospital, Jubilee Hills',
+          room: 'OPD Room 205',
+          riskScore: 70,
+          riskLevel: 'MEDIUM',
+          bookingId: 'APL-2026-4412',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ];
+
+      const waitlistToSeed = [
+        {
+          id: 'sim_wl_1',
+          patientId: 'sim_wait_1',
+          doctorId: 'doc_001',
+          doctorName: 'Dr. Rajesh Mehta',
+          preferredDate: todayStr,
+          status: 'waiting',
+          symptom: 'Routine Hypertension Check',
+          createdAt: new Date()
+        },
+        {
+          id: 'sim_wl_2',
+          patientId: 'sim_wait_2',
+          doctorId: 'doc_001',
+          doctorName: 'Dr. Rajesh Mehta',
+          preferredDate: todayStr,
+          status: 'waiting',
+          symptom: 'Chest Discomfort Follow-up',
+          createdAt: new Date()
+        },
+        {
+          id: 'sim_wl_3',
+          patientId: 'sim_wait_3',
+          doctorId: 'doc_003',
+          doctorName: 'Dr. Sunil Nair',
+          preferredDate: todayStr,
+          status: 'waiting',
+          symptom: 'Severe skin rash review',
+          createdAt: new Date()
+        }
+      ];
+
+      for (const p of patientsToSeed) {
+        await setDoc(doc(db, 'patients', p.id), p);
+      }
+
+      for (const a of appointmentsToSeed) {
+        await setDoc(doc(db, 'appointments', a.id), a);
+      }
+
+      for (const w of waitlistToSeed) {
+        await setDoc(doc(db, 'waitlist', w.id), w);
+      }
+
+      toast.success('Simulation data seeded! View cancellations and waitlists.', { id: 'sim-toast' });
+    } catch (e) {
+      console.error(e);
+      toast.error('Simulation seeding failed.');
+    }
+  };
+
+  const handleResetSimulation = async () => {
+    try {
+      const idsToDelete = {
+        patients: ['sim_pat_1', 'sim_pat_2', 'sim_wait_1', 'sim_wait_2', 'sim_wait_3'],
+        appointments: ['sim_appt_1', 'sim_appt_2'],
+        waitlist: ['sim_wl_1', 'sim_wl_2', 'sim_wl_3']
+      };
+
+      for (const id of idsToDelete.patients) {
+        await deleteDoc(doc(db, 'patients', id));
+      }
+      for (const id of idsToDelete.appointments) {
+        await deleteDoc(doc(db, 'appointments', id));
+      }
+      for (const id of idsToDelete.waitlist) {
+        await deleteDoc(doc(db, 'waitlist', id));
+      }
+
+      toast.success('Simulation data cleared! Dashboard reset.', { id: 'sim-toast' });
+    } catch (e) {
+      console.error(e);
+      toast.error('Simulation reset failed.');
+    }
+  };
 
   // Fetch reminders collection for the Live Recovery Feed
   useEffect(() => {
@@ -130,6 +260,64 @@ export default function SlotRecoveryPage() {
   return (
     <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
       
+      {/* SIMULATOR CONTROL CENTER BAR */}
+      <div
+        style={{
+          background: 'rgba(27, 80, 76, 0.05)',
+          border: '1px solid rgba(27, 80, 76, 0.15)',
+          borderRadius: '8px',
+          padding: '0.75rem 1.25rem',
+          marginBottom: '1rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Sparkles size={16} color="#1b504c" />
+          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1b504c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            OPD Waitlist & Slot Recovery Simulator
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            onClick={handleSimulateRecovery}
+            style={{
+              padding: '0.4rem 0.8rem',
+              background: '#1b504c',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem'
+            }}
+          >
+            ⚡ Trigger Cancellation Demo
+          </button>
+          <button
+            onClick={handleResetSimulation}
+            style={{
+              padding: '0.4rem 0.8rem',
+              background: 'transparent',
+              color: '#475569',
+              border: '1px solid #cbd5e1',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontWeight: 600
+            }}
+          >
+            🗑️ Reset Slots
+          </button>
+        </div>
+      </div>
+      
       {/* LIVE REVENUE TICKER (No pulse animation, simple display) */}
       <div
         style={{
@@ -189,150 +377,207 @@ export default function SlotRecoveryPage() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {openSlots.map(slot => {
-              const waitlistMatches = getWaitlist(slot.doctorId, slot.appointmentDate);
-              const isExpanded = expandedSlots[slot.id];
-              
-              return (
+            {openSlots.length === 0 ? (
+              <div
+                style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '3rem 2rem',
+                  border: '1px dashed #cbd5e1',
+                  textAlign: 'center',
+                  color: '#475569',
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                }}
+              >
                 <div
-                  key={slot.id}
                   style={{
-                    background: 'white',
-                    borderRadius: '8px',
-                    padding: '1.25rem',
-                    border: '1px solid #f3f4f6',
-                    borderLeft: '1px dashed #cbd5e1',
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    background: 'rgba(27, 80, 76, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 1rem auto',
+                    color: '#1b504c'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-                    
-                    {/* Time & Doc */}
-                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1b504c', flexShrink: 0 }}>
-                        <Clock size={16} />
+                  <Sparkles size={22} />
+                </div>
+                <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1e293b', margin: '0 0 0.25rem 0' }}>
+                  No Active Cancelled Slots
+                </h3>
+                <p style={{ fontSize: '0.78rem', color: '#64748b', maxWidth: '320px', margin: '0 auto 1.5rem auto', lineHeight: 1.5 }}>
+                  The clinic is running at 100% capacity today. Simulate last-minute cancellations to demonstrate real-time waitlist slot recovery.
+                </p>
+                <button
+                  onClick={handleSimulateRecovery}
+                  style={{
+                    padding: '0.55rem 1.25rem',
+                    background: '#1b504c',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    boxShadow: '0 2px 4px rgba(27, 80, 76, 0.15)',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <Sparkles size={14} />
+                  Simulate Demo Data
+                </button>
+              </div>
+            ) : (
+              openSlots.map(slot => {
+                const waitlistMatches = getWaitlist(slot.doctorId, slot.appointmentDate);
+                const isExpanded = expandedSlots[slot.id];
+                
+                return (
+                  <div
+                    key={slot.id}
+                    style={{
+                      background: 'white',
+                      borderRadius: '8px',
+                      padding: '1.25rem',
+                      border: '1px solid #f3f4f6',
+                      borderLeft: '1px dashed #cbd5e1',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifycontent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                      
+                      {/* Time & Doc */}
+                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifycontent: 'center', color: '#1b504c', flexShrink: 0 }}>
+                          <Clock size={16} />
+                        </div>
+                        <div>
+                          <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '1.1rem', fontWeight: 700, color: '#1a1a2e', fontVariantNumeric: 'tabular-nums' }}>
+                            {slot.time}
+                          </div>
+                          <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                            {slot.doctor} · {slot.department}
+                          </div>
+                        </div>
                       </div>
+
+                      {/* Cancellation details */}
                       <div>
-                        <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '1.1rem', fontWeight: 700, color: '#1a1a2e', fontVariantNumeric: 'tabular-nums' }}>
-                          {slot.time}
+                        <div style={{ fontSize: '0.78rem', color: '#374151' }}>
+                          Cancelled by <strong>{slot.cancelledBy}</strong> · {slot.timeAgo}
                         </div>
-                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                          {slot.doctor} · {slot.department}
+                        <span style={{ display: 'inline-block', fontSize: '0.68rem', background: '#f8fafc', color: '#64748b', padding: '0.15rem 0.5rem', borderRadius: '4px', marginTop: '0.25rem' }}>
+                          {slot.reason}
+                        </span>
+                      </div>
+
+                      {/* Risk / Fill state */}
+                      <div style={{ textAlign: 'right', marginLeft: 'auto' }}>
+                        <div>
+                          <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#b45309', fontFamily: 'Space Grotesk, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
+                            ₹{slot.fee.toLocaleString('en-IN')}
+                          </div>
+                          <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>
+                            at risk
+                          </div>
                         </div>
                       </div>
+
                     </div>
 
-                    {/* Cancellation details */}
-                    <div>
-                      <div style={{ fontSize: '0.78rem', color: '#374151' }}>
-                        Cancelled by <strong>{slot.cancelledBy}</strong> · {slot.timeAgo}
-                      </div>
-                      <span style={{ display: 'inline-block', fontSize: '0.68rem', background: '#f8fafc', color: '#64748b', padding: '0.15rem 0.5rem', borderRadius: '4px', marginTop: '0.25rem' }}>
-                        {slot.reason}
-                      </span>
+                    <div style={{ marginTop: '1.25rem', paddingTop: '0.75rem', borderTop: '1px dashed #e2e8f0', display: 'flex', justifycontent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                      <button
+                        onClick={() => {
+                          setExpandedSlots(prev => ({ ...prev, [slot.id]: !prev[slot.id] }));
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#1b504c', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', padding: 0 }}
+                      >
+                        {slot.waitlistCount} matches available
+                        <span>{isExpanded ? '▴' : '▾'}</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setExpandedSlots(prev => ({ ...prev, [slot.id]: !prev[slot.id] }));
+                        }}
+                        style={{ padding: '0.4rem 0.8rem', background: '#1b504c', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 500 }}
+                      >
+                        Match Slot
+                      </button>
                     </div>
 
-                    {/* Risk / Fill state */}
-                    <div style={{ textAlign: 'right', marginLeft: 'auto' }}>
-                      <div>
-                        <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#b45309', fontFamily: 'Space Grotesk, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
-                          ₹{slot.fee.toLocaleString('en-IN')}
-                        </div>
-                        <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>
-                          at risk
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-
-                  <div style={{ marginTop: '1.25rem', paddingTop: '0.75rem', borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
-                    <button
-                      onClick={() => {
-                        setExpandedSlots(prev => ({ ...prev, [slot.id]: !prev[slot.id] }));
-                      }}
-                      style={{ background: 'none', border: 'none', color: '#1b504c', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', padding: 0 }}
-                    >
-                      {slot.waitlistCount} matches available
-                      <span>{isExpanded ? '▴' : '▾'}</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setExpandedSlots(prev => ({ ...prev, [slot.id]: !prev[slot.id] }));
-                      }}
-                      style={{ padding: '0.4rem 0.8rem', background: '#1b504c', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 500 }}
-                    >
-                      Match Slot
-                    </button>
-                  </div>
-
-                  {/* Waitlist Patients Expandable List */}
-                  {isExpanded && (
-                    <div style={{ overflow: 'hidden', marginTop: '1rem', background: '#f8fafc', padding: '0.75rem', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      {waitlistMatches.map(patient => {
-                        const isNotified = slot.notifiedList[patient.id];
-                        const riskColor = patient.risk <= 15 ? '#16a34a' : patient.risk <= 35 ? '#d97706' : '#ef4444';
-                        
-                        return (
-                          <div
-                            key={patient.id}
-                            style={{
-                              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem',
-                              padding: '0.5rem 0.75rem', background: 'white', borderRadius: '4px',
-                              border: '1px solid #e2e8f0', flexWrap: 'wrap',
-                            }}
-                          >
-                            <div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1a1a2e' }}>{patient.name}</span>
-                                <span style={{ fontSize: '0.68rem', fontWeight: 600, color: riskColor, display: 'flex', alignItems: 'center', gap: '0.2' }}>
-                                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: riskColor }} />
-                                  {patient.risk}%
-                                </span>
+                    {/* Waitlist Patients Expandable List */}
+                    {isExpanded && (
+                      <div style={{ overflow: 'hidden', marginTop: '1rem', background: '#f8fafc', padding: '0.75rem', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {waitlistMatches.map(patient => {
+                          const isNotified = slot.notifiedList[patient.id];
+                          const riskColor = patient.risk <= 15 ? '#16a34a' : patient.risk <= 35 ? '#d97706' : '#ef4444';
+                          
+                          return (
+                            <div
+                              key={patient.id}
+                              style={{
+                                display: 'flex', alignItems: 'center', justifycontent: 'space-between', gap: '1rem',
+                                padding: '0.5rem 0.75rem', background: 'white', borderRadius: '4px',
+                                border: '1px solid #e2e8f0', flexWrap: 'wrap',
+                              }}
+                            >
+                              <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1a1a2e' }}>{patient.name}</span>
+                                  <span style={{ fontSize: '0.68rem', fontWeight: 600, color: riskColor, display: 'flex', alignItems: 'center', gap: '0.2' }}>
+                                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: riskColor }} />
+                                    {patient.risk}%
+                                  </span>
+                                </div>
+                                <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>
+                                  Waiting {patient.waitTime}
+                                </div>
                               </div>
-                              <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>
-                                Waiting {patient.waitTime}
-                              </div>
-                            </div>
 
-                            {/* Sent with green text / Match Action */}
-                            {isNotified ? (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <span style={{ color: '#16a34a', fontSize: '0.75rem', fontWeight: 600 }}>✅ Sent</span>
+                              {/* Sent with green text / Match Action */}
+                              {isNotified ? (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                  <span style={{ color: '#16a34a', fontSize: '0.75rem', fontWeight: 600 }}>✅ Sent</span>
+                                  <button
+                                    onClick={() => handleFillSlot(slot.id, patient.id, patient.name, slot.time)}
+                                    style={{
+                                      padding: '0.3rem 0.6rem', borderRadius: '4px', border: 'none', fontSize: '0.72rem', fontWeight: 500,
+                                      background: '#16a34a',
+                                      color: 'white',
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    Assign
+                                  </button>
+                                </div>
+                              ) : (
                                 <button
-                                  onClick={() => handleFillSlot(slot.id, patient.id, patient.name, slot.time)}
+                                  onClick={() => handleNotify(patient.id)}
                                   style={{
                                     padding: '0.3rem 0.6rem', borderRadius: '4px', border: 'none', fontSize: '0.72rem', fontWeight: 500,
-                                    background: '#16a34a',
+                                    background: '#1b504c',
                                     color: 'white',
                                     cursor: 'pointer',
                                   }}
                                 >
-                                  Assign
+                                  Notify
                                 </button>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => handleNotify(patient.id)}
-                                style={{
-                                  padding: '0.3rem 0.6rem', borderRadius: '4px', border: 'none', fontSize: '0.72rem', fontWeight: 500,
-                                  background: '#1b504c',
-                                  color: 'white',
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                Notify
-                              </button>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
 
-                </div>
-              );
-            })}
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 

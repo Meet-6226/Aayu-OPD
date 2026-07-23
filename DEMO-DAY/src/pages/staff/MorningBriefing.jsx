@@ -14,6 +14,9 @@ import { useSlotRecovery } from '../../hooks/useSlotRecovery';
 import { nowHour, todayDisplayLong, todayDateString } from '../../utils/appTime';
 
 import Loader from '../../components/ui/Loader';
+import { db } from '../../firebase/config';
+import { collection, doc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { Toaster, toast } from 'react-hot-toast';
 
 // ─── Persona map ───
 const PERSONA_MAP = {
@@ -162,12 +165,15 @@ function TimelineCard({ patient, isLast }) {
 }
 
 // ─── Doctor Schedule Card ───
-function DoctorCard({ doc }) {
+function DoctorCard({ doc, onAbsentClick }) {
   const total = 12;
   const filled = doc.filledSlots;
   const pct = Math.round((filled / total) * 100);
   const barColor = '#1b504c';
   const initials = doc.avatar;
+
+  // Check if this doctor is a backup doctor
+  const isBackup = doc.id === 'doc_004' || doc.id === 'doc_005' || doc.id === 'doc_006' || doc.id === 'doc_007';
 
   return (
     <div
@@ -179,10 +185,16 @@ function DoctorCard({ doc }) {
         minWidth: 160,
         flex: 1,
         transition: 'background-color 150ms',
+        position: 'relative'
       }}
       onMouseEnter={e => e.currentTarget.style.backgroundColor = '#fafafa'}
       onMouseLeave={e => e.currentTarget.style.backgroundColor = 'white'}
     >
+      {isBackup && (
+        <span style={{ position: 'absolute', top: 5, right: 5, fontSize: '8px', fontWeight: 700, color: '#16a34a', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '4px', padding: '1px 4px' }}>
+          Backup Active
+        </span>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
         <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1b504c', fontSize: '0.7rem', fontWeight: 700, flexShrink: 0 }}>
           {initials}
@@ -196,9 +208,38 @@ function DoctorCard({ doc }) {
         <span style={{ fontSize: '0.7rem', color: '#64748b' }}>{filled}/{total} slots</span>
         <span style={{ fontSize: '0.72rem', fontWeight: 600, color: barColor, fontVariantNumeric: 'tabular-nums' }}>{pct}%</span>
       </div>
-      <div style={{ height: 4, background: '#f1f5f9', borderRadius: 99, overflow: 'hidden' }}>
+      <div style={{ height: 4, background: '#f1f5f9', borderRadius: 99, overflow: 'hidden', marginBottom: onAbsentClick && !isBackup ? '0.5rem' : 0 }}>
         <div style={{ height: '100%', width: `${pct}%`, background: barColor, borderRadius: 99 }} />
       </div>
+
+      {onAbsentClick && !isBackup && (
+        <button
+          onClick={() => onAbsentClick(doc)}
+          style={{
+            width: '100%',
+            background: 'none',
+            border: '1px solid #fee2e2',
+            color: '#ef4444',
+            borderRadius: '4px',
+            padding: '2.5px 0',
+            fontSize: '10px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            marginTop: '0.5rem',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.backgroundColor = '#fef2f2';
+            e.currentTarget.style.borderColor = '#fca5a5';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.borderColor = '#fee2e2';
+          }}
+        >
+          🚨 Report Absent
+        </button>
+      )}
     </div>
   );
 }
@@ -256,6 +297,82 @@ export default function MorningBriefingPage() {
   const { appointments, doctors: liveDoctors, loading, fetchTodaySummary } = useStaffAppointments();
   const { openSlots, waitlist } = useSlotRecovery();
 
+  const [selectedAbsentDoc, setSelectedAbsentDoc] = useState(null);
+  const [swappingProgress, setSwappingProgress] = useState(false);
+
+  const BACKUP_MAPPING = {
+    'doc_001': { id: 'doc_007', name: 'Dr. Sanjay Joshi', department: 'Cardiology', room: 'OPD Room 305' },
+    'doc_002': { id: 'doc_005', name: 'Dr. Arjun Deshmukh', department: 'General Medicine', room: 'OPD Room 102' },
+    'doc_003': { id: 'doc_004', name: 'Dr. Kavita Reddy', department: 'Dermatology', room: 'OPD Room 210' },
+    'doc_008': { id: 'doc_006', name: 'Dr. Meena Nair', department: 'Neurology', room: 'OPD Room 403' },
+  };
+
+  const handleHotSwapBackup = async (absentDocId) => {
+    const backup = BACKUP_MAPPING[absentDocId];
+    if (!backup) {
+      toast.error("No emergency backup configured for this practitioner.");
+      return;
+    }
+
+    setSwappingProgress(true);
+    try {
+      const todayStr = todayDateString();
+      const apptsToSwap = appointments.filter(
+        a => a.doctorId === absentDocId && 
+             a.appointmentDate === todayStr && 
+             ['confirmed', 'pending'].includes(a.status)
+      );
+
+      if (apptsToSwap.length === 0) {
+        toast.success(`Emergency Coverage Activated: ${backup.name} is now on duty.`, { id: 'swap-toast' });
+        setSelectedAbsentDoc(null);
+        setSwappingProgress(false);
+        return;
+      }
+
+      for (const appt of apptsToSwap) {
+        const apptRef = doc(db, 'appointments', appt.id);
+        await updateDoc(apptRef, {
+          doctorId: backup.id,
+          doctorName: backup.name,
+          room: backup.room,
+          notes: `Emergency reassignment from ${appt.doctorName}`,
+          updatedAt: serverTimestamp()
+        });
+
+        // Add user notification
+        const notifRef = doc(collection(db, 'notifications'));
+        await setDoc(notifRef, {
+          patientId: appt.patientId,
+          title: '🚨 OPD Doctor Change Alert',
+          body: `Due to an emergency, your appointment today at ${appt.appointmentTime} has been re-assigned to ${backup.name} in ${backup.room}. Please report there directly.`,
+          sentAt: serverTimestamp(),
+          type: 'alert',
+          read: false
+        });
+
+        // Add reminder log
+        const reminderRef = doc(collection(db, 'reminders'));
+        await setDoc(reminderRef, {
+          appointmentId: appt.id,
+          patientId: appt.patientId,
+          reminderType: 'doctor_change_hot_swap',
+          channel: 'whatsapp',
+          status: 'sent',
+          messageBody: `Apollo Hospital Alert: Dear patient, due to an emergency, your appointment today at ${appt.appointmentTime} has been re-assigned to ${backup.name} in ${backup.room}.`,
+          sentAt: serverTimestamp()
+        });
+      }
+
+      toast.success(`Emergency activated! ${apptsToSwap.length} appointments re-routed to ${backup.name}. Patients notified.`, { id: 'swap-toast', duration: 4000 });
+      setSelectedAbsentDoc(null);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to activate emergency hot-swap.");
+    }
+    setSwappingProgress(false);
+  };
+
   // Compute dynamic doctor schedules from live Firestore data
   const docList = Object.values(liveDoctors).map(docInfo => {
     const docAppts = appointments.filter(a => a.doctorId === docInfo.id);
@@ -267,6 +384,11 @@ export default function MorningBriefingPage() {
       avatar: docInfo.avatar || docInfo.name.replace('Dr. ', '').split(' ').map(n => n[0]).join(''),
       filledSlots
     };
+  });
+
+  const activeDocsToShow = docList.filter(d => {
+    const isBackup = ['doc_004', 'doc_005', 'doc_006', 'doc_007'].includes(d.id);
+    return !isBackup || d.filledSlots > 0;
   });
 
   const summary = fetchTodaySummary();
@@ -438,8 +560,14 @@ export default function MorningBriefingPage() {
               </button>
             }
           />
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-            {docList.slice(0, 3).map((doc) => <DoctorCard key={doc.id} doc={doc} />)}
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+            {activeDocsToShow.map((doc) => (
+              <DoctorCard 
+                key={doc.id} 
+                doc={doc} 
+                onAbsentClick={(d) => setSelectedAbsentDoc(d)} 
+              />
+            ))}
           </div>
         </div>
 
@@ -500,6 +628,121 @@ export default function MorningBriefingPage() {
         </ResponsiveContainer>
       </div>
 
+      {/* EMERGENCY COVERAGE MODAL */}
+      {selectedAbsentDoc && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 9999, padding: '1rem',
+          fontFamily: 'Plus Jakarta Sans, sans-serif'
+        }}>
+          <div style={{
+            background: 'white', borderRadius: '12px', width: '100%', maxWidth: '440px',
+            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
+            overflow: 'hidden'
+          }}>
+            {/* Header */}
+            <div style={{ background: '#ef4444', padding: '1.25rem', color: 'white', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <AlertTriangle size={24} />
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, fontFamily: 'Space Grotesk, sans-serif' }}>
+                  Emergency Backup Activation
+                </h3>
+                <span style={{ fontSize: '0.75rem', opacity: 0.9 }}>Doctor Absentee Coverage Swap</span>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div style={{ padding: '1.25rem', fontSize: '0.82rem', color: '#374151', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: '8px', padding: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                  <span>Absent Doctor:</span>
+                  <strong>{selectedAbsentDoc.name}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Department:</span>
+                  <span style={{ fontWeight: 600 }}>{selectedAbsentDoc.department}</span>
+                </div>
+              </div>
+
+              {/* Match details */}
+              {BACKUP_MAPPING[selectedAbsentDoc.id] ? (
+                <div>
+                  <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#64748b', marginBottom: '0.5rem' }}>
+                    RECOMMENDED BACKUP COVERAGE:
+                  </div>
+                  <div style={{ background: '#f0fdf4', border: '1px solid #dcfce7', borderRadius: '8px', padding: '0.75rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                      <span>Backup Doctor:</span>
+                      <strong style={{ color: '#16a34a' }}>{BACKUP_MAPPING[selectedAbsentDoc.id].name}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                      <span>Cabin/Room:</span>
+                      <span style={{ fontWeight: 600 }}>{BACKUP_MAPPING[selectedAbsentDoc.id].room}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#166534', paddingTop: '0.35rem', borderTop: '1px dashed #bbf7d0' }}>
+                      <span>Affected Appointments today:</span>
+                      <strong>
+                        {appointments.filter(a => a.doctorId === selectedAbsentDoc.id && a.appointmentDate === todayDateString() && ['confirmed', 'pending'].includes(a.status)).length}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ color: '#ef4444', fontWeight: 600 }}>
+                  No default backup doctor configured for this practitioner in database.
+                </div>
+              )}
+
+              {/* Actions list */}
+              <div style={{ fontSize: '0.76rem', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                  <Check size={14} color="#16a34a" />
+                  <span>Updates today's schedule in real-time.</span>
+                </div>
+                <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                  <Check size={14} color="#16a34a" />
+                  <span>Re-routes affected slot rooms in patient charts.</span>
+                </div>
+                <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                  <Check size={14} color="#16a34a" />
+                  <span>Sends instant WhatsApp alerts with backup room details.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid #f3f4f6', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', background: '#f8fafc' }}>
+              <button
+                disabled={swappingProgress}
+                onClick={() => setSelectedAbsentDoc(null)}
+                style={{
+                  padding: '0.45rem 1rem', background: 'white', color: '#475569', border: '1px solid #cbd5e1',
+                  borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              {BACKUP_MAPPING[selectedAbsentDoc.id] && (
+                <button
+                  disabled={swappingProgress}
+                  onClick={() => handleHotSwapBackup(selectedAbsentDoc.id)}
+                  style={{
+                    padding: '0.45rem 1rem', background: '#ef4444', color: 'white', border: 'none',
+                    borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, cursor: swappingProgress ? 'not-allowed' : 'pointer',
+                    display: 'flex', alignItems: 'center', gap: '0.25rem'
+                  }}
+                >
+                  {swappingProgress ? 'Re-routing...' : 'Confirm Hot-Swap'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Toaster position="top-right" />
     </div>
   );
 }

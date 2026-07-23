@@ -28,7 +28,7 @@ import { signInAnonymously, GoogleAuthProvider, signInWithPopup } from 'firebase
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
 import { COLLECTIONS } from '../firebase/collections';
-import { formatPatientPhone, validatePatientData } from '../utils/dataFormat';
+import { formatPatientId, formatPatientPhone, validatePatientData } from '../utils/dataFormat';
 import { useAuth } from '../hooks/useAuth';
 import { triggerPatientRegistrationDemo } from '../utils/demoTriggers';
 
@@ -421,8 +421,11 @@ export default function PatientLogin() {
     setLoading(true);
 
     try {
-      const uid = authUser.uid;
-      const phone = authUser.phone || getFormattedPhoneString();
+      // authUser.uid may be transiently undefined due to React async state updates;
+      // fall back to deriving the clean ID from the phone number entered at step 1.
+      const uid = authUser?.uid || formatPatientId(`+91${getRawPhoneNumber()}`);
+      const phone = authUser?.phone || getFormattedPhoneString();
+      if (!uid) throw new Error('Unable to determine patient UID. Please restart login.');
       console.log("Creating new patient document in Firestore with UID:", uid);
 
       const patientDocData = {
@@ -476,13 +479,19 @@ export default function PatientLogin() {
     setLoading(true);
     setStep3Error('');
     try {
-      const uid = authUser.uid;
-      const phone = authUser.phone || getFormattedPhoneString();
+      // Same UID fallback as handleProfileSubmit
+      const uid = authUser?.uid || formatPatientId(`+91${getRawPhoneNumber()}`);
+      const phone = authUser?.phone || getFormattedPhoneString();
+      if (!uid) throw new Error('Unable to determine patient UID. Please restart login.');
       console.log("Skipping and creating default patient document in Firestore with UID:", uid);
+
+      // Use whatever the patient typed in the name field; if blank, derive a
+      // readable placeholder from their phone number (never "User")
+      const resolvedName = fullName.trim() || `Patient ${phone.slice(-4)}`;
 
       const patientDocData = {
         uid,
-        name: "User",
+        name: resolvedName,
         phone,
         email: '',
         age: 0,

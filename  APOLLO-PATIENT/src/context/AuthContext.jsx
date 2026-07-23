@@ -201,9 +201,11 @@ export function AuthProvider({ children }) {
   };
 
   const updateMockSession = (updatedData) => {
-    const newSession = { ...user, ...updatedData };
-    setUser(newSession);
-    localStorage.setItem('apollo_patient_session', JSON.stringify(newSession));
+    setUser((prevUser) => {
+      const newSession = { ...prevUser, ...updatedData };
+      localStorage.setItem('apollo_patient_session', JSON.stringify(newSession));
+      return newSession;
+    });
   };
 
   // ── Demo Login ────────────────────────────────────────────────────────────

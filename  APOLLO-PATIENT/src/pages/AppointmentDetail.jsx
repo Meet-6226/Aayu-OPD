@@ -16,6 +16,7 @@ import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firesto
 import { db } from '../firebase/config';
 import { COLLECTIONS } from '../firebase/collections';
 import MedicalPrescriptionCard from '../components/MedicalPrescriptionCard';
+import { useAppointments } from '../hooks/useAppointments';
 
 // Format YYYY-MM-DD to human readable date
 const formatApptDate = (dateStr) => {

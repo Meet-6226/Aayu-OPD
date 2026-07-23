@@ -20,8 +20,8 @@ import { Link } from 'react-router-dom';
 export default function MedicalPrescriptionCard({ appointment }) {
   const [isExpanded, setIsExpanded] = useState(true);
 
-  // Sample data structured for Apollo OPD Digital Prescription
-  const prescriptionData = {
+  // Use dynamic prescription data if saved in appointment document, otherwise fall back to demo mock data
+  const prescriptionData = appointment?.prescription || {
     rxNumber: 'APO-2026-9812',
     date: appointment?.appointmentDate || '2026-07-22',
     doctorName: appointment?.doctorName || 'Dr. Arvind Mehta',
@@ -88,193 +88,264 @@ export default function MedicalPrescriptionCard({ appointment }) {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm transition-all duration-200 my-6">
+    <div className="bg-[#fcfbf9] border border-[#e2dcd0] rounded-2xl overflow-hidden shadow-md my-2 font-sans relative">
       
-      {/* ── HEADER BANNER ────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-teal-900 via-teal-800 to-slate-900 text-white p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-teal-300 shrink-0 border border-white/10">
-              <FileText className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-300">
-                  Apollo OPD Digital Prescription
-                </span>
-                <span className="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded font-mono font-semibold">
-                  ABDM Verified
-                </span>
-              </div>
-              <h3 className="text-base sm:text-lg font-bold text-white font-display mt-0.5">
-                Medical Report & OPD Summary
-              </h3>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handlePrint}
-              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-xs font-semibold rounded-xl text-teal-100 flex items-center gap-1.5 transition-colors"
-            >
-              <Printer className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Print / Download PDF</span>
-            </button>
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-teal-200 transition-colors"
-            >
-              {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </button>
-          </div>
+      {/* ── ACTION BAR (Non-printable) ── */}
+      <div className="bg-teal-900/10 border-b border-[#e2dcd0] px-4 py-2 flex justify-between items-center print:hidden">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[10px] font-bold text-teal-900 tracking-wide uppercase">
+            Official Health Record Locker
+          </span>
         </div>
-
-        {/* Doctor & Patient Quick Info */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 pt-4 border-t border-white/10 text-xs text-teal-100">
-          <div>
-            <p className="text-[10px] text-teal-300 uppercase font-medium">Attending Doctor</p>
-            <p className="font-bold text-white mt-0.5">{prescriptionData.doctorName}</p>
-            <p className="text-[11px] text-teal-200/80">{prescriptionData.department}</p>
-          </div>
-
-          <div>
-            <p className="text-[10px] text-teal-300 uppercase font-medium">Rx Reference No.</p>
-            <p className="font-mono font-bold text-white mt-0.5">{prescriptionData.rxNumber}</p>
-            <p className="text-[11px] text-teal-200/80">Date: {prescriptionData.date}</p>
-          </div>
-
-          <div>
-            <p className="text-[10px] text-teal-300 uppercase font-medium">Recorded Vitals</p>
-            <p className="font-bold text-white mt-0.5">BP: {prescriptionData.vitals.bp}</p>
-            <p className="text-[11px] text-teal-200/80">Pulse: {prescriptionData.vitals.heartRate}</p>
-          </div>
-
-          <div>
-            <p className="text-[10px] text-teal-300 uppercase font-medium">Patient ABHA ID</p>
-            <p className="font-mono font-bold text-emerald-300 mt-0.5">91-8273-9182-10</p>
-            <p className="text-[11px] text-teal-200/80">Priya Sharma</p>
-          </div>
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={handlePrint}
+            className="px-2.5 py-1 bg-teal-900 text-white hover:bg-teal-950 text-[10px] font-bold rounded-lg flex items-center gap-1 transition-all shadow-xs"
+          >
+            <Printer className="h-3 w-3" />
+            <span>Print Rx / PDF</span>
+          </button>
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-6 h-6 rounded-lg bg-teal-900/10 hover:bg-teal-900/20 text-teal-900 flex items-center justify-center transition-colors"
+          >
+            {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          </button>
         </div>
       </div>
 
       {isExpanded && (
-        <div className="p-5 sm:p-6 space-y-6 text-sm text-gray-800">
+        <div className="p-4 sm:p-5 space-y-4 print:p-0 print:m-0">
           
-          {/* ── 1. DIAGNOSIS & CLINICAL OBSERVATIONS ────────────────────── */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-400">
-              <Stethoscope className="h-4 w-4 text-primary-teal" />
-              <span>Doctor Diagnosis & Clinical Findings</span>
+          {/* ── HOSPITAL LETTERHEAD HEADER ── */}
+          <div className="border-b border-teal-900 pb-2 text-center relative">
+            {/* ABDM Verified Tag */}
+            <div className="absolute right-0 top-0 flex items-center gap-0.5 text-[8px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.5 rounded font-bold uppercase print:top-0">
+              <ShieldCheck className="h-2.5 w-2.5" />
+              <span>ABDM Verified</span>
+            </div>
+            
+            <h2 className="font-serif font-black text-lg tracking-wide text-teal-900 uppercase">
+              APOLLO HOSPITALS
+            </h2>
+            <p className="text-[9px] text-gray-500 uppercase tracking-widest font-semibold mt-0.5">
+              JUBILEE HILLS, HYDERABAD · EMERGENCY & OPD SERVICES
+            </p>
+          </div>
+
+          {/* ── PATIENT & DOCTOR INFO TABLE GRID ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-gray-200 rounded-xl p-3 bg-white/50 text-[11px] leading-tight">
+            {/* Left Column: Doctor Info */}
+            <div className="space-y-1">
+              <div>
+                <span className="text-[8px] uppercase font-bold text-gray-400 block">Consultant Practitioner</span>
+                <span className="font-bold text-gray-900 text-[13px]">{prescriptionData.doctorName}</span>
+                <span className="text-gray-500 block text-[10px]">{prescriptionData.department} Specialist</span>
+              </div>
+              <div className="text-[10px] text-gray-500 pt-0.5 border-t border-gray-100">
+                <span>Reg No: <strong>MCI-TS/2026/89412</strong></span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Right Column: Patient Info */}
+            <div className="space-y-1 md:border-l md:border-gray-200 md:pl-3">
+              <div className="grid grid-cols-2 gap-1.5">
+                <div>
+                  <span className="text-[8px] uppercase font-bold text-gray-400 block">Patient Name</span>
+                  <span className="font-bold text-gray-900 text-[12px]">{appointment?.patientName || 'Priya Sharma'}</span>
+                </div>
+                <div>
+                  <span className="text-[8px] uppercase font-bold text-gray-400 block">Date of Visit</span>
+                  <span className="font-mono font-bold text-gray-900">{prescriptionData.date}</span>
+                </div>
+                <div>
+                  <span className="text-[8px] uppercase font-bold text-gray-400 block">ABHA Health ID</span>
+                  <span className="font-mono font-bold text-emerald-700">{appointment?.patientAbha || '91-8273-9182-10'}</span>
+                </div>
+                <div>
+                  <span className="text-[8px] uppercase font-bold text-gray-400 block">Rx Number</span>
+                  <span className="font-mono font-bold text-gray-900">{prescriptionData.rxNumber}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── VITALS SECTION ── */}
+          <div className="bg-gray-50 border border-gray-200/60 rounded-lg px-3 py-1.5 flex flex-wrap justify-between items-center text-[10px] gap-2">
+            <span className="font-bold text-gray-500 uppercase text-[9px]">Patient Vitals:</span>
+            <div className="flex gap-4 flex-wrap font-semibold text-gray-800">
+              <span>BP: <strong className="text-gray-950">{prescriptionData.vitals.bp}</strong></span>
+              <span>Pulse: <strong className="text-gray-950">{prescriptionData.vitals.heartRate}</strong></span>
+              <span>Weight: <strong className="text-gray-950">{prescriptionData.vitals.weight || '70 kg'}</strong></span>
+              <span>SpO2: <strong className="text-gray-950">{prescriptionData.vitals.spo2 || '98%'}</strong></span>
+            </div>
+          </div>
+
+          {/* ── CLINICAL FINDINGS / DIAGNOSIS ── */}
+          <div className="space-y-1">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 border-b border-gray-100 pb-1 text-left">
+              I. Clinical Diagnoses & Findings
+            </h4>
+            <div className="flex flex-wrap gap-1.5 pt-0.5">
               {prescriptionData.diagnosis.map((diag, idx) => (
-                <div key={idx} className="bg-teal-50/60 border border-teal-100 rounded-2xl p-3.5 flex items-start justify-between">
-                  <div>
-                    <p className="font-bold text-gray-900 text-sm">{diag.name}</p>
-                    <p className="text-xs text-gray-500 font-mono mt-0.5">{diag.code}</p>
-                  </div>
-                  <span className="text-[11px] font-semibold text-teal-700 bg-white px-2.5 py-1 rounded-full border border-teal-200 shadow-2xs">
-                    {diag.severity}
+                <div key={idx} className="bg-teal-50/50 border border-teal-200/80 rounded-lg px-2 py-1 flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-teal-700" />
+                  <span className="font-bold text-teal-950 text-[11px]">{diag.name}</span>
+                  <span className="text-[8px] font-mono text-teal-600 bg-white border border-teal-200 px-1.5 py-0.5 rounded">
+                    {diag.code || 'ICD-10'}
                   </span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* ── 2. MEDICINES DOSAGE SCHEDULE ────────────────────────────── */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-400">
-                <Pill className="h-4 w-4 text-primary-teal" />
-                <span>Prescribed Medicines & Daily Dosage Schedule</span>
+          {/* ── THE RX PRESCRIPTION LIST ── */}
+          <div className="space-y-1.5 relative text-left">
+            <div className="flex items-center gap-1.5 border-b border-gray-100 pb-1">
+              <span className="font-serif italic font-extrabold text-xl text-teal-900 block leading-none">℞</span>
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mt-0.5">
+                II. Prescribed Medications
+              </h4>
+            </div>
+
+            <div className="overflow-hidden border border-gray-200 rounded-xl bg-white shadow-2xs">
+              <table className="min-w-full divide-y divide-gray-200 text-[11px]">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-3 py-1.5 text-left font-bold text-gray-500 uppercase tracking-wider w-8">#</th>
+                    <th scope="col" className="px-3 py-1.5 text-left font-bold text-gray-500 uppercase tracking-wider">Medicine & Type</th>
+                    <th scope="col" className="px-3 py-1.5 text-left font-bold text-gray-500 uppercase tracking-wider w-32">Dosage Schedule</th>
+                    <th scope="col" className="px-3 py-1.5 text-left font-bold text-gray-500 uppercase tracking-wider">Instructions & Period</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white">
+                  {prescriptionData.medicines.map((med, idx) => (
+                    <tr key={idx} className="hover:bg-gray-50/50">
+                      <td className="px-3 py-1.5 text-gray-400 font-mono text-center">{idx + 1}</td>
+                      <td className="px-3 py-1.5">
+                        <div className="font-bold text-gray-900 text-xs">{med.name}</div>
+                        <div className="text-[9px] text-gray-400 font-medium">{med.type}</div>
+                      </td>
+                      <td className="px-3 py-1.5">
+                        <span className="inline-block px-1.5 py-0.5 bg-teal-50 text-teal-800 border border-teal-200 text-[9.5px] font-bold rounded uppercase">
+                          {med.timing}
+                        </span>
+                      </td>
+                      <td className="px-3 py-1.5 text-gray-700">
+                        <p className="font-bold text-gray-800 text-[10.5px]">{med.instructions}</p>
+                        <p className="text-[9px] text-gray-400 mt-0.5">Duration: <strong className="text-gray-700 font-semibold">{med.duration}</strong></p>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* ── ADVICE & PRECAUTIONS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start text-left">
+            {/* Precautions */}
+            <div className="md:col-span-8 space-y-1.5">
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-rose-700 border-b border-rose-100 pb-1">
+                III. Dietary Advice & Precautions
+              </h4>
+              <ul className="space-y-1 bg-rose-50/30 border border-rose-100 rounded-xl p-3 text-[11px] leading-relaxed">
+                {prescriptionData.precautions.map((item, idx) => (
+                  <li key={idx} className="flex gap-1.5 text-gray-700 items-start">
+                    <span className="w-1 h-1 bg-rose-600 rounded-full mt-1.5 shrink-0" />
+                    <div>
+                      <strong className="text-rose-900 font-bold">{item.rule}: </strong>
+                      <span className="text-gray-600">{item.detail}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Signature Stamp Box */}
+            <div className="md:col-span-4 space-y-1.5 flex flex-col items-center md:items-end">
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100 pb-1 w-full text-center md:text-right">
+                IV. Clinician Signature
+              </h4>
+              
+              {/* Seal Stamp Container */}
+              <div className="relative border border-gray-200 rounded-xl p-3 w-full bg-white flex flex-col items-center justify-center text-center shadow-3xs mt-0.5 min-h-[90px]">
+                {/* Simulated Signature Font */}
+                <p className="font-serif italic text-teal-900 font-black text-base select-none">
+                  {prescriptionData.doctorName}
+                </p>
+                <p className="text-[9px] text-gray-400 font-semibold mt-0.5">
+                  Attending Practitioner
+                </p>
+
+                {/* Digital Stamp Seal Overlay */}
+                <div 
+                  className="absolute border-2 border-blue-500/20 text-blue-500/60 rounded-full w-20 h-20 flex flex-col items-center justify-center select-none rotate-12"
+                  style={{
+                    fontSize: '5.5px',
+                    fontWeight: 900,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                    lineHeight: '7px',
+                    borderColor: 'rgba(59, 130, 246, 0.2)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.01)'
+                  }}
+                >
+                  <span>APOLLO HOSPITALS</span>
+                  <span className="font-bold text-[7px] my-0.5">VERIFIED</span>
+                  <span>JUBILEE HILLS</span>
+                </div>
               </div>
-              <span className="text-xs text-emerald-600 font-semibold bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 rounded-full">
-                3 Medicines Active
-              </span>
-            </div>
-
-            <div className="divide-y divide-gray-100 border border-gray-200 rounded-2xl overflow-hidden bg-white">
-              {prescriptionData.medicines.map((med, idx) => (
-                <div key={idx} className="p-4 hover:bg-gray-50/80 transition-colors space-y-2">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-xs shrink-0">
-                        {idx + 1}
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900 text-sm">{med.name}</h4>
-                        <p className="text-xs text-gray-500">{med.type} · Duration: <span className="font-semibold text-gray-700">{med.duration}</span></p>
-                      </div>
-                    </div>
-
-                    <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${med.badgeColor}`}>
-                      {med.timing}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 text-xs bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                    <div>
-                      <span className="text-gray-400 block text-[10.5px]">Dose Quantity:</span>
-                      <span className="font-bold text-gray-800">{med.dosage}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-400 block text-[10.5px]">Daily Frequency:</span>
-                      <span className="font-bold text-gray-800">{med.frequency}</span>
-                    </div>
-                    <div className="col-span-2 sm:col-span-1">
-                      <span className="text-gray-400 block text-[10.5px]">Doctor Note:</span>
-                      <span className="font-medium text-teal-700">{med.instructions}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
 
-          {/* ── 3. PRECAUTIONS & THINGS TO AVOID ────────────────────────── */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-rose-600">
-              <AlertOctagon className="h-4 w-4" />
-              <span>Precautions & Things to Avoid (Doctor's Advice)</span>
+          {/* ── DIGITAL SIGNATURE DISCLOSURE & QR SECTION ── */}
+          <div className="border-t border-gray-200 pt-3 mt-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+            <div className="text-[9px] text-gray-400 max-w-sm leading-relaxed">
+              <span className="font-semibold text-gray-500 uppercase block">Digitally Signed Health Record</span>
+              This is a digitally generated medical report issued under verified clinicians and registered under ABDM ID system.
             </div>
-
-            <div className="bg-rose-50/50 border border-rose-100 rounded-2xl p-4 space-y-2.5">
-              {prescriptionData.precautions.map((item, idx) => (
-                <div key={idx} className="flex items-start gap-2.5 text-xs text-gray-800">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0 mt-1.5" />
-                  <div>
-                    <span className="font-bold text-rose-900">{item.rule}: </span>
-                    <span className="text-gray-600">{item.detail}</span>
-                  </div>
-                </div>
-              ))}
+            {/* ABDM Verified Barcode Placeholder */}
+            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1.5 shrink-0">
+              <div className="space-y-0.5 text-right hidden sm:block">
+                <span className="text-[7px] font-bold text-gray-400 block uppercase">Record Code</span>
+                <span className="text-[9px] font-mono font-bold text-gray-700">{prescriptionData.rxNumber}</span>
+              </div>
+              <div 
+                className="w-9 h-9 bg-gray-100 flex items-center justify-center rounded border border-gray-200"
+                style={{
+                  backgroundImage: 'radial-gradient(circle, #333 10%, transparent 11%), radial-gradient(circle, #333 10%, transparent 11%)',
+                  backgroundSize: '3px 3px',
+                  backgroundPosition: '0 0, 1.5px 1.5px'
+                }}
+              />
             </div>
           </div>
 
-          {/* ── 4. NEXT FOLLOW-UP VISIT & ACTIONS ────────────────────────── */}
-          <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-white border border-emerald-200/80 rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-600/20">
-                <Calendar className="h-5 w-5" />
+          {/* ── FOLLOW-UP ACTION TICKET (Non-printable) ── */}
+          <div className="bg-emerald-50 border border-emerald-200/80 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 print:hidden text-left mt-3">
+            <div className="flex items-center gap-2.5 shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                <Calendar className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">
+                <p className="text-[9px] font-bold text-emerald-800 uppercase tracking-wider">
                   Recommended Follow-up Visit
                 </p>
-                <p className="text-sm font-bold text-gray-900 mt-0.5">
+                <p className="text-xs font-bold text-gray-900 mt-0.5">
                   {prescriptionData.followUp.displayDate}
                 </p>
-                <p className="text-xs text-gray-500">{prescriptionData.followUp.room} · Dr. Arvind Mehta</p>
+                <p className="text-[10px] text-gray-500">{prescriptionData.followUp.room || 'OPD Room 302'} · Jubilee Hills</p>
               </div>
             </div>
 
             <Link
               to={`/doctor/doc_cardiology_1#book`}
-              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow transition-colors flex items-center gap-1.5"
+              className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
             >
               <span>Book Follow-up Slot</span>
-              <CheckCircle2 className="h-4 w-4" />
+              <CheckCircle2 className="h-3 w-3" />
             </Link>
           </div>
 

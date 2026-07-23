@@ -18,12 +18,16 @@ import {
   UserRound,
   Calendar,
   CheckCircle,
+  Check,
   X,
   Zap,
+  AlertTriangle,
 } from 'lucide-react';
 import { todayDisplayShort } from '../utils/appTime';
 import { useStaffAppointments } from '../hooks/useStaffAppointments';
 import { useSlotRecovery } from '../hooks/useSlotRecovery';
+import { db } from '../firebase/config';
+import { collection, getDocs, doc, updateDoc, setDoc, query, where, serverTimestamp } from 'firebase/firestore';
 
 // ─── Nav Config ───
 const navItems = [
@@ -33,6 +37,7 @@ const navItems = [
   { path: '/staff/doctor-view',  label: "Doctor's View",     icon: Stethoscope,     badge: null },
   { path: '/staff/admin',        label: 'Admin Analytics',   icon: BarChart3,       badge: null },
   { path: '/staff/reminders',    label: 'Reminder Log',      icon: BellRing,        badge: null },
+  { path: '#emergency',          label: 'Emergency Swap',    icon: AlertTriangle,   badge: null },
 ];
 
 const PAGE_TITLES = {
@@ -52,9 +57,45 @@ const NOTIFICATIONS = [
 ];
 
 // ─── Single Nav Item ───
-function SidebarItem({ item }) {
+function SidebarItem({ item, onClick }) {
   const Icon = item.icon;
   const [hovered, setHovered] = useState(false);
+
+  if (item.path.startsWith('#')) {
+    return (
+      <div
+        onClick={(e) => {
+          e.preventDefault();
+          if (onClick) onClick();
+        }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          padding: '0.625rem 1rem',
+          cursor: 'pointer',
+          fontWeight: 500,
+          fontSize: '0.85rem',
+          color: '#ef4444',
+          background: hovered ? '#fef2f2' : 'transparent',
+          borderLeft: '3px solid transparent',
+          transition: 'all 150ms ease',
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          paddingLeft: '1rem',
+        }}
+      >
+        <span style={{ flexShrink: 0, display: 'flex', color: '#ef4444' }}>
+          <Icon size={18} strokeWidth={1.5} />
+        </span>
+        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {item.label}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <NavLink
@@ -111,7 +152,7 @@ function SidebarItem({ item }) {
 }
 
 // ─── Sidebar ───
-function Sidebar() {
+function Sidebar({ onEmergencyClick }) {
   const navigate = useNavigate();
   const { appointments } = useStaffAppointments();
   const { openSlots } = useSlotRecovery();
@@ -183,6 +224,7 @@ function Sidebar() {
               ...item,
               badge: dynamicBadges[item.path] !== undefined ? dynamicBadges[item.path] : item.badge
             }} 
+            onClick={item.path === '#emergency' ? onEmergencyClick : undefined}
           />
         ))}
       </nav>
@@ -407,10 +449,254 @@ function Header({ onNotifClick, showNotifPanel }) {
   );
 }
 
+// ─── Emergency Swap Modal ───
+function EmergencySwapModal({ onClose }) {
+  const [doctorsList, setDoctorsList] = useState([]);
+  const [selectedAbsentDoc, setSelectedAbsentDoc] = useState(null);
+  const [swappingProgress, setSwappingProgress] = useState(false);
+  const [appointmentsCount, setAppointmentsCount] = useState(0);
+  const [loadingDocs, setLoadingDocs] = useState(true);
+
+  const BACKUP_MAPPING = {
+    'doc_001': { id: 'doc_007', name: 'Dr. Sanjay Joshi', department: 'Cardiology', room: 'OPD Room 305' },
+    'doc_002': { id: 'doc_005', name: 'Dr. Arjun Deshmukh', department: 'General Medicine', room: 'OPD Room 102' },
+    'doc_003': { id: 'doc_004', name: 'Dr. Kavita Reddy', department: 'Dermatology', room: 'OPD Room 210' },
+    'doc_008': { id: 'doc_006', name: 'Dr. Meena Nair', department: 'Neurology', room: 'OPD Room 403' },
+  };
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const snap = await getDocs(collection(db, 'doctors'));
+        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const primaryDocs = docs.filter(d => !['doc_004', 'doc_005', 'doc_006', 'doc_007'].includes(d.id));
+        setDoctorsList(primaryDocs);
+      } catch (err) {
+        console.error(err);
+      }
+      setLoadingDocs(false);
+    };
+    fetchDoctors();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedAbsentDoc) {
+      setAppointmentsCount(0);
+      return;
+    }
+    const fetchCount = async () => {
+      try {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const q = query(
+          collection(db, 'appointments'),
+          where('doctorId', '==', selectedAbsentDoc.id),
+          where('appointmentDate', '==', todayStr),
+          where('status', 'in', ['confirmed', 'pending'])
+        );
+        const snap = await getDocs(q);
+        setAppointmentsCount(snap.size);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchCount();
+  }, [selectedAbsentDoc]);
+
+  const handleHotSwapBackup = async () => {
+    if (!selectedAbsentDoc) return;
+    const backup = BACKUP_MAPPING[selectedAbsentDoc.id];
+    if (!backup) {
+      toast.error("No emergency backup configured for this practitioner.");
+      return;
+    }
+
+    setSwappingProgress(true);
+    try {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const q = query(
+        collection(db, 'appointments'),
+        where('doctorId', '==', selectedAbsentDoc.id),
+        where('appointmentDate', '==', todayStr),
+        where('status', 'in', ['confirmed', 'pending'])
+      );
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        toast.success(`Emergency Activated: ${backup.name} is now on duty.`, { id: 'sidebar-swap-toast' });
+        onClose();
+        setSwappingProgress(false);
+        return;
+      }
+
+      for (const apptDoc of snap.docs) {
+        const appt = apptDoc.data();
+        const apptRef = doc(db, 'appointments', apptDoc.id);
+        await updateDoc(apptRef, {
+          doctorId: backup.id,
+          doctorName: backup.name,
+          room: backup.room,
+          notes: `Emergency reassignment from ${appt.doctorName}`,
+          updatedAt: serverTimestamp()
+        });
+
+        const notifRef = doc(collection(db, 'notifications'));
+        await setDoc(notifRef, {
+          patientId: appt.patientId,
+          title: '🚨 OPD Doctor Change Alert',
+          body: `Due to an emergency, your appointment today at ${appt.appointmentTime} has been re-assigned to ${backup.name} in ${backup.room}. Please report there directly.`,
+          sentAt: serverTimestamp(),
+          type: 'alert',
+          read: false
+        });
+
+        const reminderRef = doc(collection(db, 'reminders'));
+        await setDoc(reminderRef, {
+          appointmentId: apptDoc.id,
+          patientId: appt.patientId,
+          reminderType: 'doctor_change_hot_swap',
+          channel: 'whatsapp',
+          status: 'sent',
+          messageBody: `Apollo Hospital Alert: Dear patient, due to an emergency, your appointment today at ${appt.appointmentTime} has been re-assigned to ${backup.name} in ${backup.room}.`,
+          sentAt: serverTimestamp()
+        });
+      }
+
+      toast.success(`Emergency activated! ${snap.size} appointments re-routed to ${backup.name}. Patients notified.`, { id: 'sidebar-swap-toast', duration: 4000 });
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to activate emergency hot-swap.");
+    }
+    setSwappingProgress(false);
+  };
+
+  return (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+      background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(4px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      zIndex: 9999, padding: '1rem',
+      fontFamily: 'Plus Jakarta Sans, sans-serif'
+    }}>
+      <div style={{
+        background: 'white', borderRadius: '12px', width: '100%', maxWidth: '440px',
+        boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
+        overflow: 'hidden'
+      }}>
+        {/* Header */}
+        <div style={{ background: '#ef4444', padding: '1.25rem', color: 'white', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <AlertTriangle size={24} />
+          <div>
+            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, fontFamily: 'Space Grotesk, sans-serif' }}>
+              Emergency Backup Activation
+            </h3>
+            <span style={{ fontSize: '0.75rem', opacity: 0.9 }}>Global Doctor Absentee Swap</span>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: '1.25rem', fontSize: '0.82rem', color: '#374151', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {loadingDocs ? (
+            <div style={{ textAlign: 'center', padding: '1rem', color: '#64748b' }}>Loading doctor roster...</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <label style={{ fontWeight: 600, color: '#475569' }}>Select Absent Doctor:</label>
+              <select
+                onChange={(e) => {
+                  const docObj = doctorsList.find(d => d.id === e.target.value);
+                  setSelectedAbsentDoc(docObj || null);
+                }}
+                style={{
+                  width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1',
+                  background: 'white', outline: 'none', fontSize: '0.82rem'
+                }}
+              >
+                <option value="">-- Choose practitioner --</option>
+                {doctorsList.map(d => (
+                  <option key={d.id} value={d.id}>{d.name} ({d.department})</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {selectedAbsentDoc && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {BACKUP_MAPPING[selectedAbsentDoc.id] ? (
+                <div style={{ background: '#f0fdf4', border: '1px solid #dcfce7', borderRadius: '8px', padding: '0.75rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                    <span>Recommended Backup:</span>
+                    <strong style={{ color: '#16a34a' }}>{BACKUP_MAPPING[selectedAbsentDoc.id].name}</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                    <span>Cabin Destination:</span>
+                    <span style={{ fontWeight: 600 }}>{BACKUP_MAPPING[selectedAbsentDoc.id].room}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#166534', paddingTop: '0.35rem', borderTop: '1px dashed #bbf7d0' }}>
+                    <span>Affected Appointments Today:</span>
+                    <strong>{appointmentsCount}</strong>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ color: '#ef4444', fontWeight: 600, padding: '0.5rem', background: '#fef2f2', borderRadius: '6px' }}>
+                  No default backup doctor configured for this practitioner.
+                </div>
+              )}
+
+              {/* Actions list */}
+              <div style={{ fontSize: '0.76rem', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                  <Check size={14} color="#16a34a" />
+                  <span>Updates today's schedule in real-time.</span>
+                </div>
+                <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                  <Check size={14} color="#16a34a" />
+                  <span>Re-routes affected slot rooms in patient charts.</span>
+                </div>
+                <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                  <Check size={14} color="#16a34a" />
+                  <span>Sends instant WhatsApp alerts with backup room details.</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer Buttons */}
+        <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid #f3f4f6', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', background: '#f8fafc' }}>
+          <button
+            disabled={swappingProgress}
+            onClick={onClose}
+            style={{
+              padding: '0.45rem 1rem', background: 'white', color: '#475569', border: '1px solid #cbd5e1',
+              borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer'
+            }}
+          >
+            Cancel
+          </button>
+          {selectedAbsentDoc && BACKUP_MAPPING[selectedAbsentDoc.id] && (
+            <button
+              disabled={swappingProgress}
+              onClick={handleHotSwapBackup}
+              style={{
+                padding: '0.45rem 1rem', background: '#ef4444', color: 'white', border: 'none',
+                borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, cursor: swappingProgress ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', gap: '0.25rem'
+              }}
+            >
+              {swappingProgress ? 'Re-routing...' : 'Confirm Hot-Swap'}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Layout ───
 export default function DashboardLayout({ children }) {
   const location = useLocation();
   const [showNotifPanel, setShowNotifPanel] = useState(false);
+  const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -424,7 +710,7 @@ export default function DashboardLayout({ children }) {
     <div style={{ display: 'flex', height: '100vh', background: '#f8fafc', overflow: 'hidden' }}>
       
       {/* Sidebar — desktop only */}
-      {!isMobile && <Sidebar />}
+      {!isMobile && <Sidebar onEmergencyClick={() => setShowEmergencyModal(true)} />}
 
       {/* Main area */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, position: 'relative' }}>
@@ -461,6 +747,11 @@ export default function DashboardLayout({ children }) {
           <NotificationPanel onClose={() => setShowNotifPanel(false)} />
         )}
       </AnimatePresence>
+
+      {/* Emergency Swap Modal */}
+      {showEmergencyModal && (
+        <EmergencySwapModal onClose={() => setShowEmergencyModal(false)} />
+      )}
 
       <Toaster
         position="top-right"
