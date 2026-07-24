@@ -251,11 +251,64 @@ export default function SlotRecoveryPage() {
     }
   };
 
+  // Auto-seed simulation data whenever open slots list is empty (ensures Demo Day on 3rd Aug & always has active slots)
+  useEffect(() => {
+    if (!slotLoading && liveOpenSlots.length === 0) {
+      handleSimulateRecovery();
+    }
+  }, [slotLoading, liveOpenSlots.length]);
+
   if (slotLoading || apptsLoading) {
     return <Loader message="Synchronizing Clinic Intelligence..." />;
   }
 
-  const openSlots = liveOpenSlots;
+  // Fallback demo slots for seamless demo presentation on any day (e.g. 3rd Aug) if Firestore is empty
+  const fallbackOpenSlots = [
+    {
+      id: 'sim_appt_1',
+      patientId: 'sim_pat_1',
+      doctorId: 'doc_001',
+      doctorName: 'Dr. Rajesh Mehta',
+      department: 'Cardiology',
+      appointmentDate: todayStr,
+      appointmentTime: '09:30 AM',
+      status: 'cancelled',
+      consultationFee: 1500,
+      cancelledReason: 'Caught in massive traffic jam',
+      hospital: 'Apollo Hospital, Jubilee Hills',
+      room: 'OPD Room 302',
+      riskScore: 85,
+      riskLevel: 'HIGH',
+      bookingId: 'APL-2026-9021',
+      cancelledBy: 'Rohan Verma',
+      timeAgo: '10 mins ago',
+      waitlistCount: 2,
+      notifiedList: {}
+    },
+    {
+      id: 'sim_appt_2',
+      patientId: 'sim_pat_2',
+      doctorId: 'doc_003',
+      doctorName: 'Dr. Sunil Nair',
+      department: 'Dermatology',
+      appointmentDate: todayStr,
+      appointmentTime: '11:45 AM',
+      status: 'cancelled',
+      consultationFee: 1800,
+      cancelledReason: 'Last minute client meeting',
+      hospital: 'Apollo Hospital, Jubilee Hills',
+      room: 'OPD Room 205',
+      riskScore: 70,
+      riskLevel: 'MEDIUM',
+      bookingId: 'APL-2026-4412',
+      cancelledBy: 'Karan Malhotra',
+      timeAgo: '25 mins ago',
+      waitlistCount: 1,
+      notifiedList: {}
+    }
+  ];
+
+  const openSlots = liveOpenSlots.length > 0 ? liveOpenSlots : fallbackOpenSlots;
 
   return (
     <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
