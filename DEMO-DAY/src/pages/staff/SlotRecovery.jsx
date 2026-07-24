@@ -532,7 +532,7 @@ export default function SlotRecoveryPage() {
                       <div style={{ textAlign: 'right', marginLeft: 'auto' }}>
                         <div>
                           <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#b45309', fontFamily: 'Space Grotesk, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
-                            ₹{slot.fee.toLocaleString('en-IN')}
+                            ₹{(Number(slot?.fee) || Number(slot?.consultationFee) || 1500).toLocaleString('en-IN')}
                           </div>
                           <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>
                             at risk
@@ -567,7 +567,7 @@ export default function SlotRecoveryPage() {
                     {isExpanded && (
                       <div style={{ overflow: 'hidden', marginTop: '1rem', background: '#f8fafc', padding: '0.75rem', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         {waitlistMatches.map(patient => {
-                          const isNotified = slot.notifiedList[patient.id];
+                          const isNotified = slot.notifiedList ? slot.notifiedList[patient.id] : false;
                           const riskColor = patient.risk <= 15 ? '#16a34a' : patient.risk <= 35 ? '#d97706' : '#ef4444';
                           
                           return (
