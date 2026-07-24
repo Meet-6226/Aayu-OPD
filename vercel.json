@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd \" APOLLO-PATIENT\" && npm install && npm run build",
+  "outputDirectory": " APOLLO-PATIENT/dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
