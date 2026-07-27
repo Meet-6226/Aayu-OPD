@@ -25,7 +25,9 @@ const doctorsList = [
     hospital: "Apollo Hospital, Jubilee Hills",
     bio: "Senior cardiologist specializing in interventional cardiology and heart failure management with over 2000 successful procedures.",
     specializations: ["Interventional Cardiology", "Heart Failure", "Angioplasty", "ECG", "Echocardiography"],
-    isAvailable: true
+    isAvailable: true,
+    offersOnlineConsultation: false,
+    onlineConsultationFee: 500
   },
   {
     id: "doc_002",
@@ -42,7 +44,9 @@ const doctorsList = [
     hospital: "Apollo Hospital, Jubilee Hills",
     bio: "Orthopedic surgeon known for minimally invasive joint replacements and sports injury rehabilitation.",
     specializations: ["Joint Replacement", "Sports Injuries", "Spine Surgery", "Fractures"],
-    isAvailable: true
+    isAvailable: true,
+    offersOnlineConsultation: false,
+    onlineConsultationFee: 700
   },
   {
     id: "doc_003",
@@ -59,7 +63,9 @@ const doctorsList = [
     hospital: "Apollo Hospital, Jubilee Hills",
     bio: "Dermatologist with expertise in both medical and cosmetic dermatology.",
     specializations: ["Acne", "Eczema", "Psoriasis", "Cosmetic Dermatology"],
-    isAvailable: true
+    isAvailable: true,
+    offersOnlineConsultation: true,
+    onlineConsultationFee: 400
   },
   {
     id: "doc_004",
@@ -76,7 +82,9 @@ const doctorsList = [
     hospital: "Apollo Hospital, Jubilee Hills",
     bio: "General physician focused on diabetes management, hypertension control, and preventive health checkups.",
     specializations: ["Diabetes", "Hypertension", "Fever", "Preventive Care"],
-    isAvailable: true
+    isAvailable: true,
+    offersOnlineConsultation: true,
+    onlineConsultationFee: 300
   },
   {
     id: "doc_005",
@@ -93,7 +101,9 @@ const doctorsList = [
     hospital: "Apollo Hospital, Jubilee Hills",
     bio: "Senior neurologist with 18 years of experience in stroke management and epilepsy treatment.",
     specializations: ["Stroke", "Epilepsy", "Migraine", "Movement Disorders"],
-    isAvailable: true
+    isAvailable: true,
+    offersOnlineConsultation: false,
+    onlineConsultationFee: 800
   },
   {
     id: "doc_006",
@@ -110,7 +120,9 @@ const doctorsList = [
     hospital: "Apollo Hospital, Jubilee Hills",
     bio: "Gynecologist specializing in high-risk pregnancies and advanced laparoscopic surgeries.",
     specializations: ["Obstetrics", "PCOS", "Infertility", "Laparoscopy"],
-    isAvailable: true
+    isAvailable: true,
+    offersOnlineConsultation: true,
+    onlineConsultationFee: 450
   },
   {
     id: "doc_007",
@@ -127,7 +139,9 @@ const doctorsList = [
     hospital: "Apollo Hospital, Jubilee Hills",
     bio: "ENT specialist treating hearing disorders, chronic sinusitis, and sleep apnea conditions.",
     specializations: ["Sinusitis", "Hearing Loss", "Tonsillitis", "Sleep Apnea"],
-    isAvailable: true
+    isAvailable: true,
+    offersOnlineConsultation: false,
+    onlineConsultationFee: 400
   },
   {
     id: "doc_008",
@@ -144,7 +158,9 @@ const doctorsList = [
     hospital: "Apollo Hospital, Jubilee Hills",
     bio: "Pediatrician with expertise in newborn intensive care, childhood vaccinations, and growth monitoring.",
     specializations: ["Newborn Care", "Vaccinations", "Growth Disorders", "Child Nutrition"],
-    isAvailable: true
+    isAvailable: true,
+    offersOnlineConsultation: true,
+    onlineConsultationFee: 450
   },
   {
     id: "doc_009",
@@ -161,7 +177,9 @@ const doctorsList = [
     hospital: "Apollo Hospital, Jubilee Hills",
     bio: "Ophthalmologist specializing in cataract surgery, glaucoma management, and retinal disorders.",
     specializations: ["Cataract Surgery", "Glaucoma", "Retinal Disorders", "LASIK"],
-    isAvailable: true
+    isAvailable: true,
+    offersOnlineConsultation: false,
+    onlineConsultationFee: 450
   },
   {
     id: "doc_010",
@@ -178,7 +196,9 @@ const doctorsList = [
     hospital: "Apollo Hospital, Jubilee Hills",
     bio: "Dental surgeon with expertise in root canal treatment, dental implants, and cosmetic dentistry.",
     specializations: ["Root Canal", "Dental Implants", "Cosmetic Dentistry", "Orthodontics"],
-    isAvailable: true
+    isAvailable: true,
+    offersOnlineConsultation: true,
+    onlineConsultationFee: 300
   }
 ];
 

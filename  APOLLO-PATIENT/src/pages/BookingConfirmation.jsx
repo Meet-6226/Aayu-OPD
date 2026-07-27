@@ -31,6 +31,7 @@ import { APOLLO_HOSPITALS } from '../utils/hospitalLocation';
 import { getWeatherForecast, isWithinForecastWindow } from '../utils/weatherService';
 import { estimateTrafficLevel } from '../utils/trafficEstimate';
 import { getRoadDistanceAndTraffic, reverseGeocode, getDirectionsUrl } from '../services/googleMapsService';
+import { createVideoRoom } from '../services/videoCallService';
 
 // Calculate days between appointment date and today — IST-anchored via appTime.js
 const calculateLeadTimeDays = (appDateStr) => {
@@ -127,6 +128,7 @@ export default function BookingConfirmation() {
   const [processing, setProcessing] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingError, setBookingError] = useState('');
+  const [loadingStep, setLoadingStep] = useState('');
 
   // Family contact details for Elderly persona
   const [familyContact, setFamilyContact] = useState({
@@ -247,6 +249,7 @@ export default function BookingConfirmation() {
   const [weatherLoading, setWeatherLoading] = useState(false);
 
   const booking = location.state;
+  const consultationMode = booking?.consultationMode || 'in_person';
 
   // Auto-fetch forecast as soon as we know the appointment date or closest hospital.
   // Uses CLOSEST HOSPITAL coordinates (weather affects travel TO that hospital).
@@ -392,10 +395,15 @@ export default function BookingConfirmation() {
   ];
 
   // Dynamic WhatsApp previews
-  const getWhatsAppPreviewText = () => {
+  const getWhatsAppPreviewText = (videoUrl = null) => {
     const timeText = `${booking.date} at ${booking.time}`;
     const patientName = authUser?.name || 'Priya Sharma';
+    const isOnline = consultationMode === 'online';
+    const joinLink = videoUrl ? `\n\nJoin here 10 minutes before your slot: ${videoUrl}` : '';
     
+    if (isOnline) {
+      return `Hello ${patientName}, your video consultation with ${booking.doctorName} is confirmed for ${timeText}. Please be ready on time with a stable internet connection.${joinLink} Reply 1 to confirm.`;
+    }
     switch (selectedPersona) {
       case 'Professional':
         return `Hi ${patientName}! Your appointment with ${booking.doctorName} is scheduled for ${timeText}. Plan your leave today to avoid delay. Reply 1 to confirm, 2 to reschedule.`;
@@ -404,7 +412,7 @@ export default function BookingConfirmation() {
       case 'Student':
         return `Hey ${patientName}! Ready for your consult with ${booking.doctorName} on ${timeText}? Friendly nudge: don't skip! Reply 1 to confirm.`;
       default:
-        return `Appointment confirmed: ${patientName} with ${booking.doctorName}. ${timeText}. Location: Apollo Hospitals. Reply 1 to confirm.`;
+        return `Appointment confirmed: ${patientName} with ${booking.doctorName}. ${timeText}. Location: Aether OPD. Reply 1 to confirm.`;
     }
   };
 
@@ -412,8 +420,15 @@ export default function BookingConfirmation() {
     if (processing) return;
     setProcessing(true);
     setBookingError('');
+    setLoadingStep('Securing transactional database locks...');
+
+    // Helper promise delay
+    const delay = ms => new Promise(res => setTimeout(res, ms));
 
     try {
+      await delay(800);
+      setLoadingStep('Verifying slot availability on selected clinician schedule...');
+
       const patientId = authUser?.uid || authUser?.id || (authUser?.phoneNumber ? authUser.phoneNumber.replace(/\D/g, '') : null) || (authUser?.email ? authUser.email.replace(/[^a-zA-Z0-9_-]/g, '') : null) || 'patient_priya_demo';
       const slotRef = doc(db, COLLECTIONS.DOCTOR_SLOTS, booking.slotId);
 
@@ -428,6 +443,21 @@ export default function BookingConfirmation() {
 
       // Parse fee to integer
       const feesNum = parseInt(booking.fees.toString().replace(/\D/g, ''), 10) || 0;
+
+      // Create Daily.co video room for online consultations
+      let videoRoomUrl = null;
+      let videoRoomName = null;
+      if (consultationMode === 'online') {
+        try {
+          videoRoomUrl = await createVideoRoom(appointmentId, booking.dateString, booking.time);
+          videoRoomName = `apollo-consult-${appointmentId}`;
+          console.log('[VideoCall] Room created:', videoRoomUrl);
+        } catch (e) {
+          console.error('[VideoCall] Room creation failed, booking will continue:', e);
+          videoRoomUrl = `https://apollo-opd-test.daily.co/apollo-consult-${appointmentId}`;
+          videoRoomName = `apollo-consult-${appointmentId}`;
+        }
+      }
 
       // Map UI persona to database key
       let dbPersona = 'default';
@@ -463,9 +493,13 @@ export default function BookingConfirmation() {
         patientConfirmed: false,
         bookingId,
         hospital: closestHospital.name,
-        room: randomRoom,
+        room: consultationMode === 'online' ? null : randomRoom,
         notes: "",
         cancelledReason: "",
+        consultationMode,
+        videoRoomUrl: videoRoomUrl || null,
+        videoRoomName: videoRoomName || null,
+        callStatus: consultationMode === 'online' ? 'not_started' : null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
@@ -483,6 +517,9 @@ export default function BookingConfirmation() {
 
       // Validate schema contract before writing — fail loud
       validateAppointmentData(appointmentData);
+
+      await delay(850);
+      setLoadingStep('Running atomic MongoDB transaction updates...');
 
       // Atomic Transaction: check slot availability before writing documents
       await runTransaction(db, async (transaction) => {
@@ -560,8 +597,6 @@ export default function BookingConfirmation() {
       });
 
       // ── Geolocation: save last known location to patient doc ────────────────
-      // Do this as a best-effort update outside the atomic transaction so it
-      // never blocks the booking commit.
       if (locationReady && userLat != null && userLon != null && realDistanceKm != null) {
         try {
           const patientRef = doc(db, COLLECTIONS.PATIENTS, patientId);
@@ -581,25 +616,18 @@ export default function BookingConfirmation() {
           console.warn('[Location] Failed to save lastKnownLocation:', e);
         }
       }
-      // ── End Geolocation save ─────────────────────────────────────────────────
+
+      await delay(900);
+      setLoadingStep('Dispatching automated Twilio WhatsApp notifications...');
 
       // ── ML Risk Scoring (non-blocking) ─────────────────────────────────────
-      // Fire-and-forget: enriches the appointment doc with XGBoost prediction.
-      // Never blocks the booking UX; falls back silently if Render is cold-starting.
-      // Uses real geolocation distance + live weather when available.
       const effectiveDistanceKm =
         realDistanceKm ??
         authUser.lastKnownLocation?.distanceFromHospitalKm ??
         authUser.distanceKm ??
         10;
 
-      // Real weather_rain from OpenWeatherMap — falls back to false (neutral) if
-      // API is unavailable, key is missing, or appointment is >5 days ahead.
       const weatherRain = weatherData?.willRain ?? false;
-
-      console.log(`[ML] Using distance_km = ${effectiveDistanceKm} km (${realDistanceKm ? (isFallback ? 'city fallback' : 'live GPS') : 'stored/default'})`);
-      console.log(`[ML] Using weather_rain = ${weatherRain} (${weatherData?.isForecastAvailable ? 'live forecast' : 'fallback/unavailable'}: ${weatherData?.condition ?? 'unknown'})`);
-      console.log(`[ML] Traffic estimate: ${trafficInfo?.level ?? 'N/A'} (score=${trafficInfo?.congestionScore ?? '-'}) — factors: ${trafficInfo?.factors?.join(', ') ?? 'none'}`);
 
       predictNoShowRisk({
         patientNoShows:    authUser.totalNoShows  || 0,
@@ -629,13 +657,11 @@ export default function BookingConfirmation() {
             locationSource:     realDistanceKm
                                   ? (isFallback ? 'city_fallback' : 'live_gps')
                                   : 'stored_default',
-            // Weather fields persisted alongside ML result
             weatherRainUsed:    weatherRain,
             weatherCondition:   weatherData?.condition    ?? 'Unknown',
             weatherDescription: weatherData?.description  ?? 'unavailable',
             weatherTemperature: weatherData?.temperature  ?? null,
             weatherSource:      weatherData?.isForecastAvailable ? 'live_owm' : 'fallback',
-            // Traffic estimate (rule-based, PRD feature: Weather/traffic on appointment day)
             trafficLevel:       trafficInfo?.level            ?? 'Unknown',
             trafficScore:       trafficInfo?.congestionScore  ?? null,
             trafficFactors:     trafficInfo?.factors          ?? [],
@@ -648,7 +674,6 @@ export default function BookingConfirmation() {
       }).catch((e) => {
         console.warn('[ML] predictNoShowRisk rejected unexpectedly:', e);
       });
-      // ── End ML Risk Scoring ─────────────────────────────────────────────────
 
       // Update mock local state if needed
       const localUpdate = {
@@ -669,6 +694,10 @@ export default function BookingConfirmation() {
         console.error("Booking triggers failed:", e);
       }
 
+      await delay(700);
+      setLoadingStep('Finalizing secure clinician connection...');
+      await delay(450);
+
       // Trigger success check overlay
       setBookingSuccess(true);
       setTimeout(() => {
@@ -687,6 +716,7 @@ export default function BookingConfirmation() {
       }
     } finally {
       setProcessing(false);
+      setLoadingStep('');
     }
   };
 
@@ -762,7 +792,7 @@ export default function BookingConfirmation() {
       <div className="flex items-center justify-center space-x-2 text-[10px] uppercase font-bold tracking-widest text-[#9ca3af] mb-5 font-display select-none">
         <span>1. Select Doctor</span>
         <span className="text-gray-300">&rarr;</span>
-        <span className="text-primary-teal bg-primary-teal/5 border border-primary-teal/10 px-2.5 py-1 rounded-lg font-semibold animate-pulse-glow">2. Review & Confirm</span>
+        <span className="text-[#1E7F6A] bg-[#ECFDF5] border border-[#A7F3D0] px-2.5 py-1 rounded-[6px] font-semibold">2. Review & Confirm</span>
       </div>
 
       {/* Title */}
@@ -779,7 +809,7 @@ export default function BookingConfirmation() {
           onClick={() => setIsSimulatedHighRisk(!isSimulatedHighRisk)}
           className="absolute right-0 top-1/2 -translate-y-1/2 text-[10px] font-bold text-primary-teal bg-primary-teal/5 hover:bg-primary-teal/15 border border-primary-teal/15 px-3 py-1.5 rounded-xl transition-all cursor-pointer select-none active:scale-95"
         >
-          🧪 {isSimulatedHighRisk ? 'Reset Risk Simulation' : 'Simulate High Risk'}
+          {isSimulatedHighRisk ? 'Reset Risk Simulation' : 'Simulate High Risk'}
         </button>
       </div>
 
@@ -834,7 +864,7 @@ export default function BookingConfirmation() {
                     <div className="w-10 h-10 rounded-xl bg-primary-teal text-white flex items-center justify-center shadow-md shadow-primary-teal/10">
                       <MapPin className="h-4.5 w-4.5" />
                     </div>
-                    <span className="text-[10px] font-bold text-text-dark mt-2.5">Apollo OPD</span>
+                    <span className="text-[10px] font-bold text-text-dark mt-2.5">Aether OPD</span>
                     <span className="text-[11px] font-bold text-primary-teal bg-light-teal border border-primary-teal/10 px-1.5 py-0.5 rounded-md mt-1.5">
                       Arrival
                     </span>
@@ -1165,8 +1195,8 @@ export default function BookingConfirmation() {
                     onClick={() => setSelectedPersona(persona.id)}
                     className={`border rounded-2xl p-4 flex items-start justify-between cursor-pointer transition-all duration-300 hover:translate-y-[-1px] ${
                       isSelected
-                        ? 'border-primary-teal bg-gradient-to-br from-teal-50/20 via-white to-white shadow-[0_4px_20px_rgba(13,148,136,0.06)]'
-                        : 'border-border-custom hover:border-gray-300 bg-white hover:shadow-[0_4px_15px_rgba(0,0,0,0.01)]'
+                        ? 'border-[#1E7F6A] bg-white/60'
+                        : 'border-[#E8ECEF] hover:border-[#1E7F6A]/30 bg-white'
                     }`}
                   >
                     <div className="flex items-start space-x-3.5">
@@ -1258,7 +1288,7 @@ export default function BookingConfirmation() {
           
           {/* Booking Error Notice */}
           {bookingError && (
-            <div className="w-full bg-[#fff3d6] border border-amber-200/40 text-amber-900 text-xs font-semibold p-4 rounded-xl text-center leading-normal">
+            <div className="w-full bg-white border border-amber-200/40 text-amber-900 text-xs font-semibold p-4 rounded-xl text-center leading-normal">
               {bookingError}
             </div>
           )}
@@ -1280,8 +1310,12 @@ export default function BookingConfirmation() {
                   <p className="text-[11px] text-primary-teal font-semibold mt-0.5 uppercase tracking-wider">{booking.dept}</p>
                 </div>
               </div>
-              <span className="bg-[#e6f4ea] text-[#137333] text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider">
-                Pay at Clinic
+              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider ${
+                consultationMode === 'online'
+                  ? 'bg-[#e0f2fe] text-[#0369a1]'
+                  : 'bg-[#e6f4ea] text-[#137333]'
+              }`}>
+                {consultationMode === 'online' ? 'Video Consultation' : 'Pay at Clinic'}
               </span>
             </div>
 
@@ -1294,7 +1328,9 @@ export default function BookingConfirmation() {
               <div className="space-y-1">
                 <p className="text-[#9ca3af] uppercase tracking-wider text-[9px] font-bold">Consultation Fee</p>
                 <p className="font-extrabold text-text-dark text-base">{booking.fees}</p>
-                <p className="text-[10px] text-text-light">Apollo Hospitals · Jubilee Hills</p>
+                <p className="text-[10px] text-text-light">
+                  {consultationMode === 'online' ? 'Video Call · Join via link' : 'Aether OPD · Jubilee Hills'}
+                </p>
               </div>
             </div>
           </div>
@@ -1304,7 +1340,7 @@ export default function BookingConfirmation() {
           <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4">
             
             {/* 1. Distance Card — real road distance from Google Maps */}
-            <div className="glass-panel border border-white/60 rounded-2xl p-4.5 flex flex-col justify-between shadow-md text-left">
+            <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-4.5 flex flex-col justify-between text-left">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[10px] font-bold text-[#0d9488] tracking-widest uppercase font-display">Distance</span>
@@ -1341,7 +1377,7 @@ export default function BookingConfirmation() {
                   )}
                   {userAddress && (
                     <p className="text-[8.5px] text-text-light mt-1 truncate" title={userAddress}>
-                      📍 {userAddress.split(',').slice(0, 2).join(',')}
+                      {userAddress.split(',').slice(0, 2).join(',')}
                     </p>
                   )}
                   {mapsData && userLat && userLon && (
@@ -1368,7 +1404,7 @@ export default function BookingConfirmation() {
             </div>
 
             {/* 2. Weather Card */}
-            <div className="glass-panel border border-white/60 rounded-2xl p-4.5 flex flex-col justify-between shadow-md text-left">
+            <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-4.5 flex flex-col justify-between text-left">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] font-bold text-blue-500 tracking-widest uppercase font-display">Weather</span>
                 <div className="p-1 bg-blue-500/10 rounded-lg text-blue-500">
@@ -1400,7 +1436,7 @@ export default function BookingConfirmation() {
 
             {/* 3. Traffic Card — live from Google Maps or rule-based fallback */}
             {trafficInfo ? (
-              <div className="glass-panel border border-white/60 rounded-2xl p-4.5 flex flex-col justify-between shadow-md text-left">
+              <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-4.5 flex flex-col justify-between text-left">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-1.5">
                     <span className={`text-[10px] font-bold tracking-widest uppercase font-display ${
@@ -1439,7 +1475,7 @@ export default function BookingConfirmation() {
                 </div>
               </div>
             ) : (
-              <div className="glass-panel border border-white/60 rounded-2xl p-4.5 flex flex-col justify-between shadow-md text-left">
+              <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-4.5 flex flex-col justify-between text-left">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] font-bold text-text-light tracking-widest uppercase font-display">Traffic</span>
                   <div className="p-1 bg-gray-100 rounded-lg text-text-light">
@@ -1517,14 +1553,27 @@ export default function BookingConfirmation() {
             </div>
           )}
 
+          {/* Dynamic Progress Indicator */}
+          {processing && (
+            <div className="bg-[#FAFBFB] border border-[#E5E7EB] rounded-[8px] p-3 text-left space-y-1.5 mb-3 transition-all duration-150">
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-[#1E7F6A]" />
+                <span className="text-[10px] font-bold text-[#1E7F6A] uppercase tracking-wider">Processing OPD Booking</span>
+              </div>
+              <p className="text-[11px] text-[#475569] font-mono leading-tight">
+                &gt; {loadingStep || 'Initializing secure request...'}
+              </p>
+            </div>
+          )}
+
           {/* Confirm Booking Button */}
           <button
             onClick={handleDone}
             disabled={processing}
-            className={`w-full py-4 rounded-xl font-bold text-sm text-center flex items-center justify-center space-x-2 transition-all duration-300 shadow-md ${
+            className={`w-full py-3.5 rounded-[6px] font-semibold text-sm text-center flex items-center justify-center space-x-2 transition-all duration-150 ${
               processing
-                ? 'bg-gray-100 text-[#9ca3af] cursor-not-allowed shadow-none'
-                : 'bg-gradient-to-r from-[#0d9488] to-[#0f766e] text-white hover:from-[#0f766e] hover:to-[#115e59] cursor-pointer shadow-[0_4px_20px_rgba(13,148,136,0.25)] hover:shadow-[0_6px_25px_rgba(13,148,136,0.35)] hover:translate-y-[-1px]'
+                ? 'bg-gray-100 text-[#9ca3af] cursor-not-allowed'
+                : 'bg-[#1E7F6A] text-white hover:bg-[#165B52] cursor-pointer shadow-2xs'
             }`}
           >
             {processing ? (

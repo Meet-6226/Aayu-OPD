@@ -28,9 +28,9 @@ export default function SlotRecoveryPage() {
       const patientsToSeed = [
         { id: 'sim_pat_1', name: 'Rohan Verma', phone: '+919900000001', trustScore: 85, persona: 'Lifestyle Juggler' },
         { id: 'sim_pat_2', name: 'Karan Malhotra', phone: '+919900000002', trustScore: 70, persona: 'Young Professional' },
-        { id: 'sim_wait_1', name: 'Amit Patel', phone: '+919975027178', trustScore: 92, persona: 'Health Conscious' },
-        { id: 'sim_wait_2', name: 'Neha Sen', phone: '+919876543210', trustScore: 78, persona: 'Chronic Worrier' },
-        { id: 'sim_wait_3', name: 'Rahul Verma', phone: '+919999999999', trustScore: 88, persona: 'Senior Independent' }
+        { id: 'sim_wait_1', name: 'Amit Patel', phone: '+919900000003', trustScore: 92, persona: 'Health Conscious' },  // ✅ Fixed: was developer's real number
+        { id: 'sim_wait_2', name: 'Neha Sen', phone: '+919900000004', trustScore: 78, persona: 'Chronic Worrier' },
+        { id: 'sim_wait_3', name: 'Rahul Verma', phone: '+919900000005', trustScore: 88, persona: 'Senior Independent' }
       ];
 
       const appointmentsToSeed = [

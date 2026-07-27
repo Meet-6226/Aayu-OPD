@@ -88,7 +88,11 @@ export function validatePatientData(data) {
   if (!data.uid || /[^a-zA-Z0-9_-]/.test(data.uid)) {
     throw new Error(`Invalid patient document ID (uid): "${data.uid}". Must be a valid alphanumeric Firebase UID`);
   }
-  if (data.phone && !/^\+\d+$/.test(data.phone)) {
-    throw new Error(`Invalid phone format: "${data.phone}". Must start with + followed by country code and digits`);
+  if (data.phone) {
+    // Auto-clean spaces, dashes, parentheses, and brackets to normalize to E.164
+    data.phone = data.phone.replace(/[\s\-\(\)]/g, '');
+    if (!/^\+\d+$/.test(data.phone)) {
+      throw new Error(`Invalid phone format: "${data.phone}". Must start with + followed by country code and digits`);
+    }
   }
 }

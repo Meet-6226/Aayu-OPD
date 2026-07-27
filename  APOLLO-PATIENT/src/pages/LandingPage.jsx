@@ -1,6 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   Check,
   ArrowRight,
@@ -24,16 +26,173 @@ import {
   AlertTriangle,
   ChevronRight,
   Play,
+  Pause,
   Loader2,
   X
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import LivingPulseNetwork from '../components/LivingPulseNetwork';
+import BrandLogo from '../components/BrandLogo';
+import VideoDemoModal from '../components/VideoDemoModal';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const { loginDemoUser } = useAuth();
   const [demoLoading, setDemoLoading] = useState(false);
   const [showDemoModal, setShowDemoModal] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+
+  // Workflow Timeline Interactive Stepper State
+  const [activeWorkflowStep, setActiveWorkflowStep] = useState(0);
+  const [isWorkflowPlaying, setIsWorkflowPlaying] = useState(true);
+
+  // Scroll-Aware Navbar State
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [activeSection, setActiveSection] = useState('');
+
+  useEffect(() => {
+    if (!isWorkflowPlaying) return;
+    const interval = setInterval(() => {
+      setActiveWorkflowStep((prev) => (prev + 1) % 6);
+    }, 3200);
+    return () => clearInterval(interval);
+  }, [isWorkflowPlaying]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const currentScroll = window.scrollY;
+      setIsScrolled(currentScroll > 20);
+      setScrollProgress(totalHeight > 0 ? (currentScroll / totalHeight) * 100 : 0);
+
+      // Section tracking
+      const sections = ['problem', 'comparison', 'solution', 'workflow', 'features', 'results', 'faq'];
+      const scrollPosition = currentScroll + 220;
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const element = document.getElementById(sections[i]);
+        if (element && element.offsetTop <= scrollPosition) {
+          setActiveSection(sections[i]);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // GSAP Refs for single orchestrated load sequence
+  const dataCalloutRef = useRef(null);
+  const headlineLine1Ref = useRef(null);
+  const headlineLine2Ref = useRef(null);
+  const subtitleRef = useRef(null);
+  const ctaButtonRef = useRef(null);
+  const threeCanvasRef = useRef(null);
+  const pageContainerRef = useRef(null);
+
+  useEffect(() => {
+    const heroElements = [
+      dataCalloutRef.current,
+      headlineLine1Ref.current,
+      headlineLine2Ref.current,
+      subtitleRef.current,
+      ctaButtonRef.current,
+      threeCanvasRef.current
+    ].filter(Boolean);
+
+    if (heroElements.length === 0) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) {
+      gsap.set(heroElements, {
+        opacity: 1,
+        y: 0,
+        clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
+      });
+      return;
+    }
+
+    // Set initial states safely
+    if (dataCalloutRef.current) gsap.set(dataCalloutRef.current, { opacity: 0 });
+    
+    const headlineTargets = [headlineLine1Ref.current, headlineLine2Ref.current].filter(Boolean);
+    if (headlineTargets.length > 0) {
+      gsap.set(headlineTargets, {
+        clipPath: 'polygon(0 0, 100% 0, 100% 0, 0 0)',
+        opacity: 1
+      });
+    }
+    
+    if (subtitleRef.current) gsap.set(subtitleRef.current, { opacity: 0, y: 12 });
+    if (ctaButtonRef.current) gsap.set(ctaButtonRef.current, { opacity: 0, y: 12 });
+    if (threeCanvasRef.current) gsap.set(threeCanvasRef.current, { opacity: 0 });
+
+    // Single orchestrated GSAP timeline (Total duration < 1.4s)
+    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+    if (dataCalloutRef.current) tl.to(dataCalloutRef.current, { opacity: 1, duration: 0.3 }, 0);
+    if (headlineLine1Ref.current) tl.to(headlineLine1Ref.current, { clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', duration: 0.45 }, 0.2);
+    if (headlineLine2Ref.current) tl.to(headlineLine2Ref.current, { clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', duration: 0.45 }, 0.4);
+    if (subtitleRef.current) tl.to(subtitleRef.current, { opacity: 1, y: 0, duration: 0.4 }, 0.65);
+    if (ctaButtonRef.current) tl.to(ctaButtonRef.current, { opacity: 1, y: 0, duration: 0.3 }, 0.85);
+    if (threeCanvasRef.current) tl.to(threeCanvasRef.current, { opacity: 1, duration: 0.6 }, 0.9);
+
+    // Scroll reveal pattern for sections below hero (Re-triggers on EVERY scroll)
+    const sections = pageContainerRef.current?.querySelectorAll('.gsap-reveal-section') || [];
+    sections.forEach((sec) => {
+      const cards = sec.querySelectorAll('.apollo-card');
+      const shouldStagger = cards.length > 0 && cards.length <= 6;
+
+      gsap.fromTo(
+        sec,
+        { opacity: 0, y: 32 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: sec,
+            start: 'top 85%',
+            end: 'bottom 15%',
+            toggleActions: 'restart reverse restart reverse'
+          }
+        }
+      );
+
+      if (shouldStagger) {
+        gsap.fromTo(
+          cards,
+          { opacity: 0, y: 24, scale: 0.97 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.5,
+            stagger: 0.08,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: sec,
+              start: 'top 82%',
+              end: 'bottom 15%',
+              toggleActions: 'restart reverse restart reverse'
+            }
+          }
+        );
+      }
+    });
+
+    return () => {
+      tl.kill();
+      ScrollTrigger.getAll().forEach((t) => t.kill());
+    };
+  }, []);
 
   const handleTryDemo = useCallback(() => {
     setShowDemoModal(true);
@@ -51,23 +210,23 @@ export default function LandingPage() {
     <>
     {/* ── Demo Loading Overlay ─────────────────────────────────────────── */}
     {showDemoModal && (
-      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-        <div className="bg-white rounded-3xl p-10 shadow-2xl max-w-sm w-full mx-4 text-center relative overflow-hidden">
+      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#0f1e1c]/60 backdrop-blur-sm">
+        <div className="bg-white rounded-[24px] p-10 shadow-2xl max-w-sm w-full mx-4 text-center relative overflow-hidden">
           {/* Animated background glow */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-teal/5 via-transparent to-[#10b981]/5 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1E7F6A]/5 via-transparent to-white/5 pointer-events-none" />
           {/* Pulsing ring */}
           <div className="relative mx-auto w-20 h-20 mb-6">
-            <div className="absolute inset-0 rounded-full bg-primary-teal/20 animate-ping" />
-            <div className="relative w-20 h-20 rounded-full bg-gradient-to-tr from-primary-teal to-[#10b981] flex items-center justify-center shadow-lg">
+            <div className="absolute inset-0 rounded-full bg-[#1E7F6A]/20 animate-ping" />
+            <div className="relative w-20 h-20 rounded-full bg-[#1E7F6A] flex items-center justify-center shadow-md">
               <Activity className="h-9 w-9 text-white" />
             </div>
           </div>
-          <h2 className="font-display font-extrabold text-xl text-text-dark tracking-tight">Loading Demo</h2>
-          <p className="text-sm text-text-light mt-2 leading-relaxed">
-            Signing in as <span className="font-bold text-primary-teal">Priya Sharma</span> — demo patient
+          <h2 className="font-fraunces font-bold text-xl text-[#182033] tracking-tight">Loading Demo</h2>
+          <p className="text-sm text-[#3B4452] mt-2 leading-relaxed font-inter">
+            Signing in as <span className="font-bold text-[#1E7F6A]">Priya Sharma</span> — demo patient
           </p>
           {/* Progress steps */}
-          <div className="mt-6 space-y-2.5 text-left">
+          <div className="mt-6 space-y-2.5 text-left font-inter">
             {[
               { label: 'Loading patient profile...', done: true },
               { label: 'Fetching appointments...', done: true },
@@ -75,248 +234,202 @@ export default function LandingPage() {
             ].map((step, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                  step.done ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100'
+                  step.done ? 'bg-white text-[#1E7F6A]' : 'bg-white'
                 }`}>
                   {step.done
                     ? <Check className="h-3 w-3 stroke-[2.5]" />
                     : <Loader2 className="h-3 w-3 animate-spin text-gray-400" />}
                 </div>
                 <span className={`text-xs font-medium ${
-                  step.done ? 'text-text-dark' : 'text-text-light'
+                  step.done ? 'text-[#0f1e1c]' : 'text-[#4b5f5c]'
                 }`}>{step.label}</span>
               </div>
             ))}
           </div>
-          <p className="text-[10px] text-text-light mt-6">This is a hackathon demo — no real data is used.</p>
+          <p className="text-[10px] text-[#4b5f5c] mt-6 font-inter">This is a hackathon demo — no real data is used.</p>
         </div>
       </div>
     )}
-    <div className="min-h-screen bg-white text-text-medium font-sans selection:bg-light-teal selection:text-primary-teal">
+    <div ref={pageContainerRef} className="min-h-screen bg-white text-[#3B4452] font-inter selection:bg-white selection:text-[#1E7F6A]">
       
-      {/* SECTION 1 — NAVBAR */}
-      <nav className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-border-custom/50 z-50 transition-all duration-200">
-        <div className="max-w-[1280px] mx-auto px-6 md:px-8 h-full flex items-center justify-between">
-          {/* Left Group */}
-          <Link to="/" className="flex items-center space-x-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary-teal to-[#10b981] flex items-center justify-center shrink-0 shadow-md shadow-primary-teal/20 transition-transform duration-300 group-hover:rotate-12">
-              <span className="text-white font-bold text-[14px]">A</span>
-            </div>
-            <span className="font-display font-bold text-[19px] text-primary-teal tracking-tight">
-              Apollo <span className="text-[#10b981]">OPD</span>
-            </span>
+      {/* SECTION 1 — SCROLL-AWARE DYNAMIC HERITAGE NAVBAR */}
+      <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
+        isScrolled
+          ? 'bg-white/95 backdrop-blur-md shadow-md shadow-[#1E7F6A]/5 border-b border-[#E8ECEF]'
+          : 'bg-white/80 backdrop-blur-sm border-b border-[#E8ECEF]/60'
+      }`}>
+        <div className={`max-w-[1280px] mx-auto px-6 md:px-10 flex items-center justify-between font-inter transition-all duration-300 ${
+          isScrolled ? 'h-14 sm:h-15' : 'h-16 sm:h-18'
+        }`}>
+          
+          {/* Left Logo — Aether OPD */}
+          <Link to="/" className="flex items-center select-none shrink-0">
+            <BrandLogo height={44} />
           </Link>
 
-          {/* Center Group (Desktop only) */}
-          <div className="hidden lg:flex items-center space-x-8 font-medium">
-            <a href="#problem" className="text-[14px] text-text-medium hover:text-primary-teal transition-colors duration-200">
-              Problem
-            </a>
-            <a href="#solution" className="text-[14px] text-text-medium hover:text-primary-teal transition-colors duration-200">
-              Solution
-            </a>
-            <a href="#features" className="text-[14px] text-text-medium hover:text-primary-teal transition-colors duration-200">
-              Features
-            </a>
-            <a href="#results" className="text-[14px] text-text-medium hover:text-primary-teal transition-colors duration-200">
-              Results
-            </a>
-            <a href="#faq" className="text-[14px] text-text-medium hover:text-primary-teal transition-colors duration-200">
-              FAQ
-            </a>
+          {/* Center Nav Links — Scroll-Aware Active Section Tracking */}
+          <div className="hidden lg:flex items-center space-x-2 text-[13.5px] font-medium text-[#3B4452]">
+            {[
+              { id: 'problem', label: 'Problem' },
+              { id: 'comparison', label: 'Showdown' },
+              { id: 'solution', label: 'Solution' },
+              { id: 'workflow', label: 'Journey' },
+              { id: 'features', label: 'Features' },
+              { id: 'results', label: 'Impact' },
+              { id: 'faq', label: 'FAQ' }
+            ].map((link) => {
+              const isActive = activeSection === link.id;
+              return (
+                <a
+                  key={link.id}
+                  href={`#${link.id}`}
+                  className={`px-3 py-1 rounded-full transition-all duration-200 ${
+                    isActive
+                      ? 'bg-[#1E7F6A] text-white font-bold shadow-2xs'
+                      : 'hover:text-[#1E7F6A] hover:bg-white/60 text-[#3B4452]'
+                  }`}
+                >
+                  {link.label}
+                </a>
+              );
+            })}
           </div>
 
-          {/* Right Group */}
-          <div className="flex items-center space-x-6">
+          {/* Right Actions — Tailored & Crisp */}
+          <div className="flex items-center space-x-6 text-[13.5px]">
             <a
               href="https://apollo-opd-staff.vercel.app/staff/login"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden md:inline-block text-[14px] font-medium text-text-medium hover:text-primary-teal transition-colors duration-200"
+              className="hidden sm:inline-block font-medium text-[#3B4452] hover:text-[#1E7F6A] transition-colors duration-200"
             >
               Staff Login
             </a>
+
             <Link
               to="/login"
-              className="px-5 py-2.5 bg-primary-teal text-white text-[14px] font-semibold rounded-xl hover:bg-primary-dark transition-all duration-200 shadow-md shadow-primary-teal/10 hover:shadow-primary-teal/20 hover:scale-[1.02] active:scale-[0.98]"
+              className="px-5 py-2 bg-[#1E7F6A] hover:bg-[#165B52] text-white font-semibold text-[13.5px] rounded-[8px] transition-all duration-200 shadow-2xs hover:shadow-xs active:scale-[0.98]"
             >
-              Book Appointment
+              Book Visit
             </Link>
           </div>
+
         </div>
-      </nav>
 
-      {/* SECTION 2 — HERO */}
-      <section className="relative pt-[112px] pb-[64px] lg:pt-[144px] lg:pb-[112px] bg-gradient-to-b from-[#f2fcfb] via-white to-[#f8fafc] overflow-hidden">
-        {/* Glow effect in background */}
-        <div className="absolute top-24 right-1/4 w-[400px] h-[400px] rounded-full bg-primary-teal/5 blur-[120px] pointer-events-none"></div>
-        <div className="absolute top-48 left-1/3 w-[300px] h-[300px] rounded-full bg-[#10b981]/5 blur-[100px] pointer-events-none"></div>
+        {/* Scroll Progress Indicator Bar */}
+        <div
+          className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#1E7F6A] via-white to-[#1E7F6A] transition-all duration-150"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </header>
 
+      {/* SECTION 2 — HERO WITH LIVING PULSE NETWORK 3D CANVAS */}
+      <section className="relative pt-[104px] pb-[48px] lg:pt-[136px] lg:pb-[96px] bg-white overflow-hidden">
         <div className="max-w-[1280px] mx-auto px-6 md:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 xl:gap-20 items-center">
             
-            {/* LEFT COLUMN */}
-            <motion.div
-              initial={{ opacity: 0, y: 35 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="lg:col-span-7 flex flex-col items-start text-left"
-            >
-              {/* Pill badge */}
-              <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-primary-teal/5 border border-primary-teal/10 text-primary-teal mb-8 select-none animate-pulse-glow">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
-                <span className="text-[11px] font-bold uppercase tracking-[0.15em] font-display">
-                  Apollo Hospitals · AI-Powered OPD Desk
+            {/* LEFT COLUMN (42% Width on Desktop) */}
+            <div className="lg:col-span-5 flex flex-col items-start text-left z-20">
+              
+              {/* 2 & 3. Main Headline — Clip-path masked 2 lines */}
+              <h1 className="font-fraunces font-[620] text-[44px] sm:text-[64px] lg:text-[88px] leading-[1.05] tracking-[-0.01em] text-[#182033]">
+                <span ref={headlineLine1Ref} className="block overflow-hidden pb-1">
+                  Your appointment.
                 </span>
-              </div>
-
-              {/* Main Headline */}
-              <h1 className="font-display font-extrabold text-[40px] lg:text-[62px] leading-[1.05] text-text-dark tracking-tight">
-                Never Miss a <br />
-                <span className="text-gradient">Doctor's Appointment</span> <br />
-                Again.
+                <span ref={headlineLine2Ref} className="block overflow-hidden pb-1">
+                  <span className="text-[#1E7F6A]">Remembered</span> before you forget it.
+                </span>
               </h1>
 
-              {/* Subtitle */}
-              <p className="text-[18px] text-text-medium leading-[1.7] max-w-[500px] mt-6">
-                Apollo OPD Intelligence predicts cancellation risks, automates personalized WhatsApp reminders, and matches patient GPS travel times to keep the clinic running on schedule.
+              {/* 4. Subtitle — Inter 19px, max-w-[420px] (650ms load sequence) */}
+              <p ref={subtitleRef} className="text-[19px] text-[#3B4452] leading-[1.6] max-w-[420px] mt-6 font-inter">
+                We watch for the signals that predict a missed visit — distance, weather, timing — and step in before it happens. Quietly, on WhatsApp, in your language.
               </p>
 
-              {/* Buttons */}
-              <div className="flex flex-wrap gap-4 mt-10 w-full sm:w-auto">
+              {/* 5. CTA Buttons (850ms load sequence) */}
+              <div ref={ctaButtonRef} className="flex flex-wrap items-center gap-4 mt-8 w-full sm:w-auto font-inter">
                 <Link
                   to="/login"
-                  className="flex items-center space-x-2 px-8 py-4 bg-primary-teal text-white font-bold text-base rounded-xl hover:bg-primary-dark transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] glow-shadow-teal shadow-lg"
+                  className="flex items-center justify-center space-x-2.5 px-[28px] py-[14px] bg-[#1E7F6A] text-white text-[16px] font-[560] rounded-[6px] hover:bg-[#165B52] hover:tracking-wider transition-all duration-200 shadow-md shadow-[#1E7F6A]/15"
                 >
-                  <span>Book Appointment</span>
-                  <ArrowRight className="h-[18px] w-[18px]" />
+                  <span>Book your visit</span>
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
+
+                <button
+                  onClick={() => setShowVideoModal(true)}
+                  className="flex items-center justify-center space-x-2 px-5 py-[14px] bg-white text-[#182033] border border-[#1E7F6A]/20 font-medium text-sm rounded-[6px] hover:bg-white/80 transition-all duration-150 cursor-pointer shadow-sm"
+                >
+                  <Play className="h-3.5 w-3.5 fill-current text-[#1E7F6A]" />
+                  <span>Watch Video Demo</span>
+                </button>
               </div>
 
               {/* Trust Badges */}
-              <div className="flex flex-wrap gap-x-8 gap-y-4 mt-12 pt-6 border-t border-[#e5e7eb]/60 w-full">
-                <div className="flex items-center space-x-2 text-text-medium">
-                  <Check className="h-4.5 w-4.5 text-primary-teal bg-primary-teal/10 rounded-full p-0.5" />
-                  <span className="text-[13px] font-semibold">ABDM Compliant</span>
+              <div className="flex flex-wrap gap-x-6 gap-y-3 mt-10 pt-5 border-t border-[#1E7F6A]/15 w-full font-inter">
+                <div className="flex items-center space-x-2 text-[#3B4452]">
+                  <Check className="h-4 w-4 text-[#1E7F6A] bg-white rounded-[6px] p-0.5" />
+                  <span className="text-[12.5px] font-medium">ABDM Compliant</span>
                 </div>
-                <div className="flex items-center space-x-2 text-text-medium">
-                  <Check className="h-4.5 w-4.5 text-primary-teal bg-primary-teal/10 rounded-full p-0.5" />
-                  <span className="text-[13px] font-semibold">SHAP Explainability</span>
+                <div className="flex items-center space-x-2 text-[#3B4452]">
+                  <Check className="h-4 w-4 text-[#1E7F6A] bg-white rounded-[6px] p-0.5" />
+                  <span className="text-[12.5px] font-medium">SHAP Explainability</span>
                 </div>
-                <div className="flex items-center space-x-2 text-text-medium">
-                  <Check className="h-4.5 w-4.5 text-primary-teal bg-primary-teal/10 rounded-full p-0.5" />
-                  <span className="text-[13px] font-semibold">WhatsApp Integrated</span>
+                <div className="flex items-center space-x-2 text-[#3B4452]">
+                  <Check className="h-4 w-4 text-[#1E7F6A] bg-white rounded-[6px] p-0.5" />
+                  <span className="text-[12.5px] font-medium">WhatsApp Integrated</span>
                 </div>
-                <div className="flex items-center space-x-2 text-text-medium">
-                  <Check className="h-4.5 w-4.5 text-primary-teal bg-primary-teal/10 rounded-full p-0.5" />
-                  <span className="text-[13px] font-semibold">Hindi Voice Calls</span>
+                <div className="flex items-center space-x-2 text-[#3B4452]">
+                  <Check className="h-4 w-4 text-[#1E7F6A] bg-white rounded-[6px] p-0.5" />
+                  <span className="text-[12.5px] font-medium">Hindi Voice Calls</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-            {/* RIGHT COLUMN — Free-standing Indian Doctors with Radial Glow & Floating Badges (Exact 99% Match to Reference) */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.94 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-              className="hidden lg:block lg:col-span-5 relative"
+            {/* 6. RIGHT COLUMN — Smart OPD AI Journey & Intervention Visualizer */}
+            <div
+              ref={threeCanvasRef}
+              className="lg:col-span-7 relative w-full lg:pl-6 xl:pl-10"
             >
-              <div className="relative mx-auto max-w-[480px] flex items-center justify-center min-h-[500px] overflow-visible">
-
-                {/* Soft Mint Radial Glow Behind Doctors */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[440px] h-[440px] rounded-full bg-gradient-to-tr from-[#10b981]/20 via-teal-100/35 to-transparent blur-3xl pointer-events-none" />
-
-                {/* Free-standing Transparent Indian Doctors Cutout (NO WHITE CARD AT ALL) */}
-                <div className="relative z-20 w-full flex justify-center">
-                  <img
-                    src="/indian_doctors_cutout_transparent.png"
-                    alt="Apollo OPD Expert Doctors"
-                    className="w-[460px] h-auto object-contain block select-none drop-shadow-[0_15px_30px_rgba(0,0,0,0.08)] pointer-events-none"
-                  />
-                </div>
-
-                {/* Floating Card 1 — Top Right (Expert Apollo Doctors) */}
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                  className="absolute top-4 right-0 z-30 bg-[#0f4d42] text-white border border-[#0f4d42]/30 rounded-2xl px-4 py-2.5 shadow-xl flex items-center gap-2.5 animate-bounce-subtle"
-                >
-                  <Star className="h-4 w-4 fill-current text-[#10b981]" />
-                  <span className="text-[13px] font-bold tracking-tight">Expert Apollo Doctors</span>
-                </motion.div>
-
-                {/* Floating Card 2 — Middle Left (WhatsApp Confirmed) */}
-                <motion.div
-                  initial={{ opacity: 0, x: -15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
-                  className="absolute top-[48%] -left-10 -translate-y-1/2 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3"
-                >
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                    <MessageSquare className="h-4 w-4 fill-current" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[12.5px] font-bold text-gray-900 leading-none">WhatsApp Confirmed</p>
-                    <p className="text-[10.5px] text-emerald-600 font-semibold mt-1 leading-none">Instant slot alerts sent ✓</p>
-                  </div>
-                </motion.div>
-
-                {/* Floating Card 3 — Bottom Right (0-Min Queue Wait) */}
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.6 }}
-                  className="absolute bottom-12 -right-6 z-30 bg-white/95 backdrop-blur-md border border-gray-200/80 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3"
-                >
-                  <div className="w-8 h-8 rounded-full bg-teal-100 text-primary-teal flex items-center justify-center shrink-0">
-                    <Clock className="h-4 w-4" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[12.5px] font-bold text-gray-900 leading-none">0-Min Queue Wait</p>
-                    <p className="text-[10.5px] text-primary-teal font-semibold mt-1 leading-none">Live GPS OPD Sync</p>
-                  </div>
-                </motion.div>
-
-              </div>
-            </motion.div>
-
+              <LivingPulseNetwork />
+            </div>
           </div>
         </div>
       </section>
 
       {/* SECTION 3 — TRUST BAR */}
-      <section className="bg-bg-subtle border-y border-[#f3f4f6] py-12">
+      <section className="gsap-reveal-section bg-white border-y border-[#E8ECEF] py-12">
         <div className="max-w-[1280px] mx-auto px-6 md:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <p className="font-display font-bold text-[28px] lg:text-[36px] text-text-dark leading-none">
+              <p className="font-mono-data font-bold text-[28px] lg:text-[36px] text-[#182033] leading-none">
                 25-30%
               </p>
-              <p className="text-[14px] text-gray-500 mt-2 max-w-[220px] mx-auto leading-tight">
+              <p className="text-[14px] text-[#3B4452] mt-2 max-w-[220px] mx-auto leading-tight font-inter">
                 Daily No-Show Rate in Indian Hospitals
               </p>
             </div>
             <div>
-              <p className="font-display font-bold text-[28px] lg:text-[36px] text-text-dark leading-none">
+              <p className="font-mono-data font-bold text-[28px] lg:text-[36px] text-[#182033] leading-none">
                 ₹15,000Cr
               </p>
-              <p className="text-[14px] text-gray-500 mt-2 max-w-[220px] mx-auto leading-tight">
+              <p className="text-[14px] text-[#3B4452] mt-2 max-w-[220px] mx-auto leading-tight font-inter">
                 Annual Revenue Lost Across India
               </p>
             </div>
             <div>
-              <p className="font-display font-bold text-[28px] lg:text-[36px] text-text-dark leading-none">
+              <p className="font-mono-data font-bold text-[28px] lg:text-[36px] text-[#182033] leading-none">
                 84%
               </p>
-              <p className="text-[14px] text-gray-500 mt-2 max-w-[220px] mx-auto leading-tight">
+              <p className="text-[14px] text-[#3B4452] mt-2 max-w-[220px] mx-auto leading-tight font-inter">
                 Our ML Prediction Accuracy
               </p>
             </div>
             <div>
-              <p className="font-display font-bold text-[28px] lg:text-[36px] text-text-dark leading-none">
+              <p className="font-mono-data font-bold text-[28px] lg:text-[36px] text-[#182033] leading-none">
                 &lt; 2 min
               </p>
-              <p className="text-[14px] text-gray-500 mt-2 max-w-[220px] mx-auto leading-tight">
+              <p className="text-[14px] text-[#3B4452] mt-2 max-w-[220px] mx-auto leading-tight font-inter">
                 Average Slot Recovery Time
               </p>
             </div>
@@ -325,17 +438,17 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 4 — PROBLEM */}
-      <section id="problem" className="bg-white py-16 lg:py-24">
+      <section id="problem" className="gsap-reveal-section bg-white py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 md:px-8">
           {/* Section Header */}
           <div className="max-w-[640px] mb-16 text-left">
-            <span className="text-[12px] uppercase tracking-[0.15em] font-semibold text-primary-teal block mb-3">
+            <span className="text-[12px] uppercase tracking-[0.15em] font-semibold text-[#1E7F6A] block mb-3 font-inter">
               The Problem
             </span>
-            <h2 className="font-display font-bold text-[30px] lg:text-[40px] text-text-dark leading-tight tracking-tight">
+            <h2 className="font-fraunces font-bold text-[30px] lg:text-[40px] text-[#182033] leading-tight tracking-tight">
               Every empty chair costs Apollo ₹3,000
             </h2>
-            <p className="text-[18px] text-text-medium mt-4 leading-[1.7]">
+            <p className="text-[18px] text-[#3B4452] mt-4 leading-[1.7] font-inter">
               25-30% of OPD patients don't show up. Doctors wait. Slots go empty. Revenue is lost. And nobody knows until it's too late.
             </p>
           </div>
@@ -344,70 +457,70 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             {/* Card 1 */}
-            <div className="bg-white border border-border-custom rounded-2xl p-7 hover:border-[#d1d5db] hover:shadow-sm transition-all duration-200 flex flex-col justify-between">
+            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[14px] p-8 flex flex-col justify-between">
               <div>
-                <div className="w-10 h-10 rounded-[12px] bg-red-50 text-red-500 flex items-center justify-center mb-5 shrink-0">
+                <div className="w-10 h-10 rounded-[6px] bg-[#B8623F]/10 text-[#B8623F] flex items-center justify-center mb-5 shrink-0">
                   <Clock className="h-5 w-5" />
                 </div>
-                <h3 className="text-base font-semibold text-text-dark mb-2">
+                <h3 className="text-base font-semibold text-[#182033] mb-2 font-inter">
                   Doctors wait for no-shows
                 </h3>
-                <p className="text-[14px] text-text-light leading-relaxed mb-6">
+                <p className="text-[14px] text-[#3B4452] leading-relaxed mb-6 font-inter">
                   A doctor finds out a patient cancelled when nobody walks in. 30 minutes of idle time they can't recover.
                 </p>
               </div>
-              <div className="border-t border-[#f3f4f6] pt-4">
-                <p className="font-display font-bold text-[28px] text-red-500 leading-none">
+              <div className="border-t border-[#E8ECEF] pt-4">
+                <p className="font-mono-data font-bold text-[28px] text-[#B8623F] leading-none">
                   30 min
                 </p>
-                <p className="text-[12px] text-text-light mt-1">
+                <p className="text-[12px] text-[#3B4452] mt-1 font-inter">
                   avg idle time per no-show
                 </p>
               </div>
             </div>
 
             {/* Card 2 */}
-            <div className="bg-white border border-border-custom rounded-2xl p-7 hover:border-[#d1d5db] hover:shadow-sm transition-all duration-200 flex flex-col justify-between">
+            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[14px] p-8 flex flex-col justify-between">
               <div>
-                <div className="w-10 h-10 rounded-[12px] bg-red-50 text-red-500 flex items-center justify-center mb-5 shrink-0">
+                <div className="w-10 h-10 rounded-[6px] bg-[#B8623F]/10 text-[#B8623F] flex items-center justify-center mb-5 shrink-0">
                   <Users className="h-5 w-5" />
                 </div>
-                <h3 className="text-base font-semibold text-text-dark mb-2">
+                <h3 className="text-base font-semibold text-[#182033] mb-2 font-inter">
                   Patients get wrong reminders
                 </h3>
-                <p className="text-[14px] text-text-light leading-relaxed mb-6">
+                <p className="text-[14px] text-[#3B4452] leading-relaxed mb-6 font-inter">
                   A working professional needs 48 hours to plan leave. An elderly patient needs their family notified. Everyone gets the same generic SMS.
                 </p>
               </div>
-              <div className="border-t border-[#f3f4f6] pt-4">
-                <p className="font-display font-bold text-[28px] text-red-500 leading-none">
+              <div className="border-t border-[#E8ECEF] pt-4">
+                <p className="font-mono-data font-bold text-[28px] text-[#B8623F] leading-none">
                   1 size
                 </p>
-                <p className="text-[12px] text-text-light mt-1">
+                <p className="text-[12px] text-[#3B4452] mt-1 font-inter">
                   fits nobody approach
                 </p>
               </div>
             </div>
 
             {/* Card 3 */}
-            <div className="bg-white border border-border-custom rounded-2xl p-7 hover:border-[#d1d5db] hover:shadow-sm transition-all duration-200 flex flex-col justify-between">
+            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[14px] p-8 flex flex-col justify-between">
               <div>
-                <div className="w-10 h-10 rounded-[12px] bg-red-50 text-red-500 flex items-center justify-center mb-5 shrink-0">
+                <div className="w-10 h-10 rounded-[6px] bg-[#B8623F]/10 text-[#B8623F] flex items-center justify-center mb-5 shrink-0">
                   <TrendingDown className="h-5 w-5" />
                 </div>
-                <h3 className="text-base font-semibold text-text-dark mb-2">
+                <h3 className="text-base font-semibold text-[#182033] mb-2 font-inter">
                   Revenue leaks silently
                 </h3>
-                <p className="text-[14px] text-text-light leading-relaxed mb-6">
+                <p className="text-[14px] text-[#3B4452] leading-relaxed mb-6 font-inter">
                   No-shows aren't tracked. There's no prediction, no recovery, no system. Just a paper register and hope.
                 </p>
               </div>
-              <div className="border-t border-[#f3f4f6] pt-4">
-                <p className="font-display font-bold text-[28px] text-red-500 leading-none">
-                  ₹3,000
+              <div className="border-t border-[#E8ECEF] pt-4">
+                <p className="font-mono-data font-bold text-[28px] text-[#B8623F] leading-none">
+                  ₹15,000Cr
                 </p>
-                <p className="text-[12px] text-text-light mt-1">
-                  lost per empty slot
+                <p className="text-[12px] text-[#3B4452] mt-1 font-inter">
+                  annual industry revenue loss
                 </p>
               </div>
             </div>
@@ -416,8 +529,191 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* SECTION 4.5 — COMPETITOR ANALYSIS (Placed directly below #problem) */}
+      <section id="comparison" className="gsap-reveal-section bg-white py-16 lg:py-24 border-t border-[#E8ECEF]">
+        <div className="max-w-[1280px] mx-auto px-6 md:px-8 font-inter">
+          {/* Section Header */}
+          <div className="max-w-[700px] mb-16 text-left">
+            <span className="text-[12px] uppercase tracking-[0.15em] font-semibold text-[#1E7F6A] block mb-3 font-mono-data">
+              HEAD-TO-HEAD SHOWDOWN · INDIAN OPD MARKET
+            </span>
+            <h2 className="font-fraunces font-bold text-[30px] lg:text-[42px] text-[#182033] leading-tight tracking-tight">
+              Why Traditional OPD Systems Fail — And How Apollo Wins
+            </h2>
+            <p className="text-[18px] text-[#3B4452] mt-4 leading-[1.7]">
+              Standard booking apps in India (Practo, Lybrate, legacy hospital software) leave doctors waiting and revenue leaking. Here is how Aether OPD changes the game.
+            </p>
+          </div>
+
+          {/* Side-by-Side High-Contrast Comparison Showdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            
+            {/* Traditional Platforms Card (Muted / Failing Model) */}
+            <div className="apollo-card bg-white border border-[#B8623F]/40 rounded-[24px] p-8 shadow-xs relative overflow-hidden flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-6 border-b border-[#E8ECEF]">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-[12px] bg-[#B8623F]/10 text-[#B8623F] flex items-center justify-center font-bold text-lg">
+                      ✕
+                    </div>
+                    <div>
+                      <h3 className="font-fraunces font-bold text-xl text-[#182033]">
+                        Traditional Indian OPD Systems
+                      </h3>
+                      <p className="text-xs text-[#3B4452]">Practo, Lybrate, Legacy Hospital HMS</p>
+                    </div>
+                  </div>
+                  <span className="text-xs font-mono-data font-bold text-[#B8623F] bg-[#B8623F]/10 px-3 py-1.5 rounded-full border border-[#B8623F]/20">
+                    FAILING MODEL
+                  </span>
+                </div>
+
+                <ul className="mt-6 space-y-5 text-sm text-[#3B4452]">
+                  <li className="flex items-start space-x-3.5 bg-[#B8623F]/5 p-3.5 rounded-[12px] border border-[#B8623F]/10">
+                    <span className="text-[#B8623F] font-bold text-lg leading-none mt-0.5">✕</span>
+                    <div>
+                      <strong className="text-[#182033] block font-bold text-[14.5px]">The 2-Hour SMS Trap</strong>
+                      <span className="text-[13px] leading-relaxed">Sends 1 plain SMS 2h before appt. Ignored by 60%+ patients.</span>
+                    </div>
+                  </li>
+                  <li className="flex items-start space-x-3.5 bg-[#B8623F]/5 p-3.5 rounded-[12px] border border-[#B8623F]/10">
+                    <span className="text-[#B8623F] font-bold text-lg leading-none mt-0.5">✕</span>
+                    <div>
+                      <strong className="text-[#182033] block font-bold text-[14.5px]">Blind To Risk (0% Intelligence)</strong>
+                      <span className="text-[13px] leading-relaxed">Treats a 2km local patient the same as 35km in heavy rain.</span>
+                    </div>
+                  </li>
+                  <li className="flex items-start space-x-3.5 bg-[#B8623F]/5 p-3.5 rounded-[12px] border border-[#B8623F]/10">
+                    <span className="text-[#B8623F] font-bold text-lg leading-none mt-0.5">✕</span>
+                    <div>
+                      <strong className="text-[#182033] block font-bold text-[14.5px]">30-45 Min Doctor Idle Time</strong>
+                      <span className="text-[13px] leading-relaxed">Doctor finds out patient cancelled when slot is already wasted.</span>
+                    </div>
+                  </li>
+                  <li className="flex items-start space-x-3.5 bg-[#B8623F]/5 p-3.5 rounded-[12px] border border-[#B8623F]/10">
+                    <span className="text-[#B8623F] font-bold text-lg leading-none mt-0.5">✕</span>
+                    <div>
+                      <strong className="text-[#182033] block font-bold text-[14.5px]">English-Only Text Wall</strong>
+                      <span className="text-[13px] leading-relaxed">No regional language or voice support for elderly patients.</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-8 pt-4 border-t border-[#E8ECEF] flex items-center justify-between text-xs text-[#B8623F] font-mono-data font-bold">
+                <span>Resulting Revenue Loss:</span>
+                <span>₹15,000 Cr / Year Leaked</span>
+              </div>
+            </div>
+
+            {/* Aether OPD Intelligence Card (Dark High-Contrast Winning Model) */}
+            <div className="apollo-card bg-[#165B52] border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-xl text-white relative overflow-hidden flex flex-col justify-between">
+              {/* Top Accent Light Beam */}
+              <div className="absolute top-0 right-0 bg-white text-[#182033] text-[11px] font-mono-data font-bold px-4 py-1.5 rounded-bl-[14px]">
+                PROPRIETARY AI ENGINE
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between pb-6 border-b border-white/15">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-[12px] bg-[#1E7F6A] text-white flex items-center justify-center font-bold text-lg shadow-md">
+                      ✓
+                    </div>
+                    <div>
+                      <h3 className="font-fraunces font-bold text-xl text-white">
+                        Aether OPD Intelligence
+                      </h3>
+                      <p className="text-xs text-[#EAF7F2] font-semibold">AI Risk Score + Instant WhatsApp Recovery</p>
+                    </div>
+                  </div>
+                </div>
+
+                <ul className="mt-6 space-y-5 text-sm">
+                  <li className="flex items-start space-x-3.5 bg-white/10 p-3.5 rounded-[12px] border border-white/10">
+                    <span className="text-[#EAF7F2] font-bold text-lg leading-none mt-0.5">✓</span>
+                    <div>
+                      <strong className="text-white block font-bold text-[14.5px]">Persona-Aware WhatsApp Nudges</strong>
+                      <span className="text-white/80 text-[13px] leading-relaxed">48h working professional notice, elderly family loop, student nudges.</span>
+                    </div>
+                  </li>
+                  <li className="flex items-start space-x-3.5 bg-white/10 p-3.5 rounded-[12px] border border-white/10">
+                    <span className="text-[#EAF7F2] font-bold text-lg leading-none mt-0.5">✓</span>
+                    <div>
+                      <strong className="text-white block font-bold text-[14.5px]">84.2% ML Live Risk Score (XGBoost)</strong>
+                      <span className="text-white/80 text-[13px] leading-relaxed">Factors live travel distance, rain forecast, peak traffic & history.</span>
+                    </div>
+                  </li>
+                  <li className="flex items-start space-x-3.5 bg-white/10 p-3.5 rounded-[12px] border border-white/10">
+                    <span className="text-[#EAF7F2] font-bold text-lg leading-none mt-0.5">✓</span>
+                    <div>
+                      <strong className="text-white block font-bold text-[14.5px]">&lt; 2 Minute Instant Slot Recovery</strong>
+                      <span className="text-white/80 text-[13px] leading-relaxed">Cancelled slots re-assigned to waitlist patients automatically in seconds.</span>
+                    </div>
+                  </li>
+                  <li className="flex items-start space-x-3.5 bg-white/10 p-3.5 rounded-[12px] border border-white/10">
+                    <span className="text-[#EAF7F2] font-bold text-lg leading-none mt-0.5">✓</span>
+                    <div>
+                      <strong className="text-white block font-bold text-[14.5px]">Hindi WhatsApp & Voice IVR Calls</strong>
+                      <span className="text-white/80 text-[13px] leading-relaxed">Native Hindi 2-way bot & automated voice calling for elderly.</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-8 pt-4 border-t border-white/15 flex items-center justify-between text-xs text-[#EAF7F2] font-mono-data font-bold">
+                <span>Resulting Revenue Saved:</span>
+                <span>Up to 40% No-Show Reduction</span>
+              </div>
+            </div>
+
+          </div>
+
+          {/* 4 Bottom High-Contrast Metric Counter Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[18px] p-5 shadow-2xs">
+              <p className="text-[11px] font-bold text-[#3B4452] uppercase tracking-wider">No-Show Prediction</p>
+              <div className="flex items-baseline space-x-2 mt-2">
+                <span className="font-mono-data font-bold text-2xl text-[#1E7F6A]">84.2%</span>
+                <span className="text-xs text-[#B8623F] font-bold">vs 0% Trad.</span>
+              </div>
+              <p className="text-xs text-[#3B4452] mt-1">XGBoost ML accuracy</p>
+            </div>
+
+            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[18px] p-5 shadow-2xs">
+              <p className="text-[11px] font-bold text-[#3B4452] uppercase tracking-wider">Slot Recovery Speed</p>
+              <div className="flex items-baseline space-x-2 mt-2">
+                <span className="font-mono-data font-bold text-2xl text-[#1E7F6A]">&lt; 2 Min</span>
+                <span className="text-xs text-[#B8623F] font-bold">vs Lost Hours</span>
+              </div>
+              <p className="text-xs text-[#3B4452] mt-1">Auto waitlist reassignment</p>
+            </div>
+
+            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[18px] p-5 shadow-2xs">
+              <p className="text-[11px] font-bold text-[#3B4452] uppercase tracking-wider">Patient Engagement</p>
+              <div className="flex items-baseline space-x-2 mt-2">
+                <span className="font-mono-data font-bold text-2xl text-[#1E7F6A]">3.2x</span>
+                <span className="text-xs text-[#1E7F6A] font-bold">Higher response</span>
+              </div>
+              <p className="text-xs text-[#3B4452] mt-1">Persona WhatsApp bot</p>
+            </div>
+
+            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[18px] p-5 shadow-2xs">
+              <p className="text-[11px] font-bold text-[#3B4452] uppercase tracking-wider">Revenue Protection</p>
+              <div className="flex items-baseline space-x-2 mt-2">
+                <span className="font-mono-data font-bold text-2xl text-[#1E7F6A]">40%</span>
+                <span className="text-xs text-[#1E7F6A] font-bold">Leakage saved</span>
+              </div>
+              <p className="text-xs text-[#3B4452] mt-1">Recovered OPD revenue</p>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
       {/* SECTION 5 — SOLUTION */}
-      <section id="solution" className="bg-bg-subtle py-16 lg:py-24 border-y border-border-custom">
+      <section id="solution" className="gsap-reveal-section bg-white py-16 lg:py-24 border-y border-[#E8ECEF]">
         <div className="max-w-[1280px] mx-auto px-6 md:px-8">
           {/* Section Header */}
           <div className="max-w-[500px] mb-16 text-center mx-auto">
@@ -459,7 +755,7 @@ export default function LandingPage() {
                 02
               </span>
               <div className="relative z-10">
-                <div className="w-12 h-12 rounded-[12px] bg-[#fff3d6] text-amber-600 flex items-center justify-center mb-5 shrink-0">
+                <div className="w-12 h-12 rounded-[12px] bg-white text-amber-600 flex items-center justify-center mb-5 shrink-0">
                   <MessageSquare className="h-[22px] w-[22px]" />
                 </div>
                 <h3 className="text-[18px] font-semibold text-text-dark mb-3">
@@ -477,7 +773,7 @@ export default function LandingPage() {
                 03
               </span>
               <div className="relative z-10">
-                <div className="w-12 h-12 rounded-[12px] bg-[#e8faee] text-green-600 flex items-center justify-center mb-5 shrink-0">
+                <div className="w-12 h-12 rounded-[12px] bg-white text-green-600 flex items-center justify-center mb-5 shrink-0">
                   <RefreshCw className="h-[22px] w-[22px]" />
                 </div>
                 <h3 className="text-[18px] font-semibold text-text-dark mb-3">
@@ -493,165 +789,300 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* SECTION 6 — WORKFLOW TIMELINE */}
-      <section className="bg-white py-16 lg:py-24">
+      {/* SECTION 6 — WORKFLOW TIMELINE (Horizontal Sleeping Line Pipeline) */}
+      <section id="workflow" className="gsap-reveal-section bg-white py-16 lg:py-24 font-inter">
         <div className="max-w-[1280px] mx-auto px-6 md:px-8">
+          
           {/* Section Header */}
-          <div className="max-w-[540px] mb-16 text-center mx-auto">
-            <span className="text-[12px] uppercase tracking-[0.15em] font-semibold text-primary-teal block mb-3">
-              How It Works
+          <div className="max-w-[640px] mb-10 text-center mx-auto">
+            <span className="text-[12px] uppercase tracking-[0.15em] font-semibold text-[#1E7F6A] block mb-3 font-mono-data">
+              LIVE PATIENT JOURNEY SIMULATION
             </span>
-            <h2 className="font-display font-bold text-[30px] lg:text-[40px] text-text-dark leading-tight tracking-tight">
+            <h2 className="font-fraunces font-bold text-[30px] lg:text-[42px] text-[#182033] leading-tight tracking-tight">
               From Booking to Recovery
             </h2>
-            <p className="text-[18px] text-[#6b7280] mt-4 leading-[1.6]">
-              Follow Priya's journey — a working professional who booked a cardiology appointment.
+            <p className="text-[17px] text-[#3B4452] mt-3 leading-[1.6]">
+              Follow Priya's live journey — a working professional who booked a cardiology appointment and how our AI saved the slot.
             </p>
           </div>
 
-          {/* Timeline */}
-          <div className="max-w-[768px] mx-auto relative">
-            {/* Timeline track line */}
-            <div className="absolute left-6 top-0 bottom-0 w-[1px] bg-border-custom z-0"></div>
-
-            {/* Steps wrapper */}
-            <div className="space-y-10">
-              
-              {/* Step 1 */}
-              <div className="flex space-x-6 items-start relative">
-                <div className="w-[48px] h-[48px] rounded-full bg-primary-teal text-white flex items-center justify-center border-4 border-white font-bold text-[14px] shrink-0 z-10 shadow-none">
-                  1
-                </div>
-                <div className="bg-white border border-border-custom rounded-xl p-5 flex-grow">
-                  <span className="text-[12px] uppercase tracking-widest font-semibold text-primary-teal block mb-1">
-                    Day 0
-                  </span>
-                  <h4 className="text-[16px] font-semibold text-text-dark mb-2">
-                    Priya books appointment
-                  </h4>
-                  <p className="text-[14px] text-text-light leading-relaxed">
-                    She books Dr. Mehta (Cardiology) for July 3 via the patient portal. Instant WhatsApp confirmation sent.
-                  </p>
-                  <div className="text-[12px] text-text-light pt-3 mt-3 border-t border-[#f3f4f6]">
-                    Booking ID: APL-2026-0847 · Fee: ₹800
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 2 */}
-              <div className="flex space-x-6 items-start relative">
-                <div className="w-[48px] h-[48px] rounded-full bg-primary-teal text-white flex items-center justify-center border-4 border-white font-bold text-[14px] shrink-0 z-10 shadow-none">
-                  2
-                </div>
-                <div className="bg-white border border-border-custom rounded-xl p-5 flex-grow">
-                  <span className="text-[12px] uppercase tracking-widest font-semibold text-primary-teal block mb-1">
-                    Day 0
-                  </span>
-                  <h4 className="text-[16px] font-semibold text-text-dark mb-2">
-                    Persona preference set
-                  </h4>
-                  <p className="text-[14px] text-text-light leading-relaxed">
-                    WhatsApp asks how she wants to be reminded. She replies '1' — Working Professional. System schedules 48h + 24h + morning reminders.
-                  </p>
-                  <div className="text-[12px] text-text-light pt-3 mt-3 border-t border-[#f3f4f6]">
-                    Persona: Working Professional · Schedule: 48h, 24h, morning
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 3 */}
-              <div className="flex space-x-6 items-start relative">
-                <div className="w-[48px] h-[48px] rounded-full bg-red-500 text-white flex items-center justify-center border-4 border-white font-bold text-[14px] shrink-0 z-10 shadow-none">
-                  3
-                </div>
-                <div className="bg-[#fef2f2] border border-border-custom rounded-xl p-5 flex-grow">
-                  <span className="text-[12px] uppercase tracking-widest font-semibold text-red-600 block mb-1">
-                    Day 0
-                  </span>
-                  <h4 className="text-[16px] font-semibold text-text-dark mb-2">
-                    ML scores her risk
-                  </h4>
-                  <p className="text-[14px] text-text-light leading-relaxed">
-                    XGBoost model runs. Risk score: 84% HIGH. SHAP factors: Distance 38km (+32%), Past no-shows 2/6 (+28%), Lead time 21 days (+18%), Rain forecast (+6%).
-                  </p>
-                  <div className="text-[12px] text-text-light pt-3 mt-3 border-t border-[#f3f4f6]">
-                    Model: XGBoost · Features: 18 · SHAP: top 6 factors shown
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 4 */}
-              <div className="flex space-x-6 items-start relative">
-                <div className="w-[48px] h-[48px] rounded-full bg-primary-teal text-white flex items-center justify-center border-4 border-white font-bold text-[14px] shrink-0 z-10 shadow-none">
-                  4
-                </div>
-                <div className="bg-white border border-border-custom rounded-xl p-5 flex-grow">
-                  <span className="text-[12px] uppercase tracking-widest font-semibold text-primary-teal block mb-1">
-                    48h before
-                  </span>
-                  <h4 className="text-[16px] font-semibold text-text-dark mb-2">
-                    48-hour reminder sent
-                  </h4>
-                  <p className="text-[14px] text-text-light leading-relaxed">
-                    'Hi Priya! Your appointment with Dr. Mehta is in 48 hours. Plan your leave today. Reply 1 to confirm, 2 to reschedule.'
-                  </p>
-                  <div className="text-[12px] text-text-light pt-3 mt-3 border-t border-[#f3f4f6]">
-                    Channel: WhatsApp · Status: Delivered
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 5 */}
-              <div className="flex space-x-6 items-start relative">
-                <div className="w-[48px] h-[48px] rounded-full bg-amber-500 text-white flex items-center justify-center border-4 border-white font-bold text-[14px] shrink-0 z-10 shadow-none">
-                  5
-                </div>
-                <div className="bg-[#fff3d6] border border-border-custom rounded-xl p-5 flex-grow">
-                  <span className="text-[12px] uppercase tracking-widest font-semibold text-[#92400e] block mb-1">
-                    24h before
-                  </span>
-                  <h4 className="text-[16px] font-semibold text-text-dark mb-2">
-                    She replies '2' — Reschedule
-                  </h4>
-                  <p className="text-[14px] text-text-light leading-relaxed">
-                    Priya can't make it. She replies 2. Instantly: slot opens on dashboard, waitlist is checked, Rahul Verma gets notified.
-                  </p>
-                  <div className="text-[12px] text-text-light pt-3 mt-3 border-t border-[#f3f4f6]">
-                    Slot freed · Waitlist: 3 patients · Revenue at risk: ₹2,500
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 6 */}
-              <div className="flex space-x-6 items-start relative">
-                <div className="w-[48px] h-[48px] rounded-full bg-green-500 text-white flex items-center justify-center border-4 border-white font-bold text-[14px] shrink-0 z-10 shadow-none">
-                  6
-                </div>
-                <div className="bg-[#e8faee] border border-border-custom rounded-xl p-5 flex-grow">
-                  <span className="text-[12px] uppercase tracking-widest font-semibold text-green-700 block mb-1">
-                    2 min later
-                  </span>
-                  <h4 className="text-[16px] font-semibold text-text-dark mb-2">
-                    Slot recovered — Rahul booked
-                  </h4>
-                  <p className="text-[14px] text-text-light leading-relaxed">
-                    Rahul confirms via WhatsApp. Slot filled. Revenue ticker: ₹1.8L → ₹1.55L. Doctor WhatsApp: 'Your 10 AM changed. Rahul at 10:15.'
-                  </p>
-                  <div className="text-[12px] text-text-light pt-3 mt-3 border-t border-[#f3f4f6]">
-                    Recovery time: 2 minutes · Revenue saved: ₹2,500
-                  </div>
-                </div>
-              </div>
-
-            </div>
+          {/* Continuous Auto-Play Stage Indicator Badge */}
+          <div className="flex justify-center mb-6">
+            <span className="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-white border border-[#1E7F6A]/20 text-xs font-mono-data font-bold text-[#1E7F6A]">
+              <span className="w-2 h-2 rounded-full bg-[#1E7F6A] animate-ping" />
+              <span>LIVE AUTOMATED JOURNEY SIMULATOR · STAGE {activeWorkflowStep + 1} OF 6</span>
+            </span>
           </div>
+
+          {/* HORIZONTAL SLEEPING LINE TRACK & NODES */}
+          <div className="max-w-[1000px] mx-auto relative mb-12 py-6 px-4">
+            
+            {/* Background Horizontal Track Rail */}
+            <div className="absolute left-8 right-8 top-1/2 -translate-y-1/2 h-[4px] bg-[#E8ECEF] z-0 rounded-full" />
+
+            {/* Active Progress Laser Track Fill */}
+            <div
+              className="absolute left-8 top-1/2 -translate-y-1/2 h-[4px] bg-[#1E7F6A] z-0 rounded-full transition-all duration-500 shadow-sm"
+              style={{
+                width: `calc(${((activeWorkflowStep) / 5) * 100}% - 16px)`
+              }}
+            />
+
+            {/* 6 Horizontal Nodes along the Sleeping Line */}
+            <div className="relative z-10 flex items-center justify-between">
+              {[
+                { num: 1, tag: 'Booking', time: 'Day 0' },
+                { num: 2, tag: 'Persona', time: 'Day 0' },
+                { num: 3, tag: 'ML Risk', time: '84% High' },
+                { num: 4, tag: 'WhatsApp', time: '48h Before' },
+                { num: 5, tag: 'Reschedule', time: '24h Before' },
+                { num: 6, tag: 'Recovered', time: '< 2m Later' }
+              ].map((step, idx) => {
+                const isActive = activeWorkflowStep === idx;
+                const isPassed = activeWorkflowStep > idx;
+
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setActiveWorkflowStep(idx);
+                    }}
+                    className="flex flex-col items-center group cursor-pointer"
+                  >
+                    {/* Circle Node */}
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-mono-data font-bold text-xs sm:text-sm transition-all duration-300 ${
+                      isActive
+                        ? 'bg-[#1E7F6A] text-white ring-4 ring-[#1E7F6A]/30 scale-125 shadow-lg'
+                        : isPassed
+                        ? 'bg-[#1E7F6A] text-white shadow-xs'
+                        : 'bg-white border-2 border-[#E8ECEF] text-[#3B4452] hover:border-[#1E7F6A] hover:text-[#1E7F6A]'
+                    }`}>
+                      {step.num}
+                    </div>
+
+                    {/* Step Name Tag below node */}
+                    <div className="text-center mt-3">
+                      <span className={`block text-[11px] font-mono-data font-bold uppercase ${
+                        isActive ? 'text-[#1E7F6A]' : 'text-[#3B4452]'
+                      }`}>
+                        {step.tag}
+                      </span>
+                      <span className="block text-[10px] text-[#3B4452]/70">
+                        {step.time}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+          </div>
+
+          {/* DYNAMIC FEATURED STAGE SPOTLIGHT CARD (STAGE REVEAL) */}
+          <div className="max-w-[840px] mx-auto transition-all duration-300">
+            {activeWorkflowStep === 0 && (
+              <div className="apollo-card bg-white border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-lg shadow-[#1E7F6A]/10 animate-fadeIn">
+                <div className="flex items-center justify-between pb-4 border-b border-[#E8ECEF] mb-6">
+                  <div>
+                    <span className="text-[11px] uppercase tracking-widest font-mono-data font-bold text-[#1E7F6A] block mb-1">
+                      STAGE 1 OF 6 · DAY 0 INITIAL BOOKING
+                    </span>
+                    <h3 className="font-fraunces font-bold text-2xl text-[#182033]">
+                      Priya books cardiology appointment
+                    </h3>
+                  </div>
+                  <span className="text-xs font-mono-data font-bold bg-[#1E7F6A]/10 text-[#1E7F6A] px-3.5 py-1.5 rounded-full">
+                    PORTAL BOOKING
+                  </span>
+                </div>
+
+                <p className="text-[15px] text-[#3B4452] leading-relaxed mb-6">
+                  Priya books Dr. Mehta (Cardiology) for July 3 via the patient portal. Instant WhatsApp confirmation is automatically dispatched to her phone.
+                </p>
+
+                <div className="bg-white border border-[#E8ECEF] rounded-[16px] p-4 flex flex-wrap items-center justify-between gap-4 text-xs font-mono-data text-[#182033]">
+                  <div>
+                    <span className="text-[#3B4452] block">BOOKING ID</span>
+                    <strong className="text-sm">APL-2026-0847</strong>
+                  </div>
+                  <div>
+                    <span className="text-[#3B4452] block">SPECIALTY</span>
+                    <strong className="text-sm">Cardiology (Dr. Mehta)</strong>
+                  </div>
+                  <div>
+                    <span className="text-[#3B4452] block">OPD FEE</span>
+                    <strong className="text-sm text-[#1E7F6A]">₹800 Paid</strong>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeWorkflowStep === 1 && (
+              <div className="apollo-card bg-white border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-lg shadow-[#1E7F6A]/10 animate-fadeIn">
+                <div className="flex items-center justify-between pb-4 border-b border-[#E8ECEF] mb-6">
+                  <div>
+                    <span className="text-[11px] uppercase tracking-widest font-mono-data font-bold text-[#1E7F6A] block mb-1">
+                      STAGE 2 OF 6 · PERSONA PROFILING
+                    </span>
+                    <h3 className="font-fraunces font-bold text-2xl text-[#182033]">
+                      Persona preference set via WhatsApp
+                    </h3>
+                  </div>
+                  <span className="text-xs font-mono-data font-bold bg-[#1E7F6A]/10 text-[#1E7F6A] px-3.5 py-1.5 rounded-full">
+                    PERSONA ENGINE
+                  </span>
+                </div>
+
+                <p className="text-[15px] text-[#3B4452] leading-relaxed mb-6">
+                  WhatsApp asks how she wants to be reminded. She replies '1' — Working Professional. System automatically schedules 48h + 24h + morning reminders tailored to her schedule.
+                </p>
+
+                <div className="bg-white border border-[#E8ECEF] rounded-[16px] p-4 flex flex-wrap items-center justify-between gap-4 text-xs font-mono-data text-[#182033]">
+                  <div>
+                    <span className="text-[#3B4452] block">SELECTED PERSONA</span>
+                    <strong className="text-sm text-[#1E7F6A]">Working Professional</strong>
+                  </div>
+                  <div>
+                    <span className="text-[#3B4452] block">REMINDER CADENCE</span>
+                    <strong className="text-sm">48h notice + 24h notice + 9 AM</strong>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeWorkflowStep === 2 && (
+              <div className="apollo-card bg-[#B8623F]/5 border-2 border-[#B8623F] rounded-[24px] p-8 shadow-lg shadow-[#B8623F]/10 animate-fadeIn">
+                <div className="flex items-center justify-between pb-4 border-b border-[#B8623F]/20 mb-6">
+                  <div>
+                    <span className="text-[11px] uppercase tracking-widest font-mono-data font-bold text-[#B8623F] block mb-1">
+                      STAGE 3 OF 6 · PROPRIETARY ML RISK ENGINE
+                    </span>
+                    <h3 className="font-fraunces font-bold text-2xl text-[#182033]">
+                      XGBoost ML scores her no-show risk
+                    </h3>
+                  </div>
+                  <span className="text-xs font-mono-data font-bold bg-[#B8623F] text-white px-3.5 py-1.5 rounded-full">
+                    84% HIGH RISK
+                  </span>
+                </div>
+
+                <p className="text-[15px] text-[#3B4452] leading-relaxed mb-6">
+                  XGBoost ML model evaluates 18 clinical & environmental features. Risk score is flagged at 84% HIGH.
+                </p>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono-data">
+                  <div className="bg-white p-3 rounded-[12px] border border-[#B8623F]/20">
+                    <span className="text-[#3B4452] block">DISTANCE</span>
+                    <strong className="text-[#B8623F]">38 km (+32%)</strong>
+                  </div>
+                  <div className="bg-white p-3 rounded-[12px] border border-[#B8623F]/20">
+                    <span className="text-[#3B4452] block">PAST NO-SHOWS</span>
+                    <strong className="text-[#B8623F]">2 / 6 (+28%)</strong>
+                  </div>
+                  <div className="bg-white p-3 rounded-[12px] border border-[#B8623F]/20">
+                    <span className="text-[#3B4452] block">LEAD TIME</span>
+                    <strong className="text-[#B8623F]">21 Days (+18%)</strong>
+                  </div>
+                  <div className="bg-white p-3 rounded-[12px] border border-[#B8623F]/20">
+                    <span className="text-[#3B4452] block">RAIN FORECAST</span>
+                    <strong className="text-[#B8623F]">Moderate (+6%)</strong>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeWorkflowStep === 3 && (
+              <div className="apollo-card bg-white border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-lg shadow-[#1E7F6A]/10 animate-fadeIn">
+                <div className="flex items-center justify-between pb-4 border-b border-[#E8ECEF] mb-6">
+                  <div>
+                    <span className="text-[11px] uppercase tracking-widest font-mono-data font-bold text-[#1E7F6A] block mb-1">
+                      STAGE 4 OF 6 · AUTOMATED DISPATCH
+                    </span>
+                    <h3 className="font-fraunces font-bold text-2xl text-[#182033]">
+                      48-Hour WhatsApp reminder sent
+                    </h3>
+                  </div>
+                  <span className="text-xs font-mono-data font-bold bg-[#1E7F6A]/10 text-[#1E7F6A] px-3.5 py-1.5 rounded-full">
+                    DISPATCH DELIVERED
+                  </span>
+                </div>
+
+                <div className="bg-white/40 border border-[#1E7F6A]/20 rounded-[18px] p-5 mb-6">
+                  <p className="text-xs font-mono-data font-bold text-[#1E7F6A] mb-2">WHATSAPP MESSAGE DISPATCHED TO PRIYA:</p>
+                  <p className="text-[14.5px] text-[#182033] leading-relaxed italic">
+                    "Hi Priya! Your appointment with Dr. Mehta is in 48 hours. Plan your leave today. Reply 1 to confirm, 2 to reschedule."
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between text-xs font-mono-data text-[#3B4452]">
+                  <span>Channel: WhatsApp Business API</span>
+                  <span className="text-[#1E7F6A] font-bold">Status: Delivered & Read</span>
+                </div>
+              </div>
+            )}
+
+            {activeWorkflowStep === 4 && (
+              <div className="apollo-card bg-white border-2 border-[#EAF7F2] rounded-[24px] p-8 shadow-lg animate-fadeIn">
+                <div className="flex items-center justify-between pb-4 border-b border-[#EAF7F2]/40 mb-6">
+                  <div>
+                    <span className="text-[11px] uppercase tracking-widest font-mono-data font-bold text-[#182033] block mb-1">
+                      STAGE 5 OF 6 · INTERACTIVE CANCELLATION
+                    </span>
+                    <h3 className="font-fraunces font-bold text-2xl text-[#182033]">
+                      Priya replies '2' — Reschedule
+                    </h3>
+                  </div>
+                  <span className="text-xs font-mono-data font-bold bg-white text-[#182033] px-3.5 py-1.5 rounded-full">
+                    SLOT FREED
+                  </span>
+                </div>
+
+                <p className="text-[15px] text-[#3B4452] leading-relaxed mb-6">
+                  Priya cannot make it. She replies '2'. Instantly, the slot opens on the staff dashboard, the waitlist algorithm scans for matched patients, and Rahul Verma gets notified.
+                </p>
+
+                <div className="bg-white border border-[#EAF7F2]/60 rounded-[16px] p-4 flex justify-between items-center text-xs font-mono-data">
+                  <span>Waitlist Scan: 3 matched patients</span>
+                  <span className="font-bold text-[#B8623F]">Revenue at Risk: ₹2,500</span>
+                </div>
+              </div>
+            )}
+
+            {activeWorkflowStep === 5 && (
+              <div className="apollo-card bg-white border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-xl shadow-[#1E7F6A]/15 animate-fadeIn">
+                <div className="flex items-center justify-between pb-4 border-b border-[#1E7F6A]/20 mb-6">
+                  <div>
+                    <span className="text-[11px] uppercase tracking-widest font-mono-data font-bold text-[#1E7F6A] block mb-1">
+                      STAGE 6 OF 6 · AUTOMATED RECOVERY SUCCESS
+                    </span>
+                    <h3 className="font-fraunces font-bold text-2xl text-[#182033]">
+                      Slot recovered — Rahul booked in &lt; 2 minutes
+                    </h3>
+                  </div>
+                  <span className="text-xs font-mono-data font-bold bg-[#1E7F6A] text-white px-3.5 py-1.5 rounded-full">
+                    ₹2,500 RECOVERED
+                  </span>
+                </div>
+
+                <p className="text-[15px] text-[#3B4452] leading-relaxed mb-6">
+                  Rahul confirms via WhatsApp. The slot is filled. Revenue ticker updates automatically on the hospital dashboard. Dr. Mehta receives a notification: "Your 10 AM slot changed to Rahul."
+                </p>
+
+                <div className="bg-white border border-[#1E7F6A]/30 rounded-[16px] p-4 flex justify-between items-center text-xs font-mono-data text-[#1E7F6A] font-bold">
+                  <span>Recovery Speed: &lt; 2 Minutes</span>
+                  <span>Hospital Revenue Saved: ₹2,500</span>
+                </div>
+              </div>
+            )}
+          </div>
+
         </div>
       </section>
 
       {/* SECTION 7 — DASHBOARD PREVIEW (Dark Section) */}
-      <section className="bg-primary-teal py-16 lg:py-24 text-center">
+      <section className="gsap-reveal-section bg-[#165B52] py-16 lg:py-24 text-center">
         <div className="max-w-[1280px] mx-auto px-6 md:px-8">
-          <span className="text-[12px] uppercase tracking-widest text-[#e5f9f8]/70 block mb-3 font-semibold">
+          <span className="text-[12px] uppercase tracking-widest text-[#F3FBF8]/70 block mb-3 font-semibold">
             Product Preview
           </span>
           <h2 className="font-display font-bold text-[30px] lg:text-[40px] text-white tracking-tight leading-tight">
@@ -754,7 +1185,7 @@ export default function LandingPage() {
 
               <Link
                 to="/login"
-                className="mt-8 py-3 px-5 bg-white text-primary-teal rounded-lg text-[14px] hover:bg-[#e5f9f8] transition-colors block text-center font-medium"
+                className="mt-8 py-3 px-5 bg-white text-primary-teal rounded-lg text-[14px] hover:bg-white transition-colors block text-center font-medium"
               >
                 Book Appointment &rarr;
               </Link>
@@ -764,7 +1195,7 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 8 — FEATURES BENTO GRID */}
-      <section id="features" className="bg-white py-16 lg:py-24">
+      <section id="features" className="gsap-reveal-section bg-white py-16 lg:py-24">
         <div className="max-w-[1280px] mx-auto px-6 md:px-8">
           {/* Section Header */}
           <div className="max-w-[600px] mb-16 text-center mx-auto">
@@ -804,7 +1235,7 @@ export default function LandingPage() {
             </div>
 
             {/* Bento 2: Persona-Based WhatsApp */}
-            <div className="bg-[#fff3d6] rounded-2xl p-8 min-h-[240px] flex flex-col justify-between border border-[#f5e2b3] hover:shadow-sm transition-all duration-200">
+            <div className="bg-white rounded-2xl p-8 min-h-[240px] flex flex-col justify-between border border-[#f5e2b3] hover:shadow-sm transition-all duration-200">
               <div>
                 <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center mb-5 shrink-0">
                   <MessageSquare className="h-5 w-5" />
@@ -842,7 +1273,7 @@ export default function LandingPage() {
             </div>
 
             {/* Bento 4: Live Slot Recovery spans 2 columns */}
-            <div className="lg:col-span-2 bg-[#e8faee] rounded-2xl p-8 flex flex-col md:flex-row justify-between gap-6 border border-[#c6f0d4] hover:shadow-sm transition-all duration-200">
+            <div className="lg:col-span-2 bg-white rounded-2xl p-8 flex flex-col md:flex-row justify-between gap-6 border border-[#c6f0d4] hover:shadow-sm transition-all duration-200">
               <div className="flex flex-col justify-between">
                 <div>
                   <div className="w-10 h-10 rounded-xl bg-green-600 text-white flex items-center justify-center mb-5 shrink-0">
@@ -898,7 +1329,7 @@ export default function LandingPage() {
               <h3 className="text-[16px] font-semibold text-text-dark mb-2">
                 Family Contact Chain
               </h3>
-              <p className="text-[14px] text-text-light leading-relaxed">
+              <p className="text-[14px] text-[#3B4452] leading-relaxed">
                 Connect secondary phone numbers for dependent relatives. Automatically loop family members into reminder loops.
               </p>
             </div>
@@ -908,81 +1339,81 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 9 — RESULTS */}
-      <section id="results" className="bg-bg-subtle py-16 lg:py-24 border-y border-border-custom">
+      <section id="results" className="gsap-reveal-section bg-white py-16 lg:py-24 border-y border-[#E8ECEF]">
         <div className="max-w-[1280px] mx-auto px-6 md:px-8">
           {/* Section Header */}
-          <div className="max-w-[500px] mb-16 text-center mx-auto">
-            <span className="text-[12px] uppercase tracking-[0.15em] font-semibold text-primary-teal block mb-3">
+          <div className="max-w-[500px] mb-16 text-center mx-auto font-inter">
+            <span className="text-[12px] uppercase tracking-[0.15em] font-semibold text-[#1E7F6A] block mb-3">
               Impact
             </span>
-            <h2 className="font-display font-bold text-[30px] lg:text-[40px] text-text-dark leading-tight tracking-tight">
+            <h2 className="font-fraunces font-bold text-[30px] lg:text-[40px] text-[#182033] leading-tight tracking-tight">
               Numbers That Matter
             </h2>
           </div>
 
           {/* Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 font-inter">
             
             {/* Card 1 */}
-            <div className="bg-white border border-border-custom rounded-2xl p-6 text-center hover:shadow-sm transition-all duration-200">
-              <div className="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center mx-auto mb-4 shrink-0">
+            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[16px] p-6 text-center shadow-2xs hover:shadow-xs transition-all duration-200">
+              <div className="w-12 h-12 rounded-full bg-white text-[#1E7F6A] flex items-center justify-center mx-auto mb-4 shrink-0">
                 <TrendingDown className="h-6 w-6" />
               </div>
-              <p className="font-display font-bold text-[32px] text-green-600 leading-none">
+              <p className="font-mono-data font-bold text-[32px] text-[#1E7F6A] leading-none">
                 40%
               </p>
-              <h4 className="text-[14px] font-semibold text-text-dark mt-3 mb-1">
+              <h4 className="text-[14px] font-semibold text-[#182033] mt-3 mb-1">
                 No-show reduction
               </h4>
-              <p className="text-[12px] text-text-light">
+              <p className="text-[12px] text-[#3B4452]">
                 After implementing smart persona-based reminders
               </p>
             </div>
 
             {/* Card 2 */}
-            <div className="bg-white border border-border-custom rounded-2xl p-6 text-center hover:shadow-sm transition-all duration-200">
-              <div className="w-12 h-12 rounded-full bg-light-teal text-primary-teal flex items-center justify-center mx-auto mb-4 shrink-0">
+            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[16px] p-6 text-center shadow-2xs hover:shadow-xs transition-all duration-200">
+              <div className="w-12 h-12 rounded-full bg-white text-[#1E7F6A] flex items-center justify-center mx-auto mb-4 shrink-0">
                 <TrendingUp className="h-6 w-6" />
               </div>
-              <p className="font-display font-bold text-[32px] text-primary-teal leading-none">
+              <p className="font-mono-data font-bold text-[32px] text-[#1E7F6A] leading-none">
                 ₹38.5L
               </p>
-              <h4 className="text-[14px] font-semibold text-text-dark mt-3 mb-1">
+              <h4 className="text-[14px] font-semibold text-[#182033] mt-3 mb-1">
                 Revenue recovered / month
               </h4>
-              <p className="text-[12px] text-text-light">
+              <p className="text-[12px] text-[#3B4452]">
                 From slot recovery + waitlist notifications
               </p>
             </div>
 
             {/* Card 3 */}
-            <div className="bg-white border border-border-custom rounded-2xl p-6 text-center hover:shadow-sm transition-all duration-200">
-              <div className="w-12 h-12 rounded-full bg-[#fff3d6] text-amber-600 flex items-center justify-center mx-auto mb-4 shrink-0">
+            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[16px] p-6 text-center shadow-2xs hover:shadow-xs transition-all duration-200">
+              <div className="w-12 h-12 rounded-full bg-white/30 text-[#182033] flex items-center justify-center mx-auto mb-4 shrink-0">
                 <Clock className="h-6 w-6" />
               </div>
-              <p className="font-display font-bold text-[32px] text-amber-600 leading-none">
+              <p className="font-mono-data font-bold text-[32px] text-[#182033] leading-none">
                 127 hrs
               </p>
-              <h4 className="text-[14px] font-semibold text-text-dark mt-3 mb-1">
+              <h4 className="text-[14px] font-semibold text-[#182033] mt-3 mb-1">
                 Doctor time saved / month
               </h4>
-              <p className="text-[12px] text-text-light">
+              <p className="text-[12px] text-[#3B4452]">
                 Eliminating idle waiting for no-show patients
               </p>
             </div>
 
             {/* Card 4 */}
-            <div className="bg-white border border-border-custom rounded-2xl p-6 text-center hover:shadow-sm transition-all duration-200">
-              <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4 shrink-0">
+            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[16px] p-6 text-center shadow-2xs hover:shadow-xs transition-all duration-200">
+              <div className="w-12 h-12 rounded-full bg-white text-[#1E7F6A] flex items-center justify-center mx-auto mb-4 shrink-0">
                 <RefreshCw className="h-6 w-6" />
               </div>
-              <p className="font-display font-bold text-[32px] text-blue-600 leading-none">
+              <p className="font-mono-data font-bold text-[32px] text-[#1E7F6A] leading-none">
                 89
               </p>
-              <h4 className="text-[14px] font-semibold text-text-dark mt-3 mb-1">
+              <h4 className="text-[14px] font-semibold text-[#182033] mt-3 mb-1">
                 Slots reused this month
               </h4>
-              <p className="text-[12px] text-text-light">
+              <p className="text-[12px] text-[#3B4452]">
                 Cancelled appointments filled from waitlist
               </p>
             </div>
@@ -992,14 +1423,14 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 10 — FAQ */}
-      <section id="faq" className="bg-bg-subtle py-16 lg:py-24">
-        <div className="max-w-[768px] mx-auto px-6 md:px-8">
+      <section id="faq" className="gsap-reveal-section bg-white py-16 lg:py-24">
+        <div className="max-w-[768px] mx-auto px-6 md:px-8 font-inter">
           {/* Section Header */}
           <div className="max-w-[500px] mb-12 text-center mx-auto">
-            <span className="text-[12px] uppercase tracking-[0.15em] font-semibold text-primary-teal block mb-3">
+            <span className="text-[12px] uppercase tracking-[0.15em] font-semibold text-[#1E7F6A] block mb-3">
               FAQ
             </span>
-            <h2 className="font-display font-bold text-[32px] text-text-dark leading-tight tracking-tight">
+            <h2 className="font-fraunces font-bold text-[32px] text-[#182033] leading-tight tracking-tight">
               Common Questions
             </h2>
           </div>
@@ -1008,90 +1439,90 @@ export default function LandingPage() {
           <div className="space-y-3">
             
             {/* Q1 */}
-            <details className="group border border-border-custom rounded-xl bg-white transition-all duration-200">
+            <details className="apollo-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
               <summary className="flex items-center justify-between p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-                <span className="text-[14px] font-medium text-text-dark pr-4 select-none">
+                <span className="text-[14px] font-medium text-[#182033] pr-4 select-none">
                   How does the ML model predict no-shows?
                 </span>
-                <ChevronDown className="h-[18px] w-[18px] text-text-light shrink-0 transition-transform duration-200 group-open:rotate-180" />
+                <ChevronDown className="h-[18px] w-[18px] text-[#3B4452] shrink-0 transition-transform duration-200 group-open:rotate-180" />
               </summary>
               <div className="px-5 pb-5">
-                <p className="text-[14px] text-text-medium leading-relaxed">
+                <p className="text-[14px] text-[#3B4452] leading-relaxed">
                   Our XGBoost machine learning model analyzes 18 distinct parameters (including patient historical attendance, travel distance, lead time from booking, and weather forecast) to output a risk score from 0-100%.
                 </p>
               </div>
             </details>
 
             {/* Q2 */}
-            <details className="group border border-border-custom rounded-xl bg-white transition-all duration-200">
+            <details className="apollo-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
               <summary className="flex items-center justify-between p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-                <span className="text-[14px] font-medium text-text-dark pr-4 select-none">
+                <span className="text-[14px] font-medium text-[#182033] pr-4 select-none">
                   Is the WhatsApp integration real?
                 </span>
-                <ChevronDown className="h-[18px] w-[18px] text-text-light shrink-0 transition-transform duration-200 group-open:rotate-180" />
+                <ChevronDown className="h-[18px] w-[18px] text-[#3B4452] shrink-0 transition-transform duration-200 group-open:rotate-180" />
               </summary>
               <div className="px-5 pb-5">
-                <p className="text-[14px] text-text-medium leading-relaxed">
+                <p className="text-[14px] text-[#3B4452] leading-relaxed">
                   Yes, the system supports 2-way real-time messaging using standard WhatsApp templates. Patients can confirm, cancel, or trigger reschedules directly by replying with numbers.
                 </p>
               </div>
             </details>
 
             {/* Q3 */}
-            <details className="group border border-border-custom rounded-xl bg-white transition-all duration-200">
+            <details className="apollo-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
               <summary className="flex items-center justify-between p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-                <span className="text-[14px] font-medium text-text-dark pr-4 select-none">
+                <span className="text-[14px] font-medium text-[#182033] pr-4 select-none">
                   What about elderly patients who don't use WhatsApp?
                 </span>
-                <ChevronDown className="h-[18px] w-[18px] text-text-light shrink-0 transition-transform duration-200 group-open:rotate-180" />
+                <ChevronDown className="h-[18px] w-[18px] text-[#3B4452] shrink-0 transition-transform duration-200 group-open:rotate-180" />
               </summary>
               <div className="px-5 pb-5">
-                <p className="text-[14px] text-text-medium leading-relaxed">
+                <p className="text-[14px] text-[#3B4452] leading-relaxed">
                   We have automated voice calls in Hindi (or regional languages) that read out the slot timings and capture responses, plus the option to notify their family contact chain.
                 </p>
               </div>
             </details>
 
             {/* Q4 */}
-            <details className="group border border-border-custom rounded-xl bg-white transition-all duration-200">
+            <details className="apollo-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
               <summary className="flex items-center justify-between p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-                <span className="text-[14px] font-medium text-text-dark pr-4 select-none">
+                <span className="text-[14px] font-medium text-[#182033] pr-4 select-none">
                   What is SHAP explainability?
                 </span>
-                <ChevronDown className="h-[18px] w-[18px] text-text-light shrink-0 transition-transform duration-200 group-open:rotate-180" />
+                <ChevronDown className="h-[18px] w-[18px] text-[#3B4452] shrink-0 transition-transform duration-200 group-open:rotate-180" />
               </summary>
               <div className="px-5 pb-5">
-                <p className="text-[14px] text-text-medium leading-relaxed">
+                <p className="text-[14px] text-[#3B4452] leading-relaxed">
                   SHAP breaks down the model output into contributions. Instead of just giving a score, it displays 'Distance +32%, Past no-show +28%' so staff can understand the context.
                 </p>
               </div>
             </details>
 
             {/* Q5 */}
-            <details className="group border border-border-custom rounded-xl bg-white transition-all duration-200">
+            <details className="apollo-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
               <summary className="flex items-center justify-between p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-                <span className="text-[14px] font-medium text-text-dark pr-4 select-none">
+                <span className="text-[14px] font-medium text-[#182033] pr-4 select-none">
                   How does slot recovery work?
                 </span>
-                <ChevronDown className="h-[18px] w-[18px] text-text-light shrink-0 transition-transform duration-200 group-open:rotate-180" />
+                <ChevronDown className="h-[18px] w-[18px] text-[#3B4452] shrink-0 transition-transform duration-200 group-open:rotate-180" />
               </summary>
               <div className="px-5 pb-5">
-                <p className="text-[14px] text-text-medium leading-relaxed">
+                <p className="text-[14px] text-[#3B4452] leading-relaxed">
                   When a patient replies to cancel or reschedule, the slot opens instantly. Our engine checks the waitlist, sends notifications, and secures a replacement booking within minutes.
                 </p>
               </div>
             </details>
 
             {/* Q6 */}
-            <details className="group border border-border-custom rounded-xl bg-white transition-all duration-200">
+            <details className="apollo-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
               <summary className="flex items-center justify-between p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-                <span className="text-[14px] font-medium text-text-dark pr-4 select-none">
+                <span className="text-[14px] font-medium text-[#182033] pr-4 select-none">
                   Can this integrate with hospital HMS?
                 </span>
-                <ChevronDown className="h-[18px] w-[18px] text-text-light shrink-0 transition-transform duration-200 group-open:rotate-180" />
+                <ChevronDown className="h-[18px] w-[18px] text-[#3B4452] shrink-0 transition-transform duration-200 group-open:rotate-180" />
               </summary>
               <div className="px-5 pb-5">
-                <p className="text-[14px] text-text-medium leading-relaxed">
+                <p className="text-[14px] text-[#3B4452] leading-relaxed">
                   Yes, we expose a full REST API that syncs with standard HMS platforms like Practo Ray, MediXcel, and ABDM/ABHA configurations.
                 </p>
               </div>
@@ -1102,25 +1533,25 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 11 — CTA */}
-      <section className="bg-primary-teal py-20 text-center">
+      <section className="gsap-reveal-section bg-[#165B52] py-20 text-center font-inter">
         <div className="max-w-[768px] mx-auto px-6 md:px-8">
-          <h2 className="font-display font-bold text-[36px] lg:text-[40px] text-white tracking-tight leading-tight">
+          <h2 className="font-fraunces font-bold text-[36px] lg:text-[40px] text-white tracking-tight leading-tight">
             Stop Losing Patients. Start Recovering Revenue.
           </h2>
-          <p className="text-[16px] text-white/70 mt-4 max-w-[460px] mx-auto leading-relaxed">
-            Apollo OPD Intelligence is ready.
+          <p className="text-[16px] text-white/80 mt-4 max-w-[460px] mx-auto leading-relaxed">
+            Aether OPD Intelligence is ready for your hospital.
           </p>
           
           <div className="flex flex-wrap items-center justify-center gap-4 mt-10">
             <Link
               to="/login"
-              className="px-8 py-4 bg-white text-primary-teal font-semibold text-[16px] rounded-xl hover:bg-light-teal transition-all duration-200"
+              className="px-8 py-4 bg-white text-[#182033] font-semibold text-[16px] rounded-[6px] hover:bg-white/80 transition-all duration-200 shadow-md"
             >
               Book Appointment
             </Link>
             <a
               href="http://localhost:5173/staff/login"
-              className="px-8 py-4 border-2 border-white/30 text-white font-medium text-[16px] rounded-xl hover:border-white/60 transition-all duration-200"
+              className="px-8 py-4 border border-white/30 text-white font-medium text-[16px] rounded-[6px] hover:border-white/60 transition-all duration-200"
             >
               Staff Dashboard &rarr;
             </a>
@@ -1132,13 +1563,8 @@ export default function LandingPage() {
       <footer className="bg-white border-t border-[#f3f4f6] py-8">
         <div className="max-w-[1280px] mx-auto px-6 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-text-medium">
           {/* Left Group */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center space-x-2">
-              <div className="w-7 h-7 rounded-full bg-primary-teal flex items-center justify-center shrink-0">
-                <span className="text-white font-bold text-[11px]">A</span>
-              </div>
-              <span className="font-medium text-[#374151]">Apollo OPD Intelligence</span>
-            </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="font-poppins font-bold text-[20px] text-[#182033] tracking-tight">Apollo<span className="text-[#1E7F6A] ml-1">OPD</span></span>
             <span className="hidden md:inline text-text-light">&#183;</span>
             <span className="text-text-light">Demo Day 2026</span>
           </div>
@@ -1162,6 +1588,13 @@ export default function LandingPage() {
       </footer>
 
     </div>
+
+    {/* Video Demo & Competitor Showdown Modal */}
+    <VideoDemoModal
+      isOpen={showVideoModal}
+      onClose={() => setShowVideoModal(false)}
+      onLaunchDemo={handleTryDemo}
+    />
     </>
   );
 }

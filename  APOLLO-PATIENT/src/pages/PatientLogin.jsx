@@ -21,8 +21,10 @@ import {
   User,
   Mail,
   MapPin,
-  Droplet
+  Droplet,
+  Play
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { DEMO_CONFIG } from '../utils/demoConfig';
 import { signInAnonymously, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
@@ -31,10 +33,15 @@ import { COLLECTIONS } from '../firebase/collections';
 import { formatPatientId, formatPatientPhone, validatePatientData } from '../utils/dataFormat';
 import { useAuth } from '../hooks/useAuth';
 import { triggerPatientRegistrationDemo } from '../utils/demoTriggers';
+import BrandLogo from '../components/BrandLogo';
+import LoginVideoShowcase from '../components/LoginVideoShowcase';
+import VideoDemoModal from '../components/VideoDemoModal';
+import IndianMedicalTeamShowcase from '../components/IndianMedicalTeamShowcase';
 
 export default function PatientLogin() {
   const navigate = useNavigate();
   const { loginMockUser, loginGoogleUser, updateMockSession, signOutUser, user: authUser, isAuthenticated, loading: authLoading } = useAuth();
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   // Auto-request location permission on login screen mount to preload GPS coordinates
   useEffect(() => {
@@ -457,6 +464,8 @@ export default function PatientLogin() {
 
       validatePatientData(patientDocData);
       await setDoc(doc(db, COLLECTIONS.PATIENTS, uid), patientDocData);
+      localStorage.removeItem('aether_onboarding_done');
+      localStorage.removeItem('aether_medical_profile');
       updateMockSession(patientDocData);
       
       // Trigger Registration Demo triggers (Welcome WhatsApp and Hindi Welcome Call)
@@ -518,6 +527,8 @@ export default function PatientLogin() {
 
       validatePatientData(patientDocData);
       await setDoc(doc(db, COLLECTIONS.PATIENTS, uid), patientDocData);
+      localStorage.removeItem('aether_onboarding_done');
+      localStorage.removeItem('aether_medical_profile');
       updateMockSession(patientDocData);
       
       // Trigger Registration Demo triggers (Welcome WhatsApp and Hindi Welcome Call)
@@ -603,149 +614,135 @@ export default function PatientLogin() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-slate-50 font-sans select-none overflow-hidden">
+    <>
+    <div className="min-h-screen w-full flex flex-col lg:flex-row font-inter select-none overflow-hidden bg-white">
       
       {/* Invisible reCAPTCHA container */}
       <div id="recaptcha-container"></div>
 
-      {/* Toast Notification Simulation */}
-      {showToast && (
-        <div className="fixed top-6 right-6 left-6 sm:left-auto sm:w-[380px] bg-slate-950 text-white p-4.5 rounded-3xl shadow-2xl border border-slate-800/90 flex items-start space-x-4 z-50 animate-bounce duration-300">
-          <div className="p-3 rounded-2xl bg-gradient-to-tr from-primary-teal to-[#10b981] text-white shrink-0 shadow-lg shadow-primary-teal/20">
-            <Activity className="h-5 w-5 animate-pulse" />
-          </div>
-          <div className="flex-1 text-left">
-            <p className="text-[10px] font-black text-primary-teal font-display uppercase tracking-widest leading-none">APOLLO-SMS</p>
-            <p className="text-[12.5px] text-slate-300 mt-1.5 font-bold leading-relaxed">
-              Use <span className="text-white font-black text-sm bg-primary-teal/20 px-2 py-0.5 rounded-lg border border-primary-teal/30 font-display font-mono">${generatedOtp}</span> as verification code for Apollo login.
-            </p>
-          </div>
-          <button
-            onClick={() => setShowToast(false)}
-            className="text-slate-500 hover:text-white transition-colors pt-0.5 shrink-0"
+      {/* Toast Notification Simulation (iOS Glassmorphic Style) */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="fixed top-6 right-6 left-6 sm:left-auto sm:w-[390px] bg-[#165B52]/95 backdrop-blur-xl text-white p-4 rounded-[20px] shadow-2xl border border-[#EAF7F2]/30 flex items-start space-x-3.5 z-50 select-none font-inter"
           >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
-      {/* Left Panel (Form Section) */}
-      <div className="w-full lg:w-[50%] min-h-screen flex flex-col justify-center items-center p-4 sm:p-8 md:p-12 lg:p-16 bg-gradient-to-br from-[#f0fcf9] via-white to-slate-50 overflow-y-auto relative">
-        {/* Subtle grid pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.02] pointer-events-none bg-[radial-gradient(#1b504c_1.5px,transparent_1.5px)] [background-size:24px_24px]"></div>
-        
-        {/* Branding Logo inside Form Panel (lg only to match mockup) */}
-        <div className="hidden lg:flex absolute top-8 left-8 items-center space-x-2.5 select-none group">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-primary-teal to-[#10b981] p-[2px] transition-transform duration-300 group-hover:rotate-12 shadow-md">
-            <div className="w-full h-full rounded-[14px] bg-[#f8fafc] flex items-center justify-center font-display font-black text-lg text-transparent bg-clip-text bg-gradient-to-tr from-[#0d9488] to-[#10b981]">
-              A
+            <div className="w-10 h-10 rounded-full bg-[#1E7F6A] border border-[#EAF7F2]/40 flex items-center justify-center text-[#EAF7F2] shrink-0 shadow-md">
+              <MessageSquare className="h-5 w-5 fill-[#EAF7F2]/20" />
             </div>
-          </div>
-          <div className="text-left leading-none">
-            <p className="font-display font-black text-[15.5px] text-slate-800 tracking-tight">Apollo <span className="text-primary-teal">OPD</span></p>
-            <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Intelligence</p>
-          </div>
+
+            <div className="flex-1 text-left">
+              <div className="flex items-center justify-between">
+                <span className="text-[10.5px] font-mono-data font-bold text-[#EAF7F2] uppercase tracking-wider">
+                  APOLLO SMS · MESSAGES
+                </span>
+                <span className="text-[10px] text-white/60 font-mono-data">now</span>
+              </div>
+
+              <p className="text-xs text-white/90 mt-1 font-medium leading-relaxed">
+                Use verification code{' '}
+                <span className="font-mono font-bold text-sm text-[#EAF7F2] bg-white/10 px-2 py-0.5 rounded-md border border-[#EAF7F2]/40 tracking-wider">
+                  {generatedOtp}
+                </span>{' '}
+                to log in to Aether OPD.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setShowToast(false)}
+              className="text-white/50 hover:text-white transition-colors p-1 shrink-0"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Left Half (Doctor Consultation Photo Panel - 50% Width, Full Viewport Height) */}
+      <div className="hidden lg:flex w-[50%] min-h-screen bg-gradient-to-br from-white via-white/80 to-white/40 relative flex-col justify-between p-10 xl:p-14 border-r border-[#E8ECEF]/80">
+
+
+        <div className="my-auto py-6">
+          <IndianMedicalTeamShowcase />
         </div>
 
-        {/* Outer Card Container (Glassmorphic on all screens) */}
-        <div className="w-full max-w-[430px] bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.04)] relative overflow-hidden flex flex-col max-h-[90vh] md:max-h-none glow-shadow-teal">
+        <div className="flex items-center justify-between text-xs text-[#3B4452] pt-4 border-t border-[#E8ECEF]/80 font-medium">
+          <span>✓ ABDM & ABHA Compliant</span>
+          <span>🔒 256-Bit Security</span>
+          <span>Aether OPD Platform</span>
+        </div>
+      </div>
+
+      {/* Right Half (Phone OTP Login Form Panel - 50% Width, Full Viewport Height) */}
+      <div className="w-full lg:w-[50%] min-h-screen bg-white p-8 sm:p-12 xl:p-16 flex flex-col justify-between text-left relative overflow-y-auto">
         
-        {/* STEP PROGRESS BAR */}
-        <div className="w-full h-[5px] bg-[#e2e8f0] absolute top-0 left-0 right-0 z-10">
-          <div
-            className="h-full bg-gradient-to-r from-[#0d9488] via-[#10b981] to-[#059669] transition-all duration-500 ease-out shadow-[0_1px_10px_rgba(16,185,129,0.3)]"
-            style={{
-              width:
-                currentStep === 1
-                  ? '25%'
-                  : currentStep === 2
-                  ? '50%'
-                  : currentStep === 3
-                  ? '75%'
-                  : '100%',
-            }}
-          ></div>
+        {/* Top Brand Logo Bar */}
+        <div className="flex items-center justify-between w-full pb-4 border-b border-[#E8ECEF]/60">
+          <div className="cursor-pointer" onClick={() => navigate('/')}>
+            <BrandLogo variant="inline" />
+          </div>
+          <span className="text-xs font-mono-data text-[#3B4452] font-medium">PATIENT PORTAL</span>
         </div>
 
-        {/* Card Body - Content Swap */}
-        <div className="p-6 md:p-8 overflow-y-auto">
+        {/* Card Body - Vertically & Horizontally Centered */}
+        <div className="my-auto py-8 w-full max-w-md mx-auto flex flex-col justify-center font-inter">
           
           {/* STEP 1: PHONE NUMBER INPUT */}
           {currentStep === 1 && (
             <div className="flex flex-col">
               {/* Logo block / Banner */}
-              <div className="relative w-full bg-[#e5f9f8] rounded-2xl h-[80px] flex items-center justify-center border border-[#d2f3f1] lg:hidden mb-4">
-                {/* Live System Pulsing Green Dot Badge */}
-                <div className="absolute top-3 right-3 flex items-center space-x-1.5 bg-white/95 backdrop-blur-sm px-2 py-0.5 rounded-full border border-green-200 shadow-sm">
+              <div className="relative w-full bg-white rounded-[14px] h-[80px] flex items-center justify-center border border-[#1E7F6A]/20 lg:hidden mb-4">
+                {/* Live System Pulsing Dot Badge */}
+                <div className="absolute top-3 right-3 flex items-center space-x-1.5 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-[6px] border border-[#1E7F6A]/20 shadow-2xs">
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1E7F6A] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#1E7F6A]"></span>
                   </span>
-                  <span className="text-[9px] font-semibold text-green-700 uppercase tracking-wider select-none leading-none">
+                  <span className="text-[9px] font-semibold text-[#1E7F6A] uppercase tracking-wider select-none leading-none">
                     Live System
                   </span>
                 </div>
 
-                <div className="w-11 h-11 rounded-full bg-[#1b504c] flex items-center justify-center shrink-0 text-white font-bold text-[18px] shadow-sm select-none">
+                <div className="w-11 h-11 rounded-full bg-[#1E7F6A] flex items-center justify-center shrink-0 text-white font-bold text-[18px] shadow-2xs select-none">
                   A
                 </div>
               </div>
 
               {/* Brand heading */}
-              <div className="mt-4 text-center lg:hidden">
-                <h2 className="font-display font-bold text-[22px] text-[#1b504c] tracking-tight leading-none">
-                  Apollo OPD
+              <div className="mt-4 text-center lg:hidden font-inter">
+                <h2 className="font-fraunces font-bold text-[22px] text-[#182033] tracking-tight leading-none">
+                  Aether OPD
                 </h2>
-                <p className="text-[13px] text-[#9ca3af] tracking-wide mt-1 select-none">
+                <p className="text-[13px] text-[#3B4452] tracking-wide mt-1 select-none">
                   Intelligence Platform
                 </p>
               </div>
 
               {/* Headings */}
-              <div className="mt-6 text-center">
-                <h1 className="text-2xl font-black text-slate-800 tracking-tight leading-tight">
-                  Book smarter. <span className="text-[#0d9488]">Never miss a visit.</span>
+              <div className="mt-6 text-left font-inter">
+                <h1 className="text-2xl sm:text-3xl font-bold font-fraunces text-[#182033] tracking-tight leading-tight">
+                  Book your <span className="text-[#1E7F6A]">consultation.</span>
                 </h1>
-                <p className="text-sm text-slate-450 mt-1.5 font-medium leading-relaxed">
-                  AI-powered reminders that adapt to your schedule
+                <p className="text-sm text-[#3B4452] mt-2 leading-relaxed">
+                  Enter your mobile number to access patient records, live queue tracking, and smart WhatsApp reminders.
                 </p>
               </div>
 
-              {/* Value-prop badges strip */}
-              <div className="flex flex-row items-center justify-center gap-3.5 text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-5 mb-1.5 font-display select-none">
-                <div className="flex items-center space-x-1">
-                  <Clock className="h-3.5 w-3.5 text-primary-teal shrink-0" />
-                  <span>Instant booking</span>
-                </div>
-                <span className="text-slate-200 select-none">&#124;</span>
-                <div className="flex items-center space-x-1">
-                  <Bell className="h-3.5 w-3.5 text-primary-teal shrink-0" />
-                  <span>Smart reminders</span>
-                </div>
-                <span className="text-slate-200 select-none">&#124;</span>
-                <div className="flex items-center space-x-1">
-                  <Shield className="h-3.5 w-3.5 text-primary-teal shrink-0" />
-                  <span>ABDM secure</span>
-                </div>
-              </div>
-
               {/* Phone Form Input */}
-              <div className="mt-5 text-left">
-                <label className="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">
+              <div className="mt-6 text-left font-inter">
+                <label className="font-inter text-[13px] font-[550] text-[#3B4452] mb-1.5 block">
                   Mobile number
                 </label>
                 <div
-                  className={`flex rounded-xl overflow-hidden border-2 transition-all duration-300 ${
-                    phoneFocused
-                      ? 'border-[#0d9488] bg-white shadow-[0_0_15px_rgba(13,148,136,0.1)]'
-                      : 'border-slate-250 bg-slate-50/50'
-                  }`}
+                  className="flex rounded-[8px] overflow-hidden border border-[#E8ECEF] focus-within:border-[#1E7F6A] focus-within:shadow-[0_0_0_3px_rgba(19,115,122,0.12)] bg-white transition-all duration-150"
                 >
-                  <span className="bg-slate-100 border-r border-slate-250 text-slate-600 text-[15px] font-black px-4.5 h-[48px] flex items-center select-none shrink-0">
+                  <span className="bg-white/80 border-r border-[#E8ECEF] text-[#182033] text-[14px] font-bold px-3.5 h-[48px] flex items-center select-none shrink-0 font-mono-data">
                     +91
                   </span>
-                  <div className="flex items-center flex-1 px-3.5 space-x-2">
-                    <Phone className="h-[16px] w-[16px] text-slate-350 shrink-0" />
+                  <div className="flex items-center flex-1 px-3 space-x-2">
+                    <Phone className="h-4 w-4 text-[#1E7F6A] shrink-0" />
                     <input
                       type="text"
                       inputMode="numeric"
@@ -755,61 +752,40 @@ export default function PatientLogin() {
                       onFocus={() => setPhoneFocused(true)}
                       onBlur={() => setPhoneFocused(false)}
                       onKeyDown={(e) => handleKeyPress(e, handlePhoneSubmit)}
-                      className="bg-transparent border-none outline-none w-full h-[48px] text-[15px] text-slate-800 placeholder-slate-300 p-0 font-semibold"
+                      className="bg-transparent border-none outline-none w-full h-[48px] text-sm text-[#182033] placeholder-[#3B4452]/55 p-0 font-medium font-inter"
                     />
                   </div>
                 </div>
-                <p className="text-[10px] text-slate-455 mt-2 text-left leading-none font-medium">
-                  We'll send a one-time code to verify your phone
+                <p className="text-[11px] text-[#3B4452] mt-1.5 text-left font-inter">
+                  We'll send a 6-digit verification code to your phone
                 </p>
                 {step1Error && (
-                  <p className="text-xs text-red-500 mt-2.5 font-bold">{step1Error}</p>
+                  <p className="text-xs text-[#B8623F] mt-2 font-semibold font-inter">{step1Error}</p>
                 )}
               </div>
 
-              {/* WhatsApp Consent Card */}
-              <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-2xl p-4 mt-4 mb-4 flex items-start gap-3.5 transition-all">
+              {/* Bespoke WhatsApp Consent Card (Zero AI-tells) */}
+              <div className="bg-white/40 border border-[#1E7F6A]/20 rounded-[12px] p-4 mt-5 mb-5 flex items-start gap-3 transition-all font-inter">
                 {/* Custom Checkbox */}
                 <button
                   type="button"
                   onClick={() => setWhatsappOptInStep1(!whatsappOptInStep1)}
-                  className={`h-5 w-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all duration-205 cursor-pointer ${
+                  className={`h-5 w-5 rounded-[4px] border flex items-center justify-center shrink-0 transition-all duration-150 cursor-pointer mt-0.5 ${
                     whatsappOptInStep1
-                      ? 'border-emerald-500 bg-emerald-500 text-white shadow-sm'
-                      : 'border-slate-300 bg-white'
+                      ? 'border-[#1E7F6A] bg-[#1E7F6A] text-white'
+                      : 'border-[#E8ECEF] bg-white'
                   }`}
                 >
                   {whatsappOptInStep1 && <Check className="h-3.5 w-3.5 stroke-[3.5]" />}
                 </button>
 
                 <div className="flex-1 text-left">
-                  {/* Heading Row */}
-                  <div className="flex items-center space-x-1.5">
-                    <svg
-                      className="text-emerald-500 shrink-0"
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.528 1.977 14.07 .953 11.453.953 6.014.953 1.59 5.325 1.586 10.75c-.001 1.7.447 3.361 1.299 4.816L1.87 20.27l4.777-1.116z" />
-                    </svg>
-                    <span className="text-xs font-bold text-slate-800 leading-none">
-                      Enable WhatsApp reminders
-                    </span>
-                  </div>
-
-                  <p className="text-[10.5px] text-slate-500 mt-1 leading-relaxed font-medium">
-                    Get instant appointment confirmations and delay alerts on WhatsApp
+                  <span className="text-xs font-bold text-[#182033] block">
+                    Receive WhatsApp Appointment Updates
+                  </span>
+                  <p className="text-[11.5px] text-[#3B4452] mt-0.5 leading-relaxed">
+                    Get instant slot confirmations, localized delay alerts & waitlist recovery nudges directly on WhatsApp.
                   </p>
-
-                  {/* Discount incentive line badge */}
-                  <div className="inline-flex items-center space-x-1.5 bg-amber-500/10 text-amber-700 rounded-full px-2.5 py-0.5 mt-2.5 border border-amber-500/15">
-                    <Gift className="h-3 w-3 text-amber-600 shrink-0" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider leading-none">
-                      10% off your first visit
-                    </span>
-                  </div>
                 </div>
               </div>
 
@@ -817,10 +793,10 @@ export default function PatientLogin() {
               <button
                 onClick={handlePhoneSubmit}
                 disabled={!isStep1Valid || loading}
-                className={`group w-full h-[50px] rounded-xl font-extrabold text-[14px] flex items-center justify-center space-x-1.5 transition-all duration-200 active:scale-98 ${
+                className={`group w-full h-[48px] rounded-[6px] font-semibold text-[14px] flex items-center justify-center space-x-1.5 transition-all duration-150 ${
                   isStep1Valid && !loading
-                    ? 'bg-[#1b504c] text-white hover:bg-[#133b38] cursor-pointer shadow-md shadow-[#1b504c]/20'
-                    : 'bg-[#e5e7eb] text-[#9ca3af] cursor-not-allowed shadow-none'
+                    ? 'bg-[#1E7F6A] text-white hover:bg-[#165B52] cursor-pointer shadow-2xs'
+                    : 'bg-[#E8ECEF] text-[#3B4452] cursor-not-allowed shadow-none'
                 }`}
               >
                 {loading ? (
@@ -895,26 +871,22 @@ export default function PatientLogin() {
 
           {/* STEP 2: OTP VERIFICATION */}
           {currentStep === 2 && !showSuccessAnimation && (
-            <div className="flex flex-col">
-              {/* Logo block */}
-              <div className="flex flex-col items-center lg:hidden">
-                <div className="w-10 h-10 rounded-full bg-primary-teal flex items-center justify-center shrink-0 text-white font-bold text-[16px]">
+            <div className="flex flex-col my-auto py-4 font-inter text-left">
+              {/* Logo block / Banner for Mobile */}
+              <div className="relative w-full bg-white rounded-[14px] h-[80px] flex items-center justify-center border border-[#1E7F6A]/20 lg:hidden mb-4">
+                <div className="w-11 h-11 rounded-full bg-[#1E7F6A] flex items-center justify-center shrink-0 text-white font-bold text-[18px] shadow-2xs select-none">
                   A
                 </div>
-                <h2 className="font-display font-semibold text-[18px] text-primary-teal tracking-tight mt-2.5">
-                  Apollo OPD
-                </h2>
-                <p className="text-[12px] text-[#9ca3af] tracking-wider mt-0.5">
-                  Intelligence Platform
-                </p>
               </div>
 
               {/* Headings */}
-              <div className="mt-8 text-center">
-                <h1 className="text-2xl font-semibold text-[#111827]">Verify your number</h1>
-                <p className="text-[14px] text-[#6b7280] mt-1 leading-normal">
+              <div className="text-center font-inter">
+                <h1 className="text-2xl sm:text-3xl font-bold font-fraunces text-[#182033] tracking-tight">
+                  Verify your number
+                </h1>
+                <p className="text-sm text-[#3B4452] mt-2 leading-relaxed">
                   We sent a 6-digit code to{' '}
-                  <span className="font-semibold text-[#111827]">{getFormattedPhoneString()}</span>
+                  <span className="font-bold text-[#182033]">{getFormattedPhoneString()}</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -922,7 +894,7 @@ export default function PatientLogin() {
                       setOtp(['', '', '', '', '', '']);
                       setStep2Error('');
                     }}
-                    className="text-primary-teal font-semibold hover:underline inline ml-1.5"
+                    className="text-[#1E7F6A] font-bold hover:underline inline ml-2 text-xs uppercase tracking-wider"
                   >
                     Edit
                   </button>
@@ -943,42 +915,40 @@ export default function PatientLogin() {
                     onChange={(e) => handleOtpChange(idx, e.target.value)}
                     onKeyDown={(e) => handleOtpKeyDown(idx, e)}
                     onPaste={handleOtpPaste}
-                    className="w-12 h-[52px] border border-[#e5e7eb] rounded-lg text-center font-semibold text-[22px] text-text-dark bg-white focus:outline-none focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 transition-all duration-150"
+                    className="w-12 h-[56px] border-2 border-[#E8ECEF] rounded-[12px] text-center font-mono-data font-bold text-[24px] text-[#182033] bg-white focus:outline-none focus:border-[#1E7F6A] focus:shadow-[0_0_0_4px_rgba(19,115,122,0.15)] transition-all duration-150"
                   />
                 ))}
               </div>
               {step2Error && (
-                <p className="text-xs text-red-500 mt-3 font-medium text-center">{step2Error}</p>
+                <p className="text-xs text-red-600 mt-3 font-semibold text-center">{step2Error}</p>
               )}
 
-              {/* CTA Verify Button */}
+              {/* PROMINENT HAVELI TEAL CTA VERIFY BUTTON */}
               <button
+                type="button"
                 onClick={handleOtpSubmit}
-                disabled={!isStep2Valid || loading}
-                className={`w-full h-[48px] rounded-xl font-medium text-[15px] flex items-center justify-center space-x-1.5 transition-all duration-200 mt-8 ${
-                  isStep2Valid && !loading
-                    ? 'bg-primary-teal text-white hover:bg-[#133b38] cursor-pointer'
-                    : 'bg-[#e5e7eb] text-[#9ca3af] cursor-not-allowed'
-                }`}
+                disabled={loading}
+                className="w-full h-[52px] rounded-[12px] font-bold text-sm bg-[#1E7F6A] hover:bg-[#165B52] text-white shadow-lg flex items-center justify-center space-x-2 transition-all duration-200 mt-8 cursor-pointer active:scale-[0.99]"
               >
                 {loading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
                   <>
                     <span>Verify & Continue</span>
-                    <ArrowRight className="h-[16px] w-[16px]" />
+                    <ArrowRight className="h-4 w-4 stroke-[2.5]" />
                   </>
                 )}
               </button>
 
               {/* Resend info */}
-              <div className="mt-5 text-center text-xs">
-                <p className="text-[#6b7280]">
+              <div className="mt-6 text-center text-xs text-[#3B4452]">
+                <p>
                   Didn't receive the code?{' '}
                   {resendTimer > 0 ? (
-                    <span className="text-[#9ca3af] ml-1">Resend in {resendTimer}s</span>
+                    <span className="text-[#1E7F6A] font-bold ml-1">Resend in {resendTimer}s</span>
                   ) : (
                     <button
+                      type="button"
                       onClick={() => {
                         setOtpSentAt(Date.now());
                         setResendTimer(30);
@@ -992,7 +962,7 @@ export default function PatientLogin() {
                         
                         otpInputsRef.current[0]?.focus();
                       }}
-                      className="text-primary-teal font-semibold hover:underline ml-1"
+                      className="text-[#1E7F6A] font-bold hover:underline ml-1 uppercase tracking-wider text-[11px]"
                     >
                       Resend OTP
                     </button>
@@ -1005,7 +975,7 @@ export default function PatientLogin() {
           {/* Step 2 Success brief checkmark overlay */}
           {currentStep === 2 && showSuccessAnimation && (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="w-14 h-14 rounded-full bg-[#e8faee] text-primary-teal flex items-center justify-center mb-4 shrink-0 shadow-none border border-primary-teal/10">
+              <div className="w-14 h-14 rounded-full bg-white text-primary-teal flex items-center justify-center mb-4 shrink-0 shadow-none border border-primary-teal/10">
                 <Check className="h-6 w-6 stroke-[3]" />
               </div>
               <h3 className="font-display font-semibold text-lg text-text-dark">
@@ -1016,54 +986,46 @@ export default function PatientLogin() {
 
           {/* STEP 3: PROFILE SETUP (New Users Only) */}
           {currentStep === 3 && (
-            <div className="flex flex-col">
-              {/* Logo block */}
-              <div className="flex flex-col items-center lg:hidden">
-                <div className="w-10 h-10 rounded-full bg-primary-teal flex items-center justify-center shrink-0 text-white font-bold text-[16px]">
-                  A
-                </div>
-                <h2 className="font-display font-semibold text-[18px] text-primary-teal tracking-tight mt-2.5">
-                  Apollo OPD
-                </h2>
-              </div>
-
-              {/* Headings */}
-              <div className="mt-4 lg:mt-6 text-center">
-                <h1 className="text-xl font-bold text-gray-900 leading-tight">Complete your profile</h1>
-                <p className="text-xs text-[#6b7280] mt-1.5">
+            <div className="flex flex-col font-inter">
+              {/* Header */}
+              <div className="text-center">
+                <h1 className="text-2xl font-bold font-fraunces text-[#182033] tracking-tight">
+                  Setup your patient profile
+                </h1>
+                <p className="text-sm text-[#3B4452] mt-1.5 font-medium">
                   Help us personalize your experience
                 </p>
               </div>
 
               {/* Step indicator dots */}
               <div className="mt-4 flex items-center justify-center space-x-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#1b504c]"></span>
-                <span className="w-2 h-2 rounded-full border border-gray-200 bg-white"></span>
-                <span className="w-2 h-2 rounded-full border border-gray-200 bg-white"></span>
+                <span className="w-2 h-2 rounded-full bg-[#1E7F6A]"></span>
+                <span className="w-2 h-2 rounded-full border border-[#E8ECEF] bg-white"></span>
+                <span className="w-2 h-2 rounded-full border border-[#E8ECEF] bg-white"></span>
               </div>
 
               {/* Fields Stack */}
-              <div className="mt-6 space-y-4 text-left">
+              <div className="mt-6 space-y-4 text-left font-inter">
                 
                 {/* Field 1: Name */}
                 <div className="relative">
-                  <label className="block text-[13px] font-semibold text-[#374151] mb-1.5">
+                  <label className="block text-[13px] font-semibold text-[#182033] mb-1.5">
                     Full name *
                   </label>
-                  <div className={`relative flex items-center bg-[#f9fafb] border rounded-xl px-3.5 focus-within:border-[#1b504c] focus-within:ring-2 focus-within:ring-[#1b504c]/10 transition-all duration-200 ${
-                    isSubmittedStep3 && !fullName.trim() ? 'border-red-500' : 'border-[#e5e7eb]'
+                  <div className={`relative flex items-center bg-white/40 border rounded-[6px] px-3.5 focus-within:border-[#1E7F6A] focus-within:shadow-[0_0_0_3px_rgba(19,115,122,0.12)] transition-all duration-150 ${
+                    isSubmittedStep3 && !fullName.trim() ? 'border-[#B8623F]' : 'border-[#E8ECEF]'
                   }`}>
-                    <User className="h-4 w-4 text-gray-400 mr-2.5 shrink-0" />
+                    <User className="h-4 w-4 text-[#3B4452] mr-2.5 shrink-0" />
                     <input
                       type="text"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Priya Sharma"
-                      className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#111827] placeholder-[#d1d5db] p-0"
+                      className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#182033] placeholder-[#3B4452]/50 p-0 font-medium font-inter"
                     />
                   </div>
                   {isSubmittedStep3 && !fullName.trim() && (
-                    <p className="text-xs text-red-500 mt-1">This field is required</p>
+                    <p className="text-xs text-[#B8623F] mt-1">This field is required</p>
                   )}
                 </div>
 
@@ -1071,41 +1033,41 @@ export default function PatientLogin() {
                 <div className="grid grid-cols-2 gap-4">
                   {/* Field 2: Age */}
                   <div className="relative">
-                    <label className="block text-[13px] font-semibold text-[#374151] mb-1.5">
+                    <label className="block text-[13px] font-semibold text-[#182033] mb-1.5">
                       Age *
                     </label>
-                    <div className={`relative flex items-center bg-[#f9fafb] border rounded-xl px-3.5 focus-within:border-[#1b504c] focus-within:ring-2 focus-within:ring-[#1b504c]/10 transition-all duration-200 ${
-                      isSubmittedStep3 && !age.trim() ? 'border-red-500' : 'border-[#e5e7eb]'
+                    <div className={`relative flex items-center bg-white/40 border rounded-[6px] px-3.5 focus-within:border-[#1E7F6A] focus-within:shadow-[0_0_0_3px_rgba(19,115,122,0.12)] transition-all duration-150 ${
+                      isSubmittedStep3 && !age.trim() ? 'border-[#B8623F]' : 'border-[#E8ECEF]'
                     }`}>
-                      <span className="text-sm font-semibold text-gray-400 mr-2 shrink-0 select-none">#</span>
+                      <span className="text-sm font-semibold text-[#3B4452] mr-2 shrink-0 select-none">#</span>
                       <input
                         type="number"
                         value={age}
                         onChange={(e) => setAge(e.target.value)}
                         placeholder="28"
-                        className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#111827] placeholder-[#d1d5db] p-0"
+                        className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#182033] placeholder-[#3B4452]/50 p-0 font-medium font-inter"
                       />
                     </div>
                     {isSubmittedStep3 && !age.trim() && (
-                      <p className="text-xs text-red-500 mt-1">This field is required</p>
+                      <p className="text-xs text-[#B8623F] mt-1">This field is required</p>
                     )}
                   </div>
 
                   {/* Field 3: Gender */}
                   <div className="relative">
-                    <label className="block text-[13px] font-semibold text-[#374151] mb-1.5">
+                    <label className="block text-[13px] font-semibold text-[#182033] mb-1.5">
                       Gender *
                     </label>
-                    <div className="flex bg-[#f9fafb] border border-[#e5e7eb] rounded-xl p-1 h-[46px] items-center">
+                    <div className="flex bg-white/40 border border-[#E8ECEF] rounded-[6px] p-1 h-[46px] items-center">
                       {['Male', 'Female', 'Other'].map((option) => (
                         <button
                           key={option}
                           type="button"
                           onClick={() => setGender(option)}
-                          className={`flex-1 h-full rounded-lg text-[11px] font-bold transition-all duration-150 ${
+                          className={`flex-1 h-full rounded-[4px] text-[11px] font-bold transition-all duration-150 ${
                             gender === option
-                              ? 'bg-[#1b504c] text-white shadow-sm shadow-[#1b504c]/10'
-                              : 'text-gray-500 hover:text-gray-700'
+                              ? 'bg-[#1E7F6A] text-white shadow-2xs'
+                              : 'text-[#3B4452] hover:text-[#182033]'
                           }`}
                         >
                           {option}
@@ -1113,7 +1075,7 @@ export default function PatientLogin() {
                       ))}
                     </div>
                     {isSubmittedStep3 && !gender && (
-                      <p className="text-xs text-red-500 mt-1">This field is required</p>
+                      <p className="text-xs text-[#B8623F] mt-1">This field is required</p>
                     )}
                   </div>
                 </div>
@@ -1122,32 +1084,32 @@ export default function PatientLogin() {
                 <div className="grid grid-cols-2 gap-4">
                   {/* Field 4: City */}
                   <div className="relative">
-                    <label className="block text-[13px] font-semibold text-[#374151] mb-1.5">
+                    <label className="block text-[13px] font-semibold text-[#182033] mb-1.5">
                       City
                     </label>
-                    <div className="relative flex items-center bg-[#f9fafb] border border-[#e5e7eb] rounded-xl px-3.5 focus-within:border-[#1b504c] focus-within:ring-2 focus-within:ring-[#1b504c]/10 transition-all duration-200">
-                      <MapPin className="h-4 w-4 text-gray-400 mr-2.5 shrink-0" />
+                    <div className="relative flex items-center bg-white/40 border border-[#E8ECEF] rounded-[6px] px-3.5 focus-within:border-[#1E7F6A] focus-within:shadow-[0_0_0_3px_rgba(19,115,122,0.12)] transition-all duration-150">
+                      <MapPin className="h-4 w-4 text-[#3B4452] mr-2.5 shrink-0" />
                       <input
                         type="text"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                         placeholder="Hyderabad"
-                        className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#111827] placeholder-[#d1d5db] p-0"
+                        className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#182033] placeholder-[#3B4452]/50 p-0 font-medium font-inter"
                       />
                     </div>
                   </div>
 
                   {/* Field 5: Blood Group */}
                   <div className="relative">
-                    <label className="block text-[13px] font-semibold text-[#374151] mb-1.5">
+                    <label className="block text-[13px] font-semibold text-[#182033] mb-1.5">
                       Blood group
                     </label>
-                    <div className="relative flex items-center bg-[#f9fafb] border border-[#e5e7eb] rounded-xl px-3.5 focus-within:border-[#1b504c] focus-within:ring-2 focus-within:ring-[#1b504c]/10 transition-all duration-200">
-                      <Droplet className="h-4 w-4 text-red-400 mr-2.5 shrink-0" />
+                    <div className="relative flex items-center bg-white/40 border border-[#E8ECEF] rounded-[6px] px-3.5 focus-within:border-[#1E7F6A] focus-within:shadow-[0_0_0_3px_rgba(19,115,122,0.12)] transition-all duration-150">
+                      <Droplet className="h-4 w-4 text-[#B8623F] mr-2.5 shrink-0" />
                       <select
                         value={bloodGroup}
                         onChange={(e) => setBloodGroup(e.target.value)}
-                        className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#111827] focus:ring-0 cursor-pointer p-0"
+                        className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#182033] focus:ring-0 cursor-pointer p-0 font-medium font-inter"
                       >
                         <option value="">Select</option>
                         <option value="A+">A+</option>
@@ -1165,17 +1127,17 @@ export default function PatientLogin() {
 
                 {/* Field 6: Email */}
                 <div className="relative">
-                  <label className="block text-[13px] font-semibold text-[#374151] mb-1.5">
+                  <label className="block text-[13px] font-semibold text-[#182033] mb-1.5">
                     Email address (optional)
                   </label>
-                  <div className="relative flex items-center bg-[#f9fafb] border border-[#e5e7eb] rounded-xl px-3.5 focus-within:border-[#1b504c] focus-within:ring-2 focus-within:ring-[#1b504c]/10 transition-all duration-200">
-                    <Mail className="h-4 w-4 text-gray-400 mr-2.5 shrink-0" />
+                  <div className="relative flex items-center bg-white/40 border border-[#E8ECEF] rounded-[6px] px-3.5 focus-within:border-[#1E7F6A] focus-within:shadow-[0_0_0_3px_rgba(19,115,122,0.12)] transition-all duration-150">
+                    <Mail className="h-4 w-4 text-[#3B4452] mr-2.5 shrink-0" />
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="priya@example.com"
-                      className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#111827] placeholder-[#d1d5db] p-0"
+                      className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#182033] placeholder-[#3B4452]/50 p-0 font-medium font-inter"
                     />
                   </div>
                 </div>
@@ -1232,7 +1194,7 @@ export default function PatientLogin() {
                   A
                 </div>
                 <h2 className="font-display font-semibold text-[18px] text-primary-teal tracking-tight mt-2.5">
-                  Apollo OPD
+                  Aether OPD
                 </h2>
               </div>
 
@@ -1500,96 +1462,18 @@ export default function PatientLogin() {
           )}
 
         </div>
-
       </div>
-
     </div>
 
-      {/* Right Panel (Indian Doctor Promo Graphic Section) */}
-      <div className="hidden lg:flex w-[50%] min-h-screen bg-gradient-to-br from-[#0c2d29] via-[#114b45] to-[#165e56] relative flex-col justify-center items-center p-12 text-white overflow-hidden select-none">
-        {/* Abstract Background Vectors */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#fff_1.5px,transparent_1.5px)] [background-size:24px_24px]"></div>
-        
-        {/* Floating elements matching mockup icons */}
-        <div className="absolute top-16 left-20 bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl shadow-lg animate-bounce [animation-duration:5s] flex items-center justify-center shrink-0 text-white">
-          <MessageSquare className="h-6 w-6 text-[#25D366]" />
-        </div>
-        <div className="absolute top-1/3 right-16 bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl shadow-lg animate-pulse [animation-duration:4s] flex items-center justify-center shrink-0 text-white">
-          <Calendar className="h-6 w-6 text-white" />
-        </div>
-        <div className="absolute bottom-24 left-24 bg-white/10 backdrop-blur-md border border-white/20 p-3.5 rounded-full shadow-lg animate-bounce [animation-duration:6s] [animation-delay:2s] flex items-center justify-center shrink-0 text-white">
-          <svg className="h-5 w-5 text-green-400 stroke-[3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <div className="absolute bottom-32 right-28 bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl shadow-lg animate-pulse [animation-duration:5s] [animation-delay:1s] flex items-center justify-center shrink-0 text-white">
-          <Clock className="h-6 w-6 text-amber-300" />
-        </div>
-
-        {/* Glowing Background Blur */}
-        <div className="absolute w-[350px] h-[350px] bg-primary-teal/20 rounded-full blur-[100px] pointer-events-none opacity-40"></div>
-
-        {/* Doctor Monitor Frame */}
-        <div className="relative w-full max-w-[430px] aspect-[4/5] bg-gradient-to-br from-[#124541] to-[#0a2725] rounded-[2rem] border border-white/10 shadow-2xl p-5 flex flex-col justify-between overflow-hidden group hover:scale-[1.01] transition-transform duration-500">
-          {/* Inner image container */}
-          <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-cover bg-center" style={{ backgroundImage: "url('/indian_doctor.png')" }}>
-            {/* Dark gradient fade-in at the bottom */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a2725]/90 via-transparent to-transparent"></div>
-            
-            {/* Live Consultant Badge */}
-            <div className="absolute bottom-4 left-4 right-4 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center justify-between text-left shadow-lg">
-              <div>
-                <p className="text-[10px] font-bold text-green-400 uppercase tracking-widest leading-none">Apollo Hospital Panel</p>
-                <p className="text-base font-extrabold text-white mt-1 leading-tight font-display">Dr. Priya Sharma, MD</p>
-                <p className="text-xs text-white/70 leading-none mt-0.5">Consultant Cardiologist</p>
-              </div>
-              <div className="bg-[#25D366] text-white px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center space-x-1.5 shrink-0 shadow-md shadow-[#25D366]/20">
-                <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
-                <span>Active</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Subtext info */}
-          <div className="mt-5 text-left border-t border-white/10 pt-4 shrink-0">
-            <h4 className="text-[16px] font-black font-display tracking-tight text-white leading-tight mb-4">
-              Apollo OPD Platform Benefits
-            </h4>
-            
-            <ul className="mt-3.5 space-y-2.5 text-xs text-white/90">
-              <li className="flex items-start space-x-3 p-2.5 rounded-2xl hover:bg-white/5 transition-colors">
-                <span className="h-5.5 w-5.5 rounded-full bg-[#25D366]/20 border border-[#25D366]/30 flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse"></span>
-                </span>
-                <div>
-                  <strong className="text-white font-bold block text-[13px]">Instant Booking</strong>
-                  <span className="text-[11px] text-white/70 block mt-0.5">Reserve consultation slots dynamically in 30 seconds.</span>
-                </div>
-              </li>
-              <li className="flex items-start space-x-3 p-2.5 rounded-2xl hover:bg-white/5 transition-colors">
-                <span className="h-5.5 w-5.5 rounded-full bg-[#25D366]/20 border border-[#25D366]/30 flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse"></span>
-                </span>
-                <div>
-                  <strong className="text-white font-bold block text-[13px]">Live Queue Status</strong>
-                  <span className="text-[11px] text-white/70 block mt-0.5">Track patient flow in real-time to eliminate wait times.</span>
-                </div>
-              </li>
-              <li className="flex items-start space-x-3 p-2.5 rounded-2xl hover:bg-white/5 transition-colors">
-                <span className="h-5.5 w-5.5 rounded-full bg-[#25D366]/20 border border-[#25D366]/30 flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse"></span>
-                </span>
-                <div>
-                  <strong className="text-white font-bold block text-[13px]">Slot Recovery</strong>
-                  <span className="text-[11px] text-white/70 block mt-0.5">Opt-in to secure earlier slots when cancellations happen.</span>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
+    {/* Video Demo Modal */}
+    <VideoDemoModal
+      isOpen={showVideoModal}
+      onClose={() => setShowVideoModal(false)}
+      onLaunchDemo={() => {
+        setShowVideoModal(false);
+        navigate('/home');
+      }}
+    />
+    </>
   );
 }

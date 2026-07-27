@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { 
   collection, 
   getDocs, 
+  onSnapshot,
   doc, 
   getDoc, 
   query, 
@@ -19,76 +20,67 @@ export function useAppointments() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchAppointments = useCallback(async (patientId) => {
+  const fetchAppointments = useCallback((patientId) => {
     if (!patientId) {
       console.log("[useAppointments] fetchAppointments called with empty patientId");
-      return;
+      return () => {};
     }
-    console.log("[useAppointments] fetchAppointments starting for patientId:", patientId);
+    console.log("[useAppointments] Subscribing real-time for patientId:", patientId);
     setLoading(true);
     setError(null);
-    try {
-      const appointmentsRef = collection(db, COLLECTIONS.APPOINTMENTS);
-      let querySnapshot = await getDocs(query(appointmentsRef, where("patientId", "==", patientId)));
-      
-      // Fallback: If 0 docs found for specific patientId, fetch all appointments so newly booked appointments never get missed
-      if (querySnapshot.empty) {
-        querySnapshot = await getDocs(appointmentsRef);
-      }
-      console.log("[useAppointments] Query Snapshot size:", querySnapshot.size);
-      
-      const allAppts = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data
-        };
-      });
 
-      // IST-correct — never use .toISOString().split('T')[0] (that's UTC, not IST)
+    const appointmentsRef = collection(db, COLLECTIONS.APPOINTMENTS);
+    const cleanId = String(patientId).replace(/\D/g, '');
+    const possibleIds = [...new Set([patientId, cleanId, `91${cleanId}`])].filter(Boolean);
+
+    const q = query(appointmentsRef, where("patientId", "in", possibleIds.slice(0, 10)));
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      console.log("[useAppointments] Real-time Snapshot size:", querySnapshot.size);
+      
+      const allAppts = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
       const todayStr = todayDateString();
-      console.log("[useAppointments] todayStr:", todayStr);
 
-      // Filter upcoming: status is in ["confirmed", "pending"] AND date >= today
       const upcomingFiltered = allAppts.filter(appt => {
         const isStatusValid = ["confirmed", "pending"].includes(appt.status);
         const isDateUpcoming = appt.appointmentDate >= todayStr;
-        console.log(`[useAppointments] appt: ${appt.id}, status: ${appt.status}, date: ${appt.appointmentDate}, isStatusValid: ${isStatusValid}, isDateUpcoming: ${isDateUpcoming}`);
         return isStatusValid && isDateUpcoming;
       });
 
-      // Filter past: status in ["completed", "missed", "cancelled", "no_show"] OR date < today
       const pastFiltered = allAppts.filter(appt => {
         const isStatusPast = ["completed", "missed", "cancelled", "no_show"].includes(appt.status);
         const isDatePast = appt.appointmentDate < todayStr;
-        return isStatusPast || isDatePast;
+        return isStatusPast || isDatePast || Boolean(appt.prescription);
       });
 
-      // Sort upcoming: ascending by appointmentDate and time
       upcomingFiltered.sort((a, b) => {
         if (a.appointmentDate !== b.appointmentDate) {
           return a.appointmentDate.localeCompare(b.appointmentDate);
         }
-        return a.appointmentTime.localeCompare(b.appointmentTime);
+        return (a.appointmentTime || '').localeCompare(b.appointmentTime || '');
       });
 
-      // Sort past: descending by appointmentDate and time
       pastFiltered.sort((a, b) => {
         if (a.appointmentDate !== b.appointmentDate) {
           return b.appointmentDate.localeCompare(a.appointmentDate);
         }
-        return b.appointmentTime.localeCompare(a.appointmentTime);
+        return (b.appointmentTime || '').localeCompare(a.appointmentTime || '');
       });
 
-      console.log("[useAppointments] Set upcoming count:", upcomingFiltered.length, "past count:", pastFiltered.length);
       setUpcoming(upcomingFiltered);
       setPast(pastFiltered);
-    } catch (err) {
-      console.error("[useAppointments] Error fetching appointments:", err);
-      setError(err.message || "Failed to load appointments");
-    } finally {
       setLoading(false);
-    }
+    }, (err) => {
+      console.error("[useAppointments] Error in real-time snapshot listener:", err);
+      setError(err.message || "Failed to load appointments");
+      setLoading(false);
+    });
+
+    return unsubscribe;
   }, []);
 
   const cancelAppointment = useCallback(async (appointmentId, reason) => {

@@ -49,6 +49,10 @@ Both apps must strictly enforce this contract.
   - `room`: string
   - `notes`: string
   - `cancelledReason`: string
+  - `consultationMode`: string, one of exactly: `"in_person"` | `"online"` (Defaults to `"in_person"`)
+  - `videoRoomUrl`: string | null (URL for the Daily.co video room)
+  - `videoRoomName`: string | null (Daily.co video room name ID)
+  - `callStatus`: string, one of exactly: `"not_started"` | `"in_progress"` | `"completed"` (Defaults to `"not_started"`)
   - `createdAt`: Firestore `serverTimestamp()`
   - `updatedAt`: Firestore `serverTimestamp()`
 
@@ -69,6 +73,8 @@ Both apps must strictly enforce this contract.
   - `bio`: string
   - `specializations`: array of strings
   - `isAvailable`: boolean
+  - `offersOnlineConsultation`: boolean (Indicates if the doctor provides video consulting)
+  - `onlineConsultationFee`: number (Consulation pricing for online video sessions)
 
 ## 4. Doctor Slots Collection (`doctor_slots`)
 - **Document ID**: format `"{doctorId}_{date}_{time}"` (e.g. `"doc_001_2026-07-10_09:00AM"`, with no spaces in the time).

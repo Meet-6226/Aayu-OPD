@@ -4,16 +4,18 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const validateAndFormatPhone = (phoneStr) => {
   if (!phoneStr) return null;
-  let cleaned = phoneStr.trim().replace(/[\s-()]/g, '');
+  let cleaned = String(phoneStr).trim().replace(/[\s-()]/g, '');
   if (cleaned.startsWith('whatsapp:')) {
     cleaned = cleaned.replace('whatsapp:', '');
   }
-  if (cleaned.startsWith('+91')) {
-    if (cleaned.length === 13 && /^\+91\d{10}$/.test(cleaned)) {
-      return cleaned;
-    }
-  } else if (cleaned.length === 10 && /^\d{10}$/.test(cleaned)) {
-    return '+91' + cleaned;
+  let digits = cleaned.replace(/\D/g, '');
+  if (digits.length === 12 && digits.startsWith('91')) {
+    digits = digits.slice(2);
+  } else if (digits.length === 11 && digits.startsWith('0')) {
+    digits = digits.slice(1);
+  }
+  if (digits.length === 10 && /^[6-9]\d{9}$/.test(digits)) {
+    return '+91' + digits;
   }
   return null;
 };
@@ -132,21 +134,22 @@ export const triggerPatientRegistrationDemo = async (patientData) => {
   makeVoiceCallDirect(phone, 'welcome', { patientName: name });
 };
 
-export const triggerAppointmentBookingDemo = async (appointmentData, patientData) => {
+export const triggerAppointmentBookingDemo = async (appointmentData, patientData = {}) => {
   const { doctorName, appointmentDate, appointmentTime, bookingId } = appointmentData;
-  const { phone, name } = patientData;
+  const rawPhone = patientData?.phone || patientData?.uid || appointmentData?.patientPhone || appointmentData?.patientId;
+  const name = patientData?.name || appointmentData?.patientName || 'Patient';
 
-  console.log(`[triggerAppointmentBookingDemo] New booking written. ID: ${appointmentData.id || bookingId}`);
+  console.log(`[triggerAppointmentBookingDemo] New booking written. ID: ${appointmentData.id || bookingId}, Phone: ${rawPhone}`);
 
   // 1. Send Booking Confirmation WhatsApp immediately
   const confirmationMsg = `Apollo Hospital: Hi ${name}! Your appointment is confirmed. Doctor: ${doctorName}. Date: ${appointmentDate}. Time: ${appointmentTime}. Booking ID: ${bookingId}. Reply 1 to confirm.`;
-  sendWhatsAppDirect(phone, confirmationMsg);
+  sendWhatsAppDirect(rawPhone, confirmationMsg);
 
-  // 2. Wait exactly 5 seconds
-  await delay(5000);
+  // 2. Wait exactly 3 seconds
+  await delay(3000);
 
   // 3. Trigger voice call confirmation
-  makeVoiceCallDirect(phone, 'confirmation', {
+  makeVoiceCallDirect(rawPhone, 'confirmation', {
     patientName: name,
     doctorName,
     appointmentDate,

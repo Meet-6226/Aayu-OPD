@@ -1,41 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  User, 
-  Phone, 
-  Mail, 
-  FileText, 
-  Bell, 
-  Users, 
-  Shield, 
-  LogOut, 
-  CheckCircle, 
-  X, 
-  Edit2, 
-  Trash2, 
-  Plus, 
-  Loader2,
-  Calendar,
-  MapPin,
-  Heart,
-  Activity,
-  QrCode,
-  Lock,
-  Gift
+import {
+  User, Phone, Mail, Bell, Users, Shield, LogOut,
+  CheckCircle, X, Edit2, Trash2, Plus, Loader2,
+  Calendar, MapPin, Heart, Activity, QrCode, Lock, Gift,
+  ClipboardList, Pill, AlertCircle, Droplets, Zap, TreePine,
+  Stethoscope, Wind, ChevronRight, Sparkles, FileHeart
 } from 'lucide-react';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { COLLECTIONS } from '../firebase/collections';
 import { useAuth } from '../hooks/useAuth';
 
+function HistoryChip({ label, color = 'green' }) {
+  const colors = {
+    green:  'bg-emerald-50 text-emerald-700 border-emerald-200',
+    amber:  'bg-amber-50 text-amber-700 border-amber-200',
+    red:    'bg-red-50 text-red-700 border-red-200',
+    blue:   'bg-blue-50 text-blue-700 border-blue-200',
+    purple: 'bg-purple-50 text-purple-700 border-purple-200',
+    slate:  'bg-slate-50 text-slate-600 border-slate-200',
+  };
+  return (
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold border ${colors[color]}`}>
+      {label}
+    </span>
+  );
+}
+
+function HistoryCard({ icon: Icon, label, iconColor, iconBg, children, isEmpty }) {
+  return (
+    <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-5 flex flex-col gap-3">
+      <div className="flex items-center gap-2.5">
+        <div className={`w-8 h-8 rounded-[10px] flex items-center justify-center shrink-0 ${iconBg}`}>
+          <Icon className={`h-4 w-4 ${iconColor}`} />
+        </div>
+        <span className="text-xs font-bold text-[#111827] tracking-tight">{label}</span>
+      </div>
+      {isEmpty ? (
+        <p className="text-[11px] text-[#9CA3AF] italic">None reported</p>
+      ) : (
+        <div className="flex flex-wrap gap-1.5">{children}</div>
+      )}
+    </div>
+  );
+}
+
+const TABS = [
+  { id: 'overview', label: 'Overview',       icon: User },
+  { id: 'history',  label: 'Medical History', icon: FileHeart },
+  { id: 'prefs',    label: 'Notifications',   icon: Bell },
+  { id: 'abha',     label: 'ABHA / ID',       icon: Shield },
+];
+
 export default function PatientProfile() {
   const navigate = useNavigate();
   const { user, updateMockSession, signOutUser } = useAuth();
 
-  // Toast notification state
+  const [activeTab, setActiveTab] = useState('overview');
   const [toastMessage, setToastMessage] = useState('');
 
-  // Personal Info Edit states
   const [isEditingInfo, setIsEditingInfo] = useState(false);
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
@@ -46,18 +70,15 @@ export default function PatientProfile() {
   const [infoErrors, setInfoErrors] = useState({});
   const [infoSaving, setInfoSaving] = useState(false);
 
-  // Family Contacts states
   const [isEditingFamily, setIsEditingFamily] = useState(false);
   const [familyFields, setFamilyFields] = useState({ name: '', phone: '', relation: 'Son/Daughter' });
   const [familyErrors, setFamilyErrors] = useState({});
   const [familySaving, setFamilySaving] = useState(false);
 
-  // ABHA ID states
   const [abhaInput, setAbhaInput] = useState('');
   const [abhaSaving, setAbhaSaving] = useState(false);
   const [abhaError, setAbhaError] = useState('');
 
-  // Sync state values when user loads
   useEffect(() => {
     if (user) {
       setEditName(user.name || '');
@@ -66,13 +87,11 @@ export default function PatientProfile() {
       setEditGender(user.gender || 'Female');
       setEditCity(user.city || '');
       setEditBloodGroup(user.bloodGroup || '');
-
       setFamilyFields({
         name: user.familyContactName || '',
         phone: user.familyContactPhone || '',
         relation: user.familyContactRelation || 'Son/Daughter'
       });
-
       setAbhaInput(user.abhaId || '');
     }
   }, [user]);
@@ -80,7 +99,7 @@ export default function PatientProfile() {
   if (!user) {
     return (
       <div className="min-h-[80vh] flex justify-center items-center">
-        <Loader2 className="h-6 w-6 animate-spin text-primary-teal" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#1E7F6A]" />
       </div>
     );
   }
@@ -90,859 +109,650 @@ export default function PatientProfile() {
     setTimeout(() => setToastMessage(''), 2500);
   };
 
-  // 1. Personal Info Save Handler
   const handleSaveInfo = async (e) => {
     e.preventDefault();
     setInfoErrors({});
-    
-    // Validations
     const errors = {};
-    if (!editName.trim()) {
-      errors.name = 'Name is required';
-    }
+    if (!editName.trim()) errors.name = 'Name is required';
     const ageNum = parseInt(editAge, 10);
-    if (!editAge.trim() || isNaN(ageNum) || ageNum < 1 || ageNum > 120) {
-      errors.age = 'Age must be a number between 1 and 120';
-    }
-    if (editEmail.trim() && !/\S+@\S+\.\S+/.test(editEmail)) {
-      errors.email = 'Invalid email address format';
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setInfoErrors(errors);
-      return;
-    }
-
+    if (!editAge.trim() || isNaN(ageNum) || ageNum < 1 || ageNum > 120) errors.age = 'Age must be 1-120';
+    if (editEmail.trim() && !/\S+@\S+\.\S+/.test(editEmail)) errors.email = 'Invalid email format';
+    if (Object.keys(errors).length > 0) { setInfoErrors(errors); return; }
     setInfoSaving(true);
     try {
-      const patientRef = doc(db, COLLECTIONS.PATIENTS, user.uid);
-      const updateData = {
-        name: editName,
-        email: editEmail,
-        age: ageNum,
-        gender: editGender,
-        city: editCity,
-        bloodGroup: editBloodGroup,
-        updatedAt: serverTimestamp()
-      };
-
-      await updateDoc(patientRef, updateData);
-      updateMockSession(updateData);
+      const ref = doc(db, COLLECTIONS.PATIENTS, user.uid);
+      const data = { name: editName, email: editEmail, age: ageNum, gender: editGender, city: editCity, bloodGroup: editBloodGroup, updatedAt: serverTimestamp() };
+      await updateDoc(ref, data);
+      updateMockSession(data);
       setIsEditingInfo(false);
-      triggerToast('Personal information updated');
-    } catch (err) {
-      console.error(err);
-      triggerToast('Failed to save settings');
-    } finally {
-      setInfoSaving(false);
-    }
+      triggerToast('Profile updated');
+    } catch { triggerToast('Failed to save'); }
+    finally { setInfoSaving(false); }
   };
 
   const handleCancelInfo = () => {
-    setEditName(user.name || '');
-    setEditEmail(user.email || '');
-    setEditAge(user.age?.toString() || '');
-    setEditGender(user.gender || 'Female');
-    setEditCity(user.city || '');
-    setEditBloodGroup(user.bloodGroup || '');
-    setInfoErrors({});
-    setIsEditingInfo(false);
+    setEditName(user.name || ''); setEditEmail(user.email || '');
+    setEditAge(user.age?.toString() || ''); setEditGender(user.gender || 'Female');
+    setEditCity(user.city || ''); setEditBloodGroup(user.bloodGroup || '');
+    setInfoErrors({}); setIsEditingInfo(false);
   };
 
-  // 2. Reminder Preferences Toggle Handler
-  const handleTogglePreference = async (prefKey, currentValue) => {
+  const handleTogglePreference = async (key, current) => {
     try {
-      const patientRef = doc(db, COLLECTIONS.PATIENTS, user.uid);
-      const updatedPrefs = {
-        ...(user.preferences || { whatsapp: true, sms: false, voiceCall: false, email: false }),
-        [prefKey]: !currentValue
-      };
-
-      await updateDoc(patientRef, {
-        preferences: updatedPrefs,
-        updatedAt: serverTimestamp()
-      });
-
-      updateMockSession({ preferences: updatedPrefs });
+      const ref = doc(db, COLLECTIONS.PATIENTS, user.uid);
+      const updated = { ...(user.preferences || {}), [key]: !current };
+      await updateDoc(ref, { preferences: updated, updatedAt: serverTimestamp() });
+      updateMockSession({ preferences: updated });
       triggerToast('Preference updated');
-    } catch (err) {
-      console.error(err);
-      triggerToast('Failed to update preference');
-    }
+    } catch { triggerToast('Failed to update'); }
   };
 
-  // 3. Family Contacts Handlers
   const handleSaveFamily = async () => {
-    familyErrors({});
+    setFamilyErrors({});
     const errors = {};
-    if (!familyFields.name.trim()) errors.name = 'Caretaker name is required';
-    if (!familyFields.phone.trim()) errors.phone = 'Caretaker phone is required';
-
-    if (Object.keys(errors).length > 0) {
-      setFamilyErrors(errors);
-      return;
-    }
-
+    if (!familyFields.name.trim()) errors.name = 'Name required';
+    if (!familyFields.phone.trim()) errors.phone = 'Phone required';
+    if (Object.keys(errors).length > 0) { setFamilyErrors(errors); return; }
     setFamilySaving(true);
     try {
-      const patientRef = doc(db, COLLECTIONS.PATIENTS, user.uid);
-      const updateData = {
-        familyContactName: familyFields.name,
-        familyContactPhone: familyFields.phone,
-        familyContactRelation: familyFields.relation,
-        updatedAt: serverTimestamp()
-      };
-
-      await updateDoc(patientRef, updateData);
-      updateMockSession(updateData);
+      const ref = doc(db, COLLECTIONS.PATIENTS, user.uid);
+      const data = { familyContactName: familyFields.name, familyContactPhone: familyFields.phone, familyContactRelation: familyFields.relation, updatedAt: serverTimestamp() };
+      await updateDoc(ref, data);
+      updateMockSession(data);
       setIsEditingFamily(false);
       triggerToast('Family contact saved');
-    } catch (err) {
-      console.error(err);
-      triggerToast('Failed to save family contact');
-    } finally {
-      setFamilySaving(false);
-    }
+    } catch { triggerToast('Failed to save'); }
+    finally { setFamilySaving(false); }
   };
 
   const handleRemoveFamily = async () => {
-    if (!window.confirm("Remove family caretaker contact?")) return;
+    if (!window.confirm('Remove family caretaker contact?')) return;
     setFamilySaving(true);
     try {
-      const patientRef = doc(db, COLLECTIONS.PATIENTS, user.uid);
-      const updateData = {
-        familyContactName: '',
-        familyContactPhone: '',
-        familyContactRelation: '',
-        updatedAt: serverTimestamp()
-      };
-
-      await updateDoc(patientRef, updateData);
-      updateMockSession(updateData);
+      const ref = doc(db, COLLECTIONS.PATIENTS, user.uid);
+      const data = { familyContactName: '', familyContactPhone: '', familyContactRelation: '', updatedAt: serverTimestamp() };
+      await updateDoc(ref, data);
+      updateMockSession(data);
       setFamilyFields({ name: '', phone: '', relation: 'Son/Daughter' });
       setIsEditingFamily(false);
-      triggerToast('Family contact removed');
-    } catch (err) {
-      console.error(err);
-      triggerToast('Failed to remove family contact');
-    } finally {
-      setFamilySaving(false);
-    }
+      triggerToast('Contact removed');
+    } catch { triggerToast('Failed to remove'); }
+    finally { setFamilySaving(false); }
   };
 
-  // 4. ABHA ID Link/Unlink Handlers
   const handleLinkAbha = async () => {
     setAbhaError('');
-    if (!abhaInput.trim()) {
-      setAbhaError('ABHA ID cannot be empty');
-      return;
-    }
-
+    if (!abhaInput.trim()) { setAbhaError('ABHA ID cannot be empty'); return; }
     setAbhaSaving(true);
     try {
-      const patientRef = doc(db, COLLECTIONS.PATIENTS, user.uid);
-      await updateDoc(patientRef, {
-        abhaId: abhaInput,
-        updatedAt: serverTimestamp()
-      });
+      const ref = doc(db, COLLECTIONS.PATIENTS, user.uid);
+      await updateDoc(ref, { abhaId: abhaInput, updatedAt: serverTimestamp() });
       updateMockSession({ abhaId: abhaInput });
-      triggerToast('ABHA ID linked');
-    } catch (err) {
-      console.error(err);
-      triggerToast('Failed to link ABHA ID');
-    } finally {
-      setAbhaSaving(false);
-    }
+      triggerToast('ABHA linked');
+    } catch { triggerToast('Failed to link ABHA'); }
+    finally { setAbhaSaving(false); }
   };
 
   const handleUnlinkAbha = async () => {
-    if (!window.confirm("Unlink your ABHA health ID?")) return;
+    if (!window.confirm('Unlink ABHA ID?')) return;
     setAbhaSaving(true);
     try {
-      const patientRef = doc(db, COLLECTIONS.PATIENTS, user.uid);
-      await updateDoc(patientRef, {
-        abhaId: '',
-        updatedAt: serverTimestamp()
-      });
+      const ref = doc(db, COLLECTIONS.PATIENTS, user.uid);
+      await updateDoc(ref, { abhaId: '', updatedAt: serverTimestamp() });
       updateMockSession({ abhaId: '' });
       setAbhaInput('');
-      triggerToast('ABHA ID unlinked');
-    } catch (err) {
-      console.error(err);
-      triggerToast('Failed to unlink ABHA ID');
-    } finally {
-      setAbhaSaving(false);
-    }
+      triggerToast('ABHA unlinked');
+    } catch { triggerToast('Failed to unlink'); }
+    finally { setAbhaSaving(false); }
   };
 
   const handleLogout = async () => {
+    localStorage.removeItem('aether_onboarding_done');
+    localStorage.removeItem('aether_medical_profile');
     await signOutUser();
     navigate('/');
   };
 
-  const initials = user.name?.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() || 'PS';
+  const initials = user.name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'PS';
   const hasFamilyContact = !!(user.familyContactName && user.familyContactPhone);
   const prefs = user.preferences || { whatsapp: true, sms: false, voiceCall: false, email: false };
+  const mh = user.medicalHistory || {};
+
+  const toArr = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val.filter(Boolean);
+    return val.split(',').map(s => s.trim()).filter(Boolean);
+  };
+
+  const conditions = toArr(mh.chronicConditions);
+  const meds = toArr(mh.currentMedications);
+  const allergies = toArr(mh.allergies);
+  const symptoms = toArr(mh.currentSymptoms);
+  const lifestyle = toArr(mh.lifestyle);
+  const family = toArr(mh.familyHistory);
+  const blood = mh.bloodGroup || user.bloodGroup || '';
+  const hasHistory = conditions.length || meds.length || allergies.length || symptoms.length || lifestyle.length || family.length || blood;
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-[#f4f7f6] via-[#fafbfc] to-[#f9f8fd] py-12 px-4 sm:px-6 lg:px-8 font-sans text-slate-600 text-left">
-      
-      {/* Toast Notification Simulation */}
+    <div className="min-h-screen bg-[#F8FAFC] font-sans text-[#334155] text-left antialiased">
+
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 bg-[#0f172a] text-white text-xs font-semibold px-4.5 py-3 rounded-2xl shadow-xl border border-slate-700/50 z-50 flex items-center space-x-2 animate-bounce-short">
-          <CheckCircle className="h-4 w-4 text-emerald-400" />
-          <span>{toastMessage}</span>
+        <div className="fixed bottom-6 right-6 bg-[#0f172a] text-white text-xs font-semibold px-4.5 py-3 rounded-[12px] shadow-2xl z-50 flex items-center gap-2.5 border border-white/10">
+          <CheckCircle className="h-4.5 w-4.5 text-[#10B981]" />
+          {toastMessage}
         </div>
       )}
 
-      <div className="max-w-[1040px] mx-auto">
-        
-        {/* Header */}
-        <div className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="text-left">
-            <div className="flex items-center space-x-2">
-              <span className="text-[10px] font-bold text-primary-teal bg-primary-teal/10 border border-primary-teal/20 px-2 py-0.5 rounded-md uppercase tracking-widest">
-                Apollo Health Locker
-              </span>
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+      {/* ── HERO HEADER: Deep Mesh Gradient ── */}
+      <div className="bg-gradient-to-br from-[#062421] via-[#0b3c37] to-[#115e59] pt-12 pb-28 px-4 relative overflow-hidden select-none">
+        {/* Decorative background glows */}
+        <div className="absolute -top-16 -right-16 w-80 h-80 bg-[#14b8a6]/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-20 left-1/4 w-96 h-48 bg-[#10b981]/5 rounded-full blur-2xl" />
+        <div className="absolute top-1/2 left-10 w-48 h-48 bg-white/5 rounded-full" />
+
+        <div className="max-w-[1100px] mx-auto relative z-10">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+            
+            {/* Glowing Avatar */}
+            <div className="relative group shrink-0">
+              <div className="absolute -inset-1.5 bg-gradient-to-r from-[#86efac] to-[#14b8a6] rounded-[22px] blur-sm opacity-60 group-hover:opacity-100 transition duration-300" />
+              <div className="relative w-20 h-20 rounded-[20px] bg-[#0b2b27] border border-white/20 flex items-center justify-center shadow-xl">
+                <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-emerald-200">{initials}</span>
+              </div>
+              <div className="absolute -bottom-1 -right-1 bg-emerald-400 border-2 border-[#0b3c37] w-4.5 h-4.5 rounded-full flex items-center justify-center">
+                <CheckCircle className="h-2.5 w-2.5 text-[#062421]" />
+              </div>
             </div>
-            <h1 className="font-display font-extrabold text-3xl text-slate-800 tracking-tight mt-1">
-              Patient Settings
-            </h1>
-            <p className="text-sm text-slate-400 mt-1">
-              Manage your personal medical profile, ABHA ABDM linkage, and smart notifications.
-            </p>
+
+            {/* Identity Info */}
+            <div className="flex-1 text-white space-y-1">
+              <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-400/20 px-2.5 py-0.5 rounded-full">
+                <Sparkles className="h-3 w-3 text-emerald-400" />
+                <span className="text-[9px] font-bold tracking-wider uppercase text-emerald-300">Apollo Health Locker</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white" style={{ color: '#ffffff' }}>{user.name}</h1>
+              <p className="text-white/60 text-xs font-medium tracking-wide">
+                {user.phone}
+                {user.city ? ` · ${user.city}` : ''}
+                {user.age ? ` · ${user.age}y` : ''}
+                {user.gender ? ` · ${user.gender}` : ''}
+              </p>
+            </div>
+
+            {/* Glowing Stats Grid */}
+            <div className="flex items-center gap-3 self-start sm:self-center shrink-0">
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[14px] px-5 py-2.5 text-white text-center shadow-lg">
+                <p className="text-[8px] uppercase tracking-widest text-white/40 font-bold">Trust Score</p>
+                <p className="text-xl font-black text-emerald-400 mt-0.5">{user.trustScore ?? 100}%</p>
+              </div>
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[14px] px-5 py-2.5 text-white text-center shadow-lg">
+                <p className="text-[8px] uppercase tracking-widest text-white/40 font-bold">Total Visits</p>
+                <p className="text-xl font-black text-white mt-0.5">{user.totalVisits ?? 0}</p>
+              </div>
+            </div>
+
           </div>
         </div>
+      </div>
 
-        {/* GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* PROFILE CARD LEFT (4 cols, sticky) */}
-          <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-6 self-start">
-            <div className="glass-panel backdrop-blur-md bg-white/75 border border-white/80 rounded-3xl p-6.5 text-center shadow-[0_8px_32px_rgba(0,0,0,0.03)] relative overflow-hidden">
-              {/* Decorative radial grid */}
-              <div 
-                className="absolute inset-0 opacity-[0.03] pointer-events-none"
-                style={{
-                  backgroundImage: 'radial-gradient(#0d9488 1.5px, transparent 1.5px)',
-                  backgroundSize: '16px 16px'
-                }}
-              />
-              
-              {/* Avatar with glowing ring */}
-              <div className="relative w-20 h-20 mx-auto mb-4 group select-none">
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-teal-400 via-emerald-400 to-indigo-500 animate-pulse opacity-20 blur-[3px]"></div>
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-teal-400 via-emerald-400 to-indigo-500 p-[2.5px] transition-all duration-300 group-hover:scale-105">
-                  <div className="w-full h-full rounded-[13px] bg-[#f8fafc] flex items-center justify-center font-display font-black text-2xl text-transparent bg-clip-text bg-gradient-to-tr from-[#0d9488] to-indigo-600">
-                    {initials}
-                  </div>
-                </div>
-              </div>
-              
-              <h2 className="text-base font-extrabold text-slate-800 font-display mt-2">{user.name}</h2>
-              <p className="text-[11.5px] text-slate-400 font-bold tracking-wider mt-0.5">{user.phone}</p>
+      {/* ── MAIN CONTENT CONTAINER ── */}
+      <div className="max-w-[1100px] mx-auto px-4 -mt-12 pb-20 relative z-10">
 
-              <div className="border-t border-[#e2e8f0]/60 mt-5 pt-4.5 text-left space-y-3.5">
-                {/* Vitals overview */}
-                <div className="flex justify-between items-center text-xs font-bold">
-                  <span className="text-slate-400 flex items-center space-x-1.5">
-                    <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
-                    <span>Completed Visits</span>
-                  </span>
-                  <span className="text-slate-700 bg-slate-100 border border-slate-200/50 px-2 py-0.5 rounded-md font-mono">{user.totalVisits || 0}</span>
-                </div>
-                
-                <div className="flex justify-between items-center text-xs font-bold">
-                  <span className="text-slate-400 flex items-center space-x-1.5">
-                    <X className="h-3.5 w-3.5 text-red-400" />
-                    <span>Total No-shows</span>
-                  </span>
-                  <span className="text-slate-700 bg-slate-100 border border-slate-200/50 px-2 py-0.5 rounded-md font-mono">{user.totalNoShows || 0}</span>
-                </div>
-                
-                {/* Trust Score */}
-                <div className="space-y-2.5 pt-3.5 border-t border-[#e2e8f0]/60">
-                  <div className="flex justify-between items-center text-[10px] font-extrabold uppercase tracking-wider text-slate-400 font-display">
-                    <span>Patient Trust Score</span>
-                    <span className="text-primary-teal text-xs font-black">{user.trustScore ?? 100}%</span>
-                  </div>
-                  <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
-                    <div 
-                      className="h-full bg-gradient-to-r from-[#0d9488] via-emerald-400 to-[#10b981] rounded-full shadow-[0_0_10px_rgba(20,184,166,0.25)] transition-all duration-500" 
-                      style={{ width: `${user.trustScore ?? 100}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
-                    Earned by showing up on schedule. High scores get booking priority.
-                  </p>
-                </div>
-              </div>
-            </div>
+        {/* Premium Pill Tab Bar */}
+        <div className="bg-white border border-[#E2E8F0] rounded-[16px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-1.5 flex gap-1 mb-8">
+          {TABS.map(tab => {
+            const Icon = tab.icon;
+            const active = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 flex items-center justify-center gap-2.5 py-3 rounded-[12px] text-xs font-bold transition-all duration-200 cursor-pointer ${
+                  active 
+                    ? 'bg-[#115e59] text-white shadow-md shadow-teal-900/10' 
+                    : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0f172a]'
+                }`}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
 
-            <button
-              onClick={handleLogout}
-              className="w-full py-3 bg-white/70 border border-red-200/50 hover:bg-red-50 hover:border-red-300 hover:text-red-600 text-red-500 rounded-2xl text-xs font-extrabold flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-sm hover:shadow-md"
-            >
-              <LogOut className="h-4.5 w-4.5" />
-              <span>Log out from account</span>
-            </button>
-          </div>
-
-          {/* SETTINGS RIGHT (8 cols) */}
-          <div className="lg:col-span-8 space-y-6">
+        {/* ── TAB: OVERVIEW ── */}
+        {activeTab === 'overview' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            {/* Section 1: Personal Info */}
-            <div className="bg-white border border-[#e2e8f0]/60 rounded-3xl p-6 shadow-sm">
-              <div className="flex justify-between items-center pb-3.5 border-b border-slate-100 mb-5 text-left">
-                <h3 className="text-[14.5px] font-extrabold text-slate-800 flex items-center space-x-2">
-                  <User className="h-4.5 w-4.5 text-primary-teal" />
-                  <span>Personal Information</span>
-                </h3>
-                {!isEditingInfo && (
-                  <button
-                    onClick={() => setIsEditingInfo(true)}
-                    className="text-xs font-bold text-primary-teal hover:text-primary-dark hover:underline flex items-center space-x-1 cursor-pointer"
-                  >
-                    <Edit2 className="h-3.5 w-3.5" />
-                    <span>Edit Profile</span>
-                  </button>
-                )}
-              </div>
-
-              {isEditingInfo ? (
-                <form onSubmit={handleSaveInfo} className="space-y-4.5 text-xs text-left">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-slate-400 font-bold mb-1.5 uppercase tracking-wider text-[9px]">Full Name *</label>
-                      <input
-                        type="text"
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className={`w-full px-3.5 py-2.5 border rounded-xl focus:outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal/20 transition-all font-semibold ${
-                          infoErrors.name ? 'border-red-500' : 'border-slate-200'
-                        }`}
-                      />
-                      {infoErrors.name && <p className="text-red-500 text-[10px] mt-1.5 font-bold">{infoErrors.name}</p>}
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 font-bold mb-1.5 uppercase tracking-wider text-[9px]">Email Address</label>
-                      <input
-                        type="text"
-                        value={editEmail}
-                        onChange={(e) => setEditEmail(e.target.value)}
-                        className={`w-full px-3.5 py-2.5 border rounded-xl focus:outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal/20 transition-all font-semibold ${
-                          infoErrors.email ? 'border-red-500' : 'border-slate-200'
-                        }`}
-                        placeholder="email@example.com"
-                      />
-                      {infoErrors.email && <p className="text-red-500 text-[10px] mt-1.5 font-bold">{infoErrors.email}</p>}
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 font-bold mb-1.5 uppercase tracking-wider text-[9px]">Age *</label>
-                      <input
-                        type="number"
-                        value={editAge}
-                        onChange={(e) => setEditAge(e.target.value)}
-                        className={`w-full px-3.5 py-2.5 border rounded-xl focus:outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal/20 transition-all font-semibold ${
-                          infoErrors.age ? 'border-red-500' : 'border-slate-200'
-                        }`}
-                      />
-                      {infoErrors.age && <p className="text-red-500 text-[10px] mt-1.5 font-bold">{infoErrors.age}</p>}
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 font-bold mb-1.5 uppercase tracking-wider text-[9px]">Gender</label>
-                      <select
-                        value={editGender}
-                        onChange={(e) => setEditGender(e.target.value)}
-                        className="w-full px-3.5 py-2.5 border border-slate-200 bg-white rounded-xl focus:outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal/20 transition-all font-semibold"
-                      >
-                        <option>Female</option>
-                        <option>Male</option>
-                        <option>Other</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 font-bold mb-1.5 uppercase tracking-wider text-[9px]">City</label>
-                      <input
-                        type="text"
-                        value={editCity}
-                        onChange={(e) => setEditCity(e.target.value)}
-                        className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal/20 transition-all font-semibold"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 font-bold mb-1.5 uppercase tracking-wider text-[9px]">Blood Group</label>
-                      <select
-                        value={editBloodGroup}
-                        onChange={(e) => setEditBloodGroup(e.target.value)}
-                        className="w-full px-3.5 py-2.5 border border-slate-200 bg-white rounded-xl focus:outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal/20 transition-all font-semibold"
-                      >
-                        <option value="">Select</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end space-x-2 pt-4.5 border-t border-slate-100 mt-4.5">
-                    <button
-                      type="button"
-                      onClick={handleCancelInfo}
-                      disabled={infoSaving}
-                      className="px-4 py-2.5 border border-slate-200 text-slate-500 rounded-xl hover:bg-slate-50 font-bold cursor-pointer transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={infoSaving}
-                      className="px-5 py-2.5 bg-primary-teal hover:bg-primary-dark text-white font-extrabold rounded-xl flex items-center space-x-1.5 shadow shadow-primary-teal/20 transition-all cursor-pointer"
-                    >
-                      {infoSaving ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <span>Save Changes</span>
-                      )}
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-left">
-                  {/* Styled Fields Grid */}
-                  <div className="flex items-center space-x-3.5 bg-slate-50/50 border border-slate-100/50 p-3.5 rounded-2xl">
-                    <div className="p-2 bg-teal-500/10 text-teal-600 rounded-xl shrink-0">
-                      <User className="h-4.5 w-4.5" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Full Name</p>
-                      <p className="text-xs font-bold text-slate-800 mt-0.5">{user.name || '—'}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3.5 bg-slate-50/50 border border-slate-100/50 p-3.5 rounded-2xl">
-                    <div className="p-2 bg-indigo-500/10 text-indigo-600 rounded-xl shrink-0">
-                      <Mail className="h-4.5 w-4.5" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Email Address</p>
-                      <p className="text-xs font-bold text-slate-800 mt-0.5">{user.email || '—'}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3.5 bg-slate-50/50 border border-slate-100/50 p-3.5 rounded-2xl">
-                    <div className="p-2 bg-amber-500/10 text-amber-600 rounded-xl shrink-0">
-                      <Calendar className="h-4.5 w-4.5" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Age & Gender</p>
-                      <p className="text-xs font-bold text-slate-800 mt-0.5">
-                        {user.age ? `${user.age} Years` : '—'} · {user.gender || '—'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3.5 bg-slate-50/50 border border-slate-100/50 p-3.5 rounded-2xl">
-                    <div className="p-2 bg-rose-500/10 text-rose-600 rounded-xl shrink-0">
-                      <MapPin className="h-4.5 w-4.5" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">City & Blood Group</p>
-                      <p className="text-xs font-bold text-slate-800 mt-0.5">
-                        {user.city || '—'} {user.bloodGroup ? `· ${user.bloodGroup}` : ''}
-                      </p>
-                    </div>
+            {/* Left Column: Health Summary Box */}
+            <div className="lg:col-span-1 space-y-4">
+              <div className="bg-white border border-[#E2E8F0] rounded-[16px] p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#94A3B8] mb-5">Health Summary</p>
+                  <div className="space-y-4">
+                    {[
+                      { label: 'Blood Group', val: blood || '—', color: 'text-red-500 font-extrabold text-sm' },
+                      { label: 'Chronic Conditions', val: conditions.length ? `${conditions.length} recorded` : 'None' },
+                      { label: 'Active Medications', val: meds.length ? `${meds.length} active` : 'None' },
+                      { label: 'Known Allergies', val: allergies.length ? `${allergies.length} noted` : 'None' },
+                      { label: 'Completed Visits', val: user.totalVisits ?? 0 },
+                      { label: 'Recorded No-shows', val: user.totalNoShows ?? 0 },
+                    ].map(({ label, val, color }) => (
+                      <div key={label} className="flex justify-between items-center text-xs pb-3 border-b border-[#F1F5F9] last:border-0 last:pb-0">
+                        <span className="text-[#64748B] font-medium">{label}</span>
+                        <span className={`font-semibold text-[#0F172A] ${color || ''}`}>{val}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )}
-            </div>
 
-            {/* Section 2: Reminder Preferences */}
-            <div className="bg-white border border-[#e2e8f0]/60 rounded-3xl p-6 shadow-sm text-left">
-              <h3 className="text-[14.5px] font-extrabold text-slate-800 flex items-center space-x-2 pb-3.5 border-b border-slate-100 mb-5">
-                <Bell className="h-4.5 w-4.5 text-primary-teal" />
-                <span>Reminder Preferences</span>
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { key: 'whatsapp', title: 'WhatsApp Alerts', desc: 'Real-time delay buffers and slot recovery notifications.', color: 'emerald', activeColor: 'bg-[#25D366]' },
-                  { key: 'sms', title: 'Standard SMS', desc: 'Carrier network text nudges directly to your device.', color: 'indigo', activeColor: 'bg-indigo-600' },
-                  { key: 'voiceCall', title: 'IVR Call Nudges', desc: 'Automated audio calls for priority booking confirmations.', color: 'amber', activeColor: 'bg-amber-500' },
-                  { key: 'email', title: 'Email Digests', desc: 'Weekly wellness analytics, receipts, and digital prescription copies.', color: 'rose', activeColor: 'bg-rose-500' }
-                ].map(item => {
-                  const isChecked = prefs[item.key];
-                  return (
+                <div className="mt-6 pt-5 border-t border-[#E2E8F0]">
+                  <div className="flex justify-between text-[10px] mb-2">
+                    <span className="font-bold uppercase tracking-wider text-[#94A3B8]">Trust Score</span>
+                    <span className="font-black text-[#115e59]">{user.trustScore ?? 100}%</span>
+                  </div>
+                  <div className="h-2 bg-[#F1F5F9] rounded-full overflow-hidden">
                     <div 
-                      key={item.key}
-                      onClick={() => handleTogglePreference(item.key, isChecked)}
-                      className={`border rounded-2xl p-4.5 flex items-start justify-between cursor-pointer transition-all duration-300 hover:border-slate-300 ${
-                        isChecked 
-                          ? 'border-slate-900 bg-slate-950 text-white shadow-md' 
-                          : 'border-slate-150 bg-slate-50/20'
-                      }`}
-                    >
-                      <div className="space-y-1 text-left pr-4">
-                        <h4 className="text-xs font-bold">{item.title}</h4>
-                        <p className={`text-[10px] leading-relaxed font-medium ${isChecked ? 'text-slate-400' : 'text-slate-400'}`}>
-                          {item.desc}
-                        </p>
-                      </div>
-                      
-                      {/* iOS-Style Toggle Switch */}
-                      <div className="shrink-0 pt-0.5">
-                        <div
-                          className={`relative inline-flex h-5.5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                            isChecked ? 'bg-primary-teal' : 'bg-slate-200'
-                          }`}
-                        >
-                          <span
-                            className={`pointer-events-none inline-block h-4.5 w-4.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                              isChecked ? 'translate-x-4.5' : 'translate-x-0'
-                            }`}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Section 3: Family Contacts */}
-            <div className="bg-white border border-[#e2e8f0]/60 rounded-3xl p-6 shadow-sm text-left">
-              <div className="flex justify-between items-center pb-3.5 border-b border-slate-100 mb-5">
-                <h3 className="text-[14.5px] font-extrabold text-slate-800 flex items-center space-x-2">
-                  <Users className="h-4.5 w-4.5 text-primary-teal" />
-                  <span>Family Caretaker Contacts</span>
-                </h3>
-                
-                {!isEditingFamily && hasFamilyContact && (
-                  <div className="flex space-x-3 text-xs">
-                    <button
-                      onClick={() => setIsEditingFamily(true)}
-                      className="font-bold text-primary-teal hover:underline flex items-center space-x-1 cursor-pointer"
-                    >
-                      <Edit2 className="h-3.5 w-3.5" />
-                      <span>Edit</span>
-                    </button>
-                    <button
-                      onClick={handleRemoveFamily}
-                      className="font-bold text-red-500 hover:text-red-700 flex items-center space-x-1 cursor-pointer"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      <span>Remove</span>
-                    </button>
+                      className="h-full bg-gradient-to-r from-[#14b8a6] to-[#115e59] transition-all rounded-full" 
+                      style={{ width: `${user.trustScore ?? 100}%` }} 
+                    />
                   </div>
-                )}
+                </div>
               </div>
 
-              {isEditingFamily ? (
-                <div className="space-y-4 text-xs text-left">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-slate-400 font-bold mb-1.5 uppercase tracking-wider text-[9px]">Caretaker Name *</label>
-                      <input
-                        type="text"
-                        value={familyFields.name}
-                        onChange={(e) => setFamilyFields({ ...familyFields, name: e.target.value })}
-                        className={`w-full px-3.5 py-2.5 border rounded-xl focus:outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal/20 transition-all font-semibold ${
-                          familyErrors.name ? 'border-red-500' : 'border-slate-200'
-                        }`}
-                        placeholder="Caretaker Name"
-                      />
-                      {familyErrors.name && <p className="text-red-500 text-[10px] mt-1.5 font-bold">{familyErrors.name}</p>}
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 font-bold mb-1.5 uppercase tracking-wider text-[9px]">Caretaker Mobile *</label>
-                      <input
-                        type="text"
-                        value={familyFields.phone}
-                        onChange={(e) => setFamilyFields({ ...familyFields, phone: e.target.value })}
-                        className={`w-full px-3.5 py-2.5 border rounded-xl focus:outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal/20 transition-all font-semibold ${
-                          familyErrors.phone ? 'border-red-500' : 'border-slate-200'
-                        }`}
-                        placeholder="Mobile"
-                      />
-                      {familyErrors.phone && <p className="text-red-500 text-[10px] mt-1.5 font-bold">{familyErrors.phone}</p>}
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 font-bold mb-1.5 uppercase tracking-wider text-[9px]">Relationship</label>
-                      <select
-                        value={familyFields.relation}
-                        onChange={(e) => setFamilyFields({ ...familyFields, relation: e.target.value })}
-                        className="w-full px-3.5 py-2.5 border border-slate-200 bg-white rounded-xl focus:outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal/20 transition-all font-semibold"
-                      >
-                        <option>Son/Daughter</option>
-                        <option>Spouse</option>
-                        <option>Sibling</option>
-                        <option>Caretaker</option>
-                        <option>Other</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end space-x-2 pt-4.5 border-t border-slate-100 mt-4.5">
-                    <button
-                      onClick={() => {
-                        setIsEditingFamily(false);
-                        setFamilyErrors({});
-                        setFamilyFields({
-                          name: user.familyContactName || '',
-                          phone: user.familyContactPhone || '',
-                          relation: user.familyContactRelation || 'Son/Daughter'
-                        });
-                      }}
-                      disabled={familySaving}
-                      className="px-4 py-2.5 border border-slate-200 text-slate-500 rounded-xl hover:bg-slate-50 font-bold cursor-pointer transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSaveFamily}
-                      disabled={familySaving}
-                      className="px-5 py-2.5 bg-primary-teal hover:bg-primary-dark text-white font-extrabold rounded-xl flex items-center space-x-1.5 shadow shadow-primary-teal/20 transition-all cursor-pointer"
-                    >
-                      {familySaving ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <span>Save Contact</span>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              ) : hasFamilyContact ? (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-left">
-                  <div className="flex items-center space-x-3 bg-slate-50/50 border border-slate-100/50 p-3.5 rounded-2xl">
-                    <div className="p-2 bg-emerald-500/10 text-emerald-600 rounded-xl shrink-0">
-                      <User className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Caretaker Name</p>
-                      <p className="font-bold text-slate-800 mt-0.5">{user.familyContactName}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3 bg-slate-50/50 border border-slate-100/50 p-3.5 rounded-2xl">
-                    <div className="p-2 bg-indigo-500/10 text-indigo-600 rounded-xl shrink-0">
-                      <Phone className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Caretaker Mobile</p>
-                      <p className="font-bold text-slate-800 mt-0.5">{user.familyContactPhone}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3 bg-slate-50/50 border border-slate-100/50 p-3.5 rounded-2xl">
-                    <div className="p-2 bg-amber-500/10 text-amber-600 rounded-xl shrink-0">
-                      <Heart className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Relationship</p>
-                      <p className="font-bold text-slate-800 mt-0.5">{user.familyContactRelation}</p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8 border border-dashed border-slate-200 rounded-2xl bg-slate-50/40">
-                  <Users className="h-8 w-8 text-slate-300 mx-auto mb-2" />
-                  <p className="text-xs text-slate-400 font-medium">No family caretaker contact linked yet.</p>
-                  <button
-                    type="button"
-                    onClick={() => setIsEditingFamily(true)}
-                    className="mt-3.5 inline-flex items-center space-x-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-all text-xs cursor-pointer shadow-sm hover:shadow"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    <span>Add Caretaker Contact</span>
-                  </button>
-                </div>
+              {/* Action Buttons */}
+              {hasHistory && (
+                <button
+                  onClick={() => setActiveTab('history')}
+                  className="w-full py-3.5 bg-gradient-to-r from-[#115e59] to-[#0f766e] text-white rounded-[14px] text-xs font-bold flex items-center justify-center gap-2 shadow-md shadow-teal-900/10 hover:brightness-110 transition-all cursor-pointer"
+                >
+                  <FileHeart className="h-4.5 w-4.5" />
+                  View Medical History
+                  <ChevronRight className="h-4 w-4" />
+                </button>
               )}
+
+              <button
+                onClick={handleLogout}
+                className="w-full py-3 bg-white border border-red-200 hover:bg-red-50/50 text-red-600 rounded-[14px] text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <LogOut className="h-4.5 w-4.5" />
+                Log out from account
+              </button>
             </div>
 
-            {/* Section 4: ABHA ID */}
-            <div className="bg-white border border-[#e2e8f0]/60 rounded-3xl p-6 shadow-sm text-left">
-              <h3 className="text-[14.5px] font-extrabold text-slate-800 flex items-center space-x-2 pb-3.5 border-b border-slate-100 mb-5">
-                <Shield className="h-4.5 w-4.5 text-primary-teal" />
-                <span>Ayushman Bharat Digital Health ID (ABHA)</span>
-              </h3>
-
-              {user.abhaId ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                  
-                  {/* Virtual ABHA Card Design */}
-                  <div className="relative w-full max-w-[340px] aspect-[1.586/1] rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white p-5 shadow-lg border border-slate-700/60 overflow-hidden flex flex-col justify-between select-none">
-                    {/* Glowing effect inside card */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none"></div>
-                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -ml-8 -mb-8 pointer-events-none"></div>
-
-                    {/* Card Header */}
-                    <div className="flex items-start justify-between relative z-10">
-                      <div className="text-left">
-                        <div className="flex items-center space-x-1">
-                          <Activity className="h-4 w-4 text-teal-400" />
-                          <span className="text-[8.5px] font-extrabold tracking-widest uppercase font-display text-slate-300">ABDM Health ID</span>
-                        </div>
-                        <h4 className="text-[10px] font-extrabold text-white mt-0.5 tracking-tight font-display">Ayushman Bharat Digital Health Card</h4>
-                      </div>
-                      <QrCode className="h-8 w-8 text-white opacity-90 shrink-0" />
-                    </div>
-
-                    {/* Card Body */}
-                    <div className="text-left mt-3 relative z-10">
-                      <p className="text-[7.5px] text-slate-400 uppercase tracking-widest font-extrabold">Health Address</p>
-                      <p className="font-mono text-sm font-black tracking-widest text-teal-300 mt-0.5">{user.abhaId}</p>
-                    </div>
-
-                    {/* Card Footer */}
-                    <div className="flex items-center justify-between mt-4 pt-2.5 border-t border-white/10 relative z-10">
-                      <div className="text-left">
-                        <p className="text-[7.5px] text-slate-400 uppercase tracking-widest font-extrabold">Card Holder</p>
-                        <p className="text-[10.5px] font-bold text-slate-200 mt-0.5 truncate max-w-[180px]">{user.name}</p>
-                      </div>
-                      <div className="flex items-center space-x-1 bg-teal-500/20 border border-teal-500/35 px-2 py-0.5 rounded-full shrink-0">
-                        <span className="h-1.5 w-1.5 rounded-full bg-teal-400 animate-pulse"></span>
-                        <span className="text-[8px] font-extrabold uppercase text-teal-300 tracking-wider">Verified</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3.5 text-left">
-                    <div className="flex items-start space-x-2">
-                      <div className="p-1.5 bg-emerald-500/10 text-emerald-600 rounded-lg shrink-0 mt-0.5">
-                        <CheckCircle className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-bold text-slate-800">Linked to Apollo Health Record Locker</h4>
-                        <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed">
-                          Your digital health history is fully synchronized. Apollo updates your medical records automatically in the central ABDM registry.
-                        </p>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleUnlinkAbha}
-                      disabled={abhaSaving}
-                      className="px-4 py-2.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-bold transition-all text-xs cursor-pointer"
+            {/* Right Column: Personal Info & Caretaker */}
+            <div className="lg:col-span-2 space-y-6">
+              
+              {/* Personal Info Card */}
+              <div className="bg-white border border-[#E2E8F0] rounded-[16px] p-6 shadow-sm">
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#F1F5F9]">
+                  <h3 className="text-sm font-bold text-[#0F172A] flex items-center gap-2.5">
+                    <User className="h-4.5 w-4.5 text-[#115e59]" /> Personal Information
+                  </h3>
+                  {!isEditingInfo && (
+                    <button 
+                      onClick={() => setIsEditingInfo(true)} 
+                      className="text-xs font-bold text-[#115e59] hover:text-[#0f766e] flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
-                      {abhaSaving ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <span>Unlink Health Card</span>
-                      )}
+                      <Edit2 className="h-3.5 w-3.5" /> Edit
                     </button>
-                  </div>
-
+                  )}
                 </div>
-              ) : (
-                <div className="space-y-4 text-xs text-left">
-                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4.5 flex items-start space-x-3">
-                    <Shield className="h-5 w-5 text-indigo-600 shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-800">What is ABDM Health ID?</h4>
-                      <p className="text-[10.5px] text-slate-400 mt-1 leading-relaxed">
-                        The Ayushman Bharat Health Account (ABHA) address is a key to your digital healthcare journey. It securely holds all your lab reports, prescriptions, and health locker history across verified Indian hospitals.
-                      </p>
-                    </div>
-                  </div>
 
-                  <div>
-                    <label className="block text-slate-400 font-bold mb-1.5 uppercase tracking-wider text-[9px]">ABHA Address (14 Digits or username@abdm)</label>
-                    <div className="flex gap-2.5">
-                      <div className="relative flex-1">
-                        <input
-                          type="text"
-                          value={abhaInput}
-                          onChange={(e) => {
-                            setAbhaInput(e.target.value.replace(/[^0-9a-zA-Z-@]/g, '').substring(0, 24));
-                            setAbhaError('');
-                          }}
-                          placeholder="XX-XXXX-XXXX-XXXX"
-                          className={`w-full pl-3.5 pr-8 py-2.5 border rounded-xl focus:outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal/20 transition-all font-semibold font-mono tracking-widest ${
-                            abhaError ? 'border-red-500' : 'border-slate-200'
-                          }`}
-                        />
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300">
-                          <Lock className="h-4 w-4" />
+                {isEditingInfo ? (
+                  <form onSubmit={handleSaveInfo} className="space-y-5 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[
+                        { label: 'Full Name *', key: 'name', val: editName, set: setEditName, err: infoErrors.name },
+                        { label: 'Email', key: 'email', val: editEmail, set: setEditEmail, err: infoErrors.email, placeholder: 'email@example.com' },
+                        { label: 'Age *', key: 'age', val: editAge, set: setEditAge, err: infoErrors.age, type: 'number' },
+                        { label: 'City', key: 'city', val: editCity, set: setEditCity },
+                      ].map(f => (
+                        <div key={f.key} className="space-y-1.5">
+                          <label className="block text-[#64748B] font-bold text-[9px] uppercase tracking-wider">{f.label}</label>
+                          <input
+                            type={f.type || 'text'}
+                            value={f.val}
+                            onChange={e => f.set(e.target.value)}
+                            placeholder={f.placeholder}
+                            className={`w-full px-4 py-2.5 border rounded-[12px] focus:outline-none focus:border-[#115e59] focus:bg-[#FAFBFC] transition-all font-semibold text-xs ${f.err ? 'border-red-500 bg-red-50/10' : 'border-[#E2E8F0]'}`}
+                          />
+                          {f.err && <p className="text-red-500 text-[10px] mt-1 font-semibold">{f.err}</p>}
                         </div>
+                      ))}
+                      <div className="space-y-1.5">
+                        <label className="block text-[#64748B] font-bold text-[9px] uppercase tracking-wider">Gender</label>
+                        <select value={editGender} onChange={e => setEditGender(e.target.value)} className="w-full px-4 py-2.5 border border-[#E2E8F0] bg-white rounded-[12px] focus:outline-none focus:border-[#115e59] text-xs font-semibold">
+                          <option>Female</option><option>Male</option><option>Other</option>
+                        </select>
                       </div>
-                      <button
-                        type="button"
-                        onClick={handleLinkAbha}
-                        disabled={abhaSaving}
-                        className="px-5 py-2.5 bg-primary-teal hover:bg-primary-dark text-white rounded-xl font-extrabold transition-all shrink-0 flex items-center justify-center min-w-[90px] shadow-sm cursor-pointer"
-                      >
-                        {abhaSaving ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <span>Link ABHA</span>
-                        )}
+                      <div className="space-y-1.5">
+                        <label className="block text-[#64748B] font-bold text-[9px] uppercase tracking-wider">Blood Group</label>
+                        <select value={editBloodGroup} onChange={e => setEditBloodGroup(e.target.value)} className="w-full px-4 py-2.5 border border-[#E2E8F0] bg-white rounded-[12px] focus:outline-none focus:border-[#115e59] text-xs font-semibold">
+                          <option value="">Select</option>
+                          {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(g => <option key={g}>{g}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-2 pt-4 border-t border-[#F1F5F9] mt-3">
+                      <button type="button" onClick={handleCancelInfo} className="px-4.5 py-2 border border-[#E2E8F0] text-[#475569] rounded-[10px] hover:bg-[#F8FAFC] font-semibold text-xs cursor-pointer">Cancel</button>
+                      <button type="submit" disabled={infoSaving} className="px-5 py-2 bg-[#115e59] hover:bg-[#0f766e] text-white font-bold rounded-[10px] text-xs flex items-center gap-1.5 cursor-pointer">
+                        {infoSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save Changes'}
                       </button>
                     </div>
-                    {abhaError && <p className="text-red-500 text-[10px] mt-1.5 font-bold">{abhaError}</p>}
+                  </form>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    {[
+                      { icon: User,     label: 'Full Name',   val: user.name || '—' },
+                      { icon: Mail,     label: 'Email',        val: user.email || '—' },
+                      { icon: Phone,    label: 'Phone',        val: user.phone || '—' },
+                      { icon: Calendar, label: 'Age & Gender', val: `${user.age ? user.age + 'y' : '—'} · ${user.gender || '—'}` },
+                      { icon: MapPin,   label: 'City',         val: user.city || '—' },
+                      { icon: Droplets, label: 'Blood Group',  val: blood || '—' },
+                    ].map(({ icon: Ic, label, val }) => (
+                      <div key={label} className="flex items-center gap-4 bg-[#F8FAFC] border border-[#F1F5F9] p-4 rounded-[14px]">
+                        <div className="p-2.5 bg-[#eff6ff] rounded-[10px] shrink-0">
+                          <Ic className="h-4.5 w-4.5 text-[#2563eb]" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[8.5px] uppercase tracking-wider text-[#94A3B8] font-bold">{label}</p>
+                          <p className="font-bold text-[#1e293b] mt-0.5 text-xs truncate">{val}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
+                )}
+              </div>
+
+              {/* Family Contact Card */}
+              <div className="bg-white border border-[#E2E8F0] rounded-[16px] p-6 shadow-sm">
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#F1F5F9]">
+                  <h3 className="text-sm font-bold text-[#0F172A] flex items-center gap-2.5">
+                    <Users className="h-4.5 w-4.5 text-[#115e59]" /> Family Caretaker
+                  </h3>
+                  {!isEditingFamily && hasFamilyContact && (
+                    <div className="flex gap-3 text-xs">
+                      <button onClick={() => setIsEditingFamily(true)} className="text-[#115e59] font-bold hover:text-[#0f766e] flex items-center gap-1 cursor-pointer"><Edit2 className="h-3.5 w-3.5" /> Edit</button>
+                      <button onClick={handleRemoveFamily} className="text-red-500 font-bold hover:text-red-700 flex items-center gap-1 cursor-pointer"><Trash2 className="h-3.5 w-3.5" /> Remove</button>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-
-            {/* Section 5: My Health Rewards & Priority Vouchers */}
-            {(user.priorityTokens > 0 || (user.earnedRewards && user.earnedRewards.length > 0)) && (
-              <div className="bg-white border border-[#e2e8f0]/60 rounded-3xl p-6 shadow-sm text-left animate-fade-in mt-6">
-                <h3 className="text-[14.5px] font-extrabold text-slate-800 flex items-center space-x-2 pb-3.5 border-b border-slate-100 mb-5">
-                  <Gift className="h-4.5 w-4.5 text-amber-500" />
-                  <span>My Health Rewards & Priority Tokens</span>
-                </h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {(user.earnedRewards || []).map((reward, idx) => (
-                    <div 
-                      key={idx}
-                      className="relative rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-200 to-yellow-600 text-slate-900 p-4.5 shadow-md border border-amber-300 overflow-hidden flex flex-col justify-between select-none"
-                    >
-                      {/* Card shimmer */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] animate-shimmer"></div>
-                      
-                      <div className="flex justify-between items-start text-left">
-                        <div>
-                          <div className="flex items-center space-x-1">
-                            <Activity className="h-3.5 w-3.5 text-amber-900" />
-                            <span className="text-[8px] font-black tracking-widest uppercase font-display text-amber-950">Apollo Priority</span>
-                          </div>
-                          <h4 className="text-[9px] font-black text-amber-950 mt-0.5 tracking-tight font-display">{reward.type || 'Priority Access'}</h4>
+                
+                {isEditingFamily ? (
+                  <div className="space-y-5 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {[
+                        { label: 'Name *', key: 'name', placeholder: 'Caretaker Name' },
+                        { label: 'Mobile *', key: 'phone', placeholder: 'Mobile Number' },
+                      ].map(f => (
+                        <div key={f.key} className="space-y-1.5">
+                          <label className="block text-[#64748B] font-bold text-[9px] uppercase tracking-wider">{f.label}</label>
+                          <input
+                            value={familyFields[f.key]}
+                            onChange={e => setFamilyFields({ ...familyFields, [f.key]: e.target.value })}
+                            placeholder={f.placeholder}
+                            className={`w-full px-4 py-2.5 border rounded-[12px] focus:outline-none focus:border-[#115e59] focus:bg-[#FAFBFC] font-semibold text-xs ${familyErrors[f.key] ? 'border-red-500 bg-red-50/10' : 'border-[#E2E8F0]'}`}
+                          />
+                          {familyErrors[f.key] && <p className="text-red-500 text-[10px] mt-1 font-semibold">{familyErrors[f.key]}</p>}
                         </div>
-                        <div className="px-1.5 py-0.2 bg-amber-950 text-amber-200 text-[7px] font-black uppercase rounded tracking-wider border border-amber-700">
-                          {reward.discount || '15% Off'}
-                        </div>
-                      </div>
-
-                      <div className="text-left mt-3">
-                        <p className="text-[7px] text-amber-900 uppercase tracking-widest font-extrabold">Token Code</p>
-                        <p className="font-mono text-xs font-black tracking-widest text-amber-950 mt-0.5">{reward.tokenCode}</p>
-                      </div>
-
-                      <div className="flex items-center justify-between mt-3 pt-2 border-t border-amber-950/10 text-left">
-                        <div>
-                          <p className="text-[7px] text-amber-950 uppercase tracking-widest font-extrabold">Earned On</p>
-                          <p className="text-[8.5px] font-bold text-amber-900 mt-0.5">{new Date(reward.earnedAt).toLocaleDateString()}</p>
-                        </div>
-                        <span className="text-[8px] font-black text-amber-950 bg-amber-950/10 px-2 py-0.5 rounded-full border border-amber-950/20">
-                          {reward.status === 'active' ? 'Active' : 'Redeemed'}
-                        </span>
+                      ))}
+                      <div className="space-y-1.5">
+                        <label className="block text-[#64748B] font-bold text-[9px] uppercase tracking-wider">Relation</label>
+                        <select value={familyFields.relation} onChange={e => setFamilyFields({ ...familyFields, relation: e.target.value })} className="w-full px-4 py-2.5 border border-[#E2E8F0] bg-white rounded-[12px] focus:outline-none focus:border-[#115e59] text-xs font-semibold">
+                          {['Son/Daughter','Spouse','Sibling','Caretaker','Other'].map(r => <option key={r}>{r}</option>)}
+                        </select>
                       </div>
                     </div>
-                  ))}
+                    <div className="flex justify-end gap-2 pt-4 border-t border-[#F1F5F9]">
+                      <button onClick={() => { setIsEditingFamily(false); setFamilyErrors({}); }} className="px-4.5 py-2 border border-[#E2E8F0] text-[#475569] rounded-[10px] hover:bg-[#F8FAFC] font-semibold text-xs cursor-pointer">Cancel</button>
+                      <button onClick={handleSaveFamily} disabled={familySaving} className="px-5 py-2 bg-[#115e59] hover:bg-[#0f766e] text-white rounded-[10px] font-bold text-xs flex items-center gap-1.5 cursor-pointer">
+                        {familySaving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save Contact'}
+                      </button>
+                    </div>
+                  </div>
+                ) : hasFamilyContact ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {[
+                      { icon: User,  label: 'Name',     val: user.familyContactName },
+                      { icon: Phone, label: 'Mobile',   val: user.familyContactPhone },
+                      { icon: Heart, label: 'Relation', val: user.familyContactRelation },
+                    ].map(({ icon: Ic, label, val }) => (
+                      <div key={label} className="flex items-center gap-4 bg-[#F8FAFC] border border-[#F1F5F9] p-4 rounded-[14px]">
+                        <div className="p-2.5 bg-[#f0fdf4] rounded-[10px] shrink-0">
+                          <Ic className="h-4.5 w-4.5 text-[#16a34a]" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[8.5px] uppercase tracking-wider text-[#94A3B8] font-bold">{label}</p>
+                          <p className="font-bold text-[#1e293b] text-xs mt-0.5">{val}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 border border-dashed border-[#E2E8F0] rounded-[14px] bg-[#F8FAFC]">
+                    <Users className="h-8 w-8 text-[#94A3B8] mx-auto mb-2" />
+                    <p className="text-xs text-[#64748B] font-medium">No caretaker linked yet</p>
+                    <button onClick={() => setIsEditingFamily(true)} className="mt-4 inline-flex items-center gap-1.5 px-4.5 py-2.5 bg-[#115e59] hover:bg-[#0f766e] text-white rounded-[12px] font-bold text-xs shadow-sm hover:shadow-teal-900/5 transition-all cursor-pointer">
+                      <Plus className="h-4.5 w-4.5" /> Add Contact
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB: MEDICAL HISTORY ── */}
+        {activeTab === 'history' && (
+          <div className="space-y-6">
+            
+            {/* Header profile status */}
+            <div className="bg-gradient-to-r from-[#062421] to-[#0f3c38] rounded-[18px] p-6 flex items-center gap-5 text-white shadow-md relative overflow-hidden select-none">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none" />
+              <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-400/25 rounded-[14px] flex items-center justify-center shrink-0">
+                <FileHeart className="h-6 w-6 text-emerald-300" />
+              </div>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="h-3 w-3 text-emerald-300" />
+                  <span className="text-[9px] font-bold tracking-wider uppercase text-emerald-300">Aether AI · ABDM Clinical Profile</span>
+                </div>
+                <h2 className="text-base font-extrabold tracking-tight">Your Medical History</h2>
+                <p className="text-white/60 text-[11px] font-medium">Shared securely with your attending consultant during appointments</p>
+              </div>
+              <div className="ml-auto text-right shrink-0">
+                <div className="text-[8px] text-white/40 uppercase tracking-widest font-black">Sync Status</div>
+                <div className="flex items-center gap-1.5 mt-1 bg-emerald-500/15 border border-emerald-400/30 px-3 py-1 rounded-full">
+                  <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                  <span className="text-emerald-300 text-[10px] font-bold uppercase tracking-wide">Verified</span>
+                </div>
+              </div>
+            </div>
+
+            {!hasHistory ? (
+              <div className="bg-white border border-[#E2E8F0] rounded-[18px] p-16 text-center shadow-sm">
+                <ClipboardList className="h-12 w-12 text-[#D1D5DB] mx-auto mb-4" />
+                <h3 className="text-sm font-bold text-[#374151]">No Medical History Recorded</h3>
+                <p className="text-xs text-[#9CA3AF] mt-1">Complete your onboarding questionnaire to populate your health profile.</p>
+              </div>
+            ) : (
+              <>
+                {/* Blood Group */}
+                {blood && (
+                  <div className="bg-white border border-[#E2E8F0] rounded-[16px] p-6 flex items-center gap-5 shadow-sm">
+                    <div className="w-14 h-14 bg-red-50 border border-red-200 rounded-[14px] flex items-center justify-center shrink-0">
+                      <Droplets className="h-6 w-6 text-red-500" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-[#94A3B8]">Blood Group</p>
+                      <p className="text-2xl font-black text-red-600 mt-0.5">{blood}</p>
+                    </div>
+                    <div className="ml-auto">
+                      <span className="bg-red-50 border border-red-100 text-red-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Critical Info</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <HistoryCard icon={Stethoscope} label="Chronic Conditions" iconColor="text-purple-600" iconBg="bg-purple-50" isEmpty={!conditions.length}>
+                    {conditions.map(c => <HistoryChip key={c} label={c} color="purple" />)}
+                  </HistoryCard>
+                  <HistoryCard icon={Pill} label="Current Medications" iconColor="text-blue-600" iconBg="bg-blue-50" isEmpty={!meds.length}>
+                    {meds.map(m => <HistoryChip key={m} label={m} color="blue" />)}
+                  </HistoryCard>
+                  <HistoryCard icon={AlertCircle} label="Allergies" iconColor="text-red-600" iconBg="bg-red-50" isEmpty={!allergies.length}>
+                    {allergies.map(a => <HistoryChip key={a} label={a} color="red" />)}
+                  </HistoryCard>
+                  <HistoryCard icon={Zap} label="Current Symptoms" iconColor="text-amber-600" iconBg="bg-amber-50" isEmpty={!symptoms.length}>
+                    {symptoms.map(s => <HistoryChip key={s} label={s} color="amber" />)}
+                  </HistoryCard>
+                  <HistoryCard icon={Wind} label="Lifestyle Factors" iconColor="text-teal-600" iconBg="bg-teal-50" isEmpty={!lifestyle.length}>
+                    {lifestyle.map(l => <HistoryChip key={l} label={l} color="green" />)}
+                  </HistoryCard>
+                  <HistoryCard icon={TreePine} label="Family History" iconColor="text-slate-600" iconBg="bg-slate-100" isEmpty={!family.length}>
+                    {family.map(f => <HistoryChip key={f} label={f} color="slate" />)}
+                  </HistoryCard>
+                </div>
+
+                {/* Encryption disclaimer card - High Contrast Clean Styling */}
+                <div className="flex items-start gap-3 bg-[#0f172a] border border-[#1e293b] rounded-[16px] p-5 shadow-sm text-xs text-white">
+                  <Lock className="h-5 w-5 shrink-0 text-[#2dd4bf] mt-0.5" />
+                  <div className="space-y-0.5 text-left">
+                    <span className="text-[10px] font-bold text-[#2dd4bf] uppercase tracking-wider block">End-to-End Cryptographic Security</span>
+                    <p className="text-white/70 leading-relaxed font-medium">This clinical profile is fully encrypted under ABDM standards and shared strictly with verified medical practitioners only during active consult sessions.</p>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── TAB: NOTIFICATIONS ── */}
+        {activeTab === 'prefs' && (
+          <div className="bg-white border border-[#E2E8F0] rounded-[16px] p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-[#0F172A] flex items-center gap-2.5 mb-6 pb-4 border-b border-[#F1F5F9]">
+              <Bell className="h-4.5 w-4.5 text-[#115e59]" /> Notification Preferences
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                { key: 'whatsapp', icon: Phone,    title: 'WhatsApp Alerts',  desc: 'Real-time delay buffers and slot recovery notifications.' },
+                { key: 'sms',      icon: Bell,     title: 'Standard SMS',      desc: 'Carrier network text nudges directly to your device.' },
+                { key: 'voiceCall',icon: Activity, title: 'IVR Call Nudges',   desc: 'Automated audio calls for priority booking confirmations.' },
+                { key: 'email',    icon: Mail,     title: 'Email Digests',     desc: 'Weekly wellness analytics, receipts, and prescription copies.' },
+              ].map(item => {
+                const Ic = item.icon;
+                const checked = prefs[item.key];
+                return (
+                  <div
+                    key={item.key}
+                    onClick={() => handleTogglePreference(item.key, checked)}
+                    className={`flex items-start justify-between gap-4 border rounded-[14px] p-4.5 cursor-pointer transition-all duration-200 select-none ${
+                      checked ? 'border-[#115e59] bg-[#f0fdfa]/50 shadow-sm' : 'border-[#E2E8F0] bg-[#F8FAFC]'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3.5">
+                      <div className={`p-2.5 rounded-[10px] shrink-0 transition-colors ${checked ? 'bg-[#115e59] text-white' : 'bg-[#E2E8F0] text-[#64748B]'}`}>
+                        <Ic className="h-4 w-4" />
+                      </div>
+                      <div className="text-left">
+                        <h4 className="text-xs font-bold text-[#0F172A]">{item.title}</h4>
+                        <p className="text-[10px] text-[#64748B] mt-1 leading-relaxed">{item.desc}</p>
+                      </div>
+                    </div>
+                    <div className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ${checked ? 'bg-[#115e59]' : 'bg-[#CBD5E1]'}`}>
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${checked ? 'translate-x-4' : 'translate-x-0'}`} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB: ABHA / ID ── */}
+        {activeTab === 'abha' && (
+          <div className="bg-white border border-[#E2E8F0] rounded-[16px] p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-[#0F172A] flex items-center gap-2.5 mb-6 pb-4 border-b border-[#F1F5F9]">
+              <Shield className="h-4.5 w-4.5 text-[#115e59]" /> Ayushman Bharat Digital Health ID (ABHA)
+            </h3>
+            {user.abhaId ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                <div className="relative w-full aspect-[1.586/1] rounded-[18px] bg-gradient-to-tr from-[#0b1329] via-[#1e293b] to-[#0f172a] text-white p-6 border border-[#334155] overflow-hidden flex flex-col justify-between shadow-xl">
+                  {/* Decorative glowing gradient ring inside health card */}
+                  <div className="absolute -top-16 -right-16 w-32 h-32 bg-[#2dd4bf]/10 rounded-full blur-xl pointer-events-none" />
+                  <div className="flex items-start justify-between relative z-10">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <Activity className="h-4 w-4 text-[#2DD4BF]" />
+                        <span className="text-[8px] font-black tracking-widest uppercase text-[#94A3B8]">ABDM Health ID</span>
+                      </div>
+                      <h4 className="text-[10px] font-black text-[#E2E8F0] mt-1.5 uppercase tracking-wide">Ayushman Bharat Digital Health</h4>
+                    </div>
+                    <QrCode className="h-9 w-9 text-white/90" />
+                  </div>
+                  <div className="relative z-10">
+                    <p className="text-[7.5px] text-[#64748B] uppercase tracking-widest font-black">Health Address / ID</p>
+                    <p className="font-mono text-base font-black tracking-widest text-[#2DD4BF] mt-1">{user.abhaId}</p>
+                  </div>
+                  <div className="flex items-center justify-between pt-3 border-t border-white/10 relative z-10">
+                    <div>
+                      <p className="text-[7.5px] text-[#64748B] uppercase tracking-widest font-black">Card Holder</p>
+                      <p className="text-xs font-black text-white mt-1 truncate max-w-[200px]">{user.name}</p>
+                    </div>
+                    <div className="flex items-center gap-1 bg-[#134E4A] border border-[#0F766E] px-3 py-0.5 rounded-full">
+                      <span className="text-[7.5px] font-black text-[#2DD4BF] uppercase tracking-widest">Verified</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-5 text-left">
+                  <div className="flex items-start gap-3 bg-[#f0fdf4] border border-[#bbf7d0] p-4.5 rounded-[14px]">
+                    <CheckCircle className="h-5 w-5 text-[#16a34a] shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="text-xs font-bold text-[#1e293b]">Successfully Sync-Linked</h4>
+                      <p className="text-[10px] text-[#64748B] mt-1.5 leading-relaxed font-medium">Your medical profile cards are locked under central Ayushman Bharat credentials and sync automatically.</p>
+                    </div>
+                  </div>
+                  <button onClick={handleUnlinkAbha} disabled={abhaSaving} className="px-4.5 py-2.5 border border-red-200 text-red-600 hover:bg-red-50/50 rounded-[12px] font-bold text-xs transition-colors cursor-pointer">
+                    {abhaSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Unlink Health Card'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6 text-left">
+                <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-[14px] p-4.5 flex items-start gap-3">
+                  <Shield className="h-5 w-5 text-[#115e59] shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-xs font-bold text-[#0F172A]">What is Ayushman Bharat ABHA?</h4>
+                    <p className="text-[10px] text-[#64748B] mt-1 leading-relaxed font-medium">Ayushman Bharat Health Account (ABHA) digitizes clinical registries. It links all your lab prescriptions, report files, and doctor visits into a unified health card.</p>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[#64748B] font-bold mb-1.5 text-[9px] uppercase tracking-wider">Link ABHA Address / Card Number</label>
+                  <div className="flex gap-3">
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        value={abhaInput}
+                        onChange={e => { setAbhaInput(e.target.value.replace(/[^0-9a-zA-Z-@]/g, '').substring(0, 24)); setAbhaError(''); }}
+                        placeholder="XX-XXXX-XXXX-XXXX"
+                        className={`w-full pl-4 pr-10 py-3 border rounded-[12px] focus:outline-none focus:border-[#115e59] focus:bg-[#FAFBFC] font-mono tracking-widest text-sm ${abhaError ? 'border-red-500 bg-red-50/5' : 'border-[#E2E8F0]'}`}
+                      />
+                      <Lock className="absolute right-4.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94A3B8]" />
+                    </div>
+                    <button onClick={handleLinkAbha} disabled={abhaSaving} className="px-5 py-3 bg-[#115e59] hover:bg-[#0f766e] text-white rounded-[12px] font-bold text-xs flex items-center gap-1.5 shrink-0 cursor-pointer shadow-md shadow-teal-900/10">
+                      {abhaSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Link ABHA'}
+                    </button>
+                  </div>
+                  {abhaError && <p className="text-red-500 text-[10px] mt-2 font-bold">{abhaError}</p>}
                 </div>
               </div>
             )}
-
           </div>
+        )}
 
-        </div>
       </div>
     </div>
   );

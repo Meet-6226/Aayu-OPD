@@ -149,7 +149,7 @@ export default function DoctorRxGeneratorModal({ isOpen, onClose, onPrescription
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-primary-teal">
-                    Apollo OPD Doctor Studio
+                    Aether OPD Doctor Studio
                   </span>
                   <span className="text-[9px] bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded font-semibold">
                     1-Click Smart Prescriber
@@ -250,7 +250,7 @@ export default function DoctorRxGeneratorModal({ isOpen, onClose, onPrescription
                               onChange={() => toggleMedTiming(med.id, 'morning')}
                               className="w-3.5 h-3.5 text-blue-600 rounded"
                             />
-                            <span>Morning ☀️</span>
+                            <span>Morning</span>
                           </label>
 
                           <label className="flex items-center gap-1 cursor-pointer">
@@ -260,7 +260,7 @@ export default function DoctorRxGeneratorModal({ isOpen, onClose, onPrescription
                               onChange={() => toggleMedTiming(med.id, 'afternoon')}
                               className="w-3.5 h-3.5 text-amber-600 rounded"
                             />
-                            <span>Afternoon 🌤️</span>
+                            <span>Afternoon</span>
                           </label>
 
                           <label className="flex items-center gap-1 cursor-pointer">
@@ -270,7 +270,7 @@ export default function DoctorRxGeneratorModal({ isOpen, onClose, onPrescription
                               onChange={() => toggleMedTiming(med.id, 'night')}
                               className="w-3.5 h-3.5 text-indigo-600 rounded"
                             />
-                            <span>Night 🌙</span>
+                            <span>Night</span>
                           </label>
                         </div>
                       )}

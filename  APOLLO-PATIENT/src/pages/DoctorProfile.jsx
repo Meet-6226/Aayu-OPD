@@ -80,6 +80,7 @@ export default function DoctorProfile() {
 
   const [selectedDate, setSelectedDate] = useState(datesList[1]); // default tomorrow
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [consultationMode, setConsultationMode] = useState('in_person');
 
   const { doctor, slots, loading, error, fetchDoctor, fetchSlots } = useDoctorSlots();
 
@@ -100,6 +101,7 @@ export default function DoctorProfile() {
 
   const handleBookingRedirect = () => {
     if (!selectedSlot) return;
+    const finalFeeNum = consultationMode === 'online' ? (doctor.onlineConsultationFee || Math.round(doctor.consultationFee * 0.65)) : doctor.consultationFee;
     navigate('/booking/confirm', {
       state: {
         doctorId: id,
@@ -109,7 +111,8 @@ export default function DoctorProfile() {
         dateString: selectedDate.dateString,
         time: selectedSlot.time,
         slotId: selectedSlot.id,
-        fees: `₹${doctor.consultationFee}`
+        fees: `₹${finalFeeNum}`,
+        consultationMode: consultationMode
       }
     });
   };
@@ -158,12 +161,12 @@ export default function DoctorProfile() {
   }
 
   return (
-    <div className="max-w-[1200px] mx-auto px-5 md:px-8 bg-white font-sans text-text-medium py-8">
+    <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
       
       {/* Back button */}
       <button
         onClick={() => navigate(-1)}
-        className="inline-flex items-center space-x-1.5 text-sm font-medium text-text-light hover:text-text-dark transition-colors mb-6"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors mb-6"
       >
         <ArrowLeft className="h-4 w-4" />
         <span>Back to results</span>
@@ -174,35 +177,37 @@ export default function DoctorProfile() {
         
         {/* LEFT COLUMN: Doctor info (2 cols, sticky on desktop) */}
         <div className="lg:col-span-2 space-y-6 lg:sticky lg:top-24 self-start">
-          <div className="bg-white border border-border-custom rounded-2xl p-6">
+          <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-6">
             <div className="flex items-start">
-              <div className="w-16 h-16 rounded-full bg-light-teal flex items-center justify-center shrink-0">
-                <span className="text-xl font-semibold text-primary-teal">{doctor.initials || "DR"}</span>
+              <div className="w-14 h-14 rounded-[12px] bg-[#ECFDF5] border border-[#A7F3D0] flex items-center justify-center shrink-0">
+                <span className="text-lg font-bold text-[#1E7F6A]">{doctor.initials || "DR"}</span>
               </div>
               <div className="ml-4 space-y-1">
-                <h1 className="text-xl lg:text-[22px] font-bold text-text-dark leading-snug">
+                <h1 className="text-[18px] font-bold text-[#111827] leading-snug">
                   {doctor.name}
                 </h1>
-                <span className="inline-block bg-light-teal text-primary-teal text-[10px] font-semibold uppercase px-2 py-0.5 rounded tracking-wider">
+                <span className="inline-block bg-[#ECFDF5] text-[#1E7F6A] text-[10px] font-bold uppercase px-2 py-0.5 rounded-full tracking-wider">
                   {doctor.department}
                 </span>
-                <p className="text-xs text-text-light mt-1">{doctor.qualifications}</p>
-                <p className="text-xs text-text-light">{doctor.hospital || "Apollo Hospital, Jubilee Hills"}</p>
+                <p className="text-xs text-[#6B7280] mt-1">{doctor.qualifications}</p>
+                <p className="text-xs text-[#9CA3AF]">{doctor.hospital || "Apollo Hospital, Jubilee Hills"}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 border-y border-[#f3f4f6] py-4 mt-6 text-center text-xs">
+            <div className="grid grid-cols-3 gap-4 border-y border-[#F3F4F6] py-4 mt-5 text-center text-xs">
               <div>
-                <p className="text-text-light uppercase tracking-wider font-semibold">Experience</p>
-                <p className="text-[14px] font-bold text-text-dark mt-1">{doctor.experienceYears} years</p>
+                <p className="text-[#9CA3AF] uppercase tracking-wider font-semibold text-[10px]">Experience</p>
+                <p className="text-[15px] font-bold text-[#111827] mt-1">{doctor.experienceYears} yrs</p>
               </div>
               <div>
-                <p className="text-text-light uppercase tracking-wider font-semibold">Rating</p>
-                <p className="text-[14px] font-bold text-text-dark mt-1">&#9733; {doctor.rating ? doctor.rating.toFixed(1) : "5.0"}</p>
+                <p className="text-[#9CA3AF] uppercase tracking-wider font-semibold text-[10px]">Rating</p>
+                <p className="text-[15px] font-bold text-[#111827] mt-1">★ {doctor.rating ? doctor.rating.toFixed(1) : "5.0"}</p>
               </div>
               <div>
-                <p className="text-text-light uppercase tracking-wider font-semibold">Consult Fee</p>
-                <p className="text-[14px] font-bold text-text-dark mt-1">₹{doctor.consultationFee}</p>
+                <p className="text-[#9CA3AF] uppercase tracking-wider font-semibold text-[10px]">Fee</p>
+                <p className="text-[15px] font-bold text-[#111827] mt-1">
+                  ₹{consultationMode === 'online' ? (doctor.onlineConsultationFee || Math.round(doctor.consultationFee * 0.65)) : doctor.consultationFee}
+                </p>
               </div>
             </div>
 
@@ -233,36 +238,67 @@ export default function DoctorProfile() {
 
         {/* RIGHT COLUMN: Booking (3 cols) */}
         <div className="lg:col-span-3 space-y-6">
-          <div className="bg-white border border-border-custom rounded-2xl p-6">
-            <h2 className="font-display font-semibold text-[18px] text-text-dark mb-6">
+          <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-6">
+            <h2 className="font-semibold text-[16px] text-[#111827] mb-5">
               Book Appointment
             </h2>
 
-            {/* Date picker (7 day horizontal scroll) */}
-            <div className="mb-8">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-text-light mb-3">
-                Select Date
-              </label>
-              <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-thin select-none">
-                {datesList.map((dt, i) => (
+            {/* Consultation Mode Selector */}
+            {doctor.offersOnlineConsultation && (
+              <div className="mb-5">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF] mb-2.5">
+                  Consultation Mode
+                </label>
+                <div className="grid grid-cols-2 gap-2 bg-[#F3F4F6] p-1 rounded-[10px]">
                   <button
-                    key={i}
-                    onClick={() => {
-                      setSelectedDate(dt);
-                    }}
-                    className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center shrink-0 min-w-[72px] transition-all ${
-                      selectedDate.dateString === dt.dateString
-                        ? 'border-primary-teal bg-light-teal text-primary-teal'
-                        : 'border-border-custom bg-white text-text-medium hover:border-[#d1d5db]'
+                    type="button"
+                    onClick={() => setConsultationMode('in_person')}
+                    className={`py-2.5 px-4 rounded-[8px] text-xs font-semibold text-center transition-all duration-150 ${
+                      consultationMode === 'in_person'
+                        ? 'bg-white text-[#111827] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
+                        : 'text-[#6B7280] hover:text-[#374151]'
                     }`}
                   >
-                    <span className="text-[11px] uppercase tracking-wider font-semibold">{dt.dayLabel}</span>
-                    <span className="text-[18px] font-bold mt-1 leading-none">{dt.dateLabel}</span>
-                    <span className="text-[10px] text-text-light mt-1">{dt.monthLabel}</span>
+                    In-Clinic Visit
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    onClick={() => setConsultationMode('online')}
+                    className={`py-2.5 px-4 rounded-[8px] text-xs font-semibold text-center transition-all duration-150 ${
+                      consultationMode === 'online'
+                        ? 'bg-white text-[#0369A1] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
+                        : 'text-[#6B7280] hover:text-[#374151]'
+                    }`}
+                  >
+                    Video Consultation
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Date picker (7 day horizontal scroll) */}
+            <div className="mb-6">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF] mb-2.5">
+                  Select Date
+                </label>
+                <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-thin select-none">
+                  {datesList.map((dt, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { setSelectedDate(dt); }}
+                      className={`flex flex-col items-center justify-center p-3 rounded-[10px] border text-center shrink-0 min-w-[66px] transition-all duration-150 ${
+                        selectedDate.dateString === dt.dateString
+                          ? 'border-[#1E7F6A] bg-[#ECFDF5] text-[#1E7F6A]'
+                          : 'border-[#E5E7EB] bg-white text-[#374151] hover:border-[#D1D5DB]'
+                      }`}
+                    >
+                      <span className="text-[10px] uppercase tracking-wider font-semibold">{dt.dayLabel}</span>
+                      <span className="text-[17px] font-bold mt-1 leading-none">{dt.dateLabel}</span>
+                      <span className="text-[10px] text-[#9CA3AF] mt-1">{dt.monthLabel}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
             {/* Time Slots grid grouped by period */}
             <div className="space-y-6">
@@ -283,12 +319,12 @@ export default function DoctorProfile() {
                             key={slot.id || i}
                             disabled={!slot.isAvailable}
                             onClick={() => setSelectedSlot(slot)}
-                            className={`py-3 text-center text-xs font-semibold rounded-lg border transition-all ${
+                          className={`py-2.5 text-center text-xs font-semibold rounded-[8px] border transition-all duration-150 ${
                               !slot.isAvailable
-                                ? 'bg-[#f9fafb] border-transparent text-[#d1d5db] cursor-not-allowed line-through'
+                                ? 'bg-[#F9FAFB] border-transparent text-[#D1D5DB] cursor-not-allowed line-through'
                                 : selectedSlot?.id === slot.id
-                                ? 'border-primary-teal bg-primary-teal text-white'
-                                : 'border-border-custom bg-white text-text-medium hover:border-primary-teal/40'
+                                ? 'border-[#1E7F6A] bg-[#1E7F6A] text-white'
+                                : 'border-[#E5E7EB] bg-white text-[#374151] hover:border-[#1E7F6A]/50'
                             }`}
                           >
                             {slot.time}
@@ -311,20 +347,23 @@ export default function DoctorProfile() {
 
       {/* CONFIRMATION STICKY BAR */}
       {selectedSlot && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#f3f4f6] p-4 lg:py-4 lg:px-8 z-40 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] flex items-center justify-between transition-all duration-300">
-          <div className="max-w-[1200px] mx-auto w-full flex items-center justify-between">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] p-4 z-40 shadow-[0_-2px_12px_rgba(0,0,0,0.06)] transition-all duration-200">
+          <div className="max-w-[1320px] mx-auto w-full flex items-center justify-between gap-4">
             <div className="text-left">
-              <p className="text-[11px] text-text-light uppercase tracking-wider">Selected Slot</p>
-              <p className="text-sm font-semibold text-text-dark mt-0.5">
+              <p className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider">Selected</p>
+              <p className="text-sm font-semibold text-[#111827] mt-0.5">
                 {selectedDate.fullDateString} · {selectedSlot.time}
               </p>
+              {consultationMode === 'online' && (
+                <p className="text-[11px] text-[#0369A1] font-semibold mt-0.5">Video Consultation</p>
+              )}
             </div>
             
             <button
               onClick={handleBookingRedirect}
-              className="px-6 py-3 bg-primary-teal text-white font-semibold text-sm rounded-xl hover:bg-primary-dark transition-colors duration-200"
+              className="px-6 py-2.5 bg-[#1E7F6A] text-white font-semibold text-sm rounded-[10px] hover:bg-[#165B52] transition-colors duration-150 shrink-0"
             >
-              Confirm Booking &rarr;
+              Confirm →
             </button>
           </div>
         </div>

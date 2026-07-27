@@ -157,10 +157,22 @@ function Sidebar({ onEmergencyClick }) {
   const { appointments } = useStaffAppointments();
   const { openSlots } = useSlotRecovery();
 
+  const userRole = localStorage.getItem('apollo_staff_role') || 'admin';
+  const profileName = userRole === 'doctor' ? 'Dr. Rajesh Mehta' : 'OPD Administrator';
+  const profileRole = userRole === 'doctor' ? 'Consultant Doctor' : 'Admin Staff';
+  const profileInitials = userRole === 'doctor' ? 'RM' : 'OA';
+
   const dynamicBadges = {
     '/staff/appointments': String(appointments.length),
     '/staff/slot-recovery': String(openSlots.filter(s => s.status !== 'recovered').length),
   };
+
+  const filteredNavItems = navItems.filter(item => {
+    if (userRole === 'doctor') {
+      return item.path === '/staff/doctor-view';
+    }
+    return true;
+  });
 
   return (
     <aside
@@ -199,12 +211,12 @@ function Sidebar({ onEmergencyClick }) {
           justifyContent: 'center',
           flexShrink: 0,
           cursor: 'pointer',
-        }} onClick={() => navigate('/staff/dashboard')}>
+        }} onClick={() => navigate(userRole === 'doctor' ? '/staff/doctor-view' : '/staff/dashboard')}>
           <Sparkles size={16} color="white" />
         </div>
         <div 
           style={{ overflow: 'hidden', whiteSpace: 'nowrap', cursor: 'pointer' }}
-          onClick={() => navigate('/staff/dashboard')}
+          onClick={() => navigate(userRole === 'doctor' ? '/staff/doctor-view' : '/staff/dashboard')}
         >
           <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '0.9rem', color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
             Apollo OPD
@@ -217,7 +229,7 @@ function Sidebar({ onEmergencyClick }) {
 
       {/* Navigation Items */}
       <nav style={{ flex: 1, padding: '1rem 0', display: 'flex', flexDirection: 'column', gap: '0.15rem', overflowY: 'auto' }}>
-        {navItems.map(item => (
+        {filteredNavItems.map(item => (
           <SidebarItem 
             key={item.path} 
             item={{
@@ -250,6 +262,7 @@ function Sidebar({ onEmergencyClick }) {
         <button
           onClick={() => {
             localStorage.removeItem('apollo_staff_logged_in');
+            localStorage.removeItem('apollo_staff_role');
             navigate('/');
           }}
           style={{
@@ -280,11 +293,11 @@ function Sidebar({ onEmergencyClick }) {
             color: 'white', fontSize: '0.68rem', fontWeight: 700,
             fontFamily: 'Space Grotesk, sans-serif', flexShrink: 0,
           }}>
-            OA
+            {profileInitials}
           </div>
           <div>
-            <div style={{ fontSize: '0.78rem', fontWeight: 500, color: '#1a1a2e', lineHeight: 1.2 }}>OPD Administrator</div>
-            <div style={{ fontSize: '0.62rem', color: '#94a3b8' }}>Admin Staff</div>
+            <div style={{ fontSize: '0.78rem', fontWeight: 500, color: '#1a1a2e', lineHeight: 1.2 }}>{profileName}</div>
+            <div style={{ fontSize: '0.62rem', color: '#94a3b8' }}>{profileRole}</div>
           </div>
         </div>
       </div>

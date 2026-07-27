@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Star, ChevronRight, X } from 'lucide-react';
+import { Search, Star, ChevronRight, X, ShieldCheck, MapPin, Video, Languages } from 'lucide-react';
 import { useDoctors } from '../hooks/useDoctors';
 
 const departments = [
@@ -10,37 +10,44 @@ const departments = [
 
 const SORT_OPTIONS = [
   { value: 'rating', label: 'Top Rated' },
-  { value: 'price-low', label: 'Price ↑' },
-  { value: 'price-high', label: 'Price ↓' },
-  { value: 'experience', label: 'Most Exp.' },
+  { value: 'price-low', label: 'Price: Low to High' },
+  { value: 'price-high', label: 'Price: High to Low' },
+  { value: 'experience', label: 'Most Experienced' },
 ];
-
-const AVATAR_COLORS = [
-  { bg: 'bg-violet-100', text: 'text-violet-700' },
-  { bg: 'bg-sky-100',    text: 'text-sky-700'    },
-  { bg: 'bg-amber-100',  text: 'text-amber-700'  },
-  { bg: 'bg-rose-100',   text: 'text-rose-700'   },
-  { bg: 'bg-teal-100',   text: 'text-teal-700'   },
-  { bg: 'bg-indigo-100', text: 'text-indigo-700' },
-];
-
-const getAvatarColor = (name = '') => AVATAR_COLORS[(name.charCodeAt(0) || 0) % AVATAR_COLORS.length];
 
 const getDoctorInitials = (name = '') => {
   const clean = name.replace(/^Dr\.\s+/i, '').trim();
   return clean.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'DR';
 };
 
-function SkeletonRow() {
+const getDoctorLanguages = (id) => {
+  const langs = {
+    doc_001: 'English, Hindi, Gujarati',
+    doc_002: 'English, Tamil, Telugu',
+    doc_003: 'English, Malayalam, Hindi',
+    doc_004: 'English, Telugu, Hindi',
+    doc_005: 'English, Marathi, Hindi',
+    doc_006: 'English, Malayalam, Tamil',
+    doc_007: 'English, Hindi, Kannada',
+    doc_008: 'English, Telugu, Kannada',
+    doc_009: 'English, Bengali, Hindi',
+    doc_010: 'English, Telugu, Hindi',
+  };
+  return langs[id] || 'English, Hindi';
+};
+
+function SkeletonCard() {
   return (
-    <div className="flex items-center gap-4 px-5 py-4 animate-pulse border-b border-gray-50 last:border-0">
-      <div className="w-11 h-11 rounded-full bg-gray-100 shrink-0" />
-      <div className="flex-1 space-y-2">
-        <div className="h-3.5 bg-gray-100 rounded w-44" />
-        <div className="h-3 bg-gray-100 rounded w-28" />
+    <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-5 animate-pulse flex flex-col md:flex-row justify-between gap-5">
+      <div className="flex gap-4">
+        <div className="w-14 h-14 rounded-[12px] bg-[#F3F4F6] shrink-0" />
+        <div className="space-y-2">
+          <div className="h-4 bg-[#F3F4F6] rounded w-40" />
+          <div className="h-3.5 bg-[#F3F4F6] rounded w-24" />
+          <div className="h-3 bg-[#F3F4F6] rounded w-48" />
+        </div>
       </div>
-      <div className="h-3 bg-gray-100 rounded w-10 shrink-0" />
-      <div className="h-8 bg-gray-100 rounded-lg w-20 shrink-0" />
+      <div className="h-9 bg-[#F3F4F6] rounded-[10px] w-24 align-self-end md:align-self-center shrink-0" />
     </div>
   );
 }
@@ -53,7 +60,9 @@ export default function BrowseDoctors() {
 
   const { doctors, loading, fetchAllDoctors, fetchByDepartment, searchDoctors } = useDoctors();
 
-  useEffect(() => { fetchAllDoctors(); }, [fetchAllDoctors]);
+  useEffect(() => {
+    fetchAllDoctors();
+  }, [fetchAllDoctors]);
 
   const handleDeptClick = async (dept) => {
     setSelectedDept(dept);
@@ -80,195 +89,201 @@ export default function BrowseDoctors() {
   const processedDoctors = getSortedDoctors();
 
   return (
-    <div className="max-w-[1200px] mx-auto px-5 md:px-8 py-7">
-
-      {/* ── PAGE HEADER ─────────────────────────────────────────── */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Find a Specialist</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Book in-person consultations with verified Apollo specialists.
-        </p>
-      </div>
-
-      {/* ── SEARCH BAR ──────────────────────────────────────────── */}
-      <div className="relative mb-5">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-        <input
-          type="text"
-          placeholder="Search by name, qualification, or specialty..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="w-full bg-white border border-gray-200 rounded-xl pl-9 pr-9 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 transition-all"
-        />
-        {searchQuery && (
-          <button
-            onClick={() => { setSearchQuery(''); fetchAllDoctors(); }}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        )}
-      </div>
-
-      {/* ── LAYOUT ──────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
-        {/* ── SIDEBAR ─────────────────────────────────────────── */}
-        <div className="lg:col-span-1 self-start lg:sticky lg:top-20">
-          {/* Mobile chips */}
-          <div className="flex gap-1.5 overflow-x-auto pb-1 lg:hidden mb-4 scrollbar-hide">
-            {departments.map(dept => (
-              <button
-                key={dept}
-                onClick={() => handleDeptClick(dept)}
-                className={`shrink-0 text-[12px] px-3 py-1.5 rounded-full font-medium transition-all ${
-                  selectedDept === dept && !searchQuery
-                    ? 'bg-primary-teal text-white'
-                    : 'bg-white border border-gray-200 text-gray-600'
-                }`}
-              >
-                {dept}
-              </button>
-            ))}
-          </div>
-
-          {/* Desktop sidebar */}
-          <div className="hidden lg:block bg-white border border-gray-200 rounded-2xl overflow-hidden">
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-4 pt-4 pb-2">
-              Department
-            </p>
-            <div className="pb-2">
-              {departments.map(dept => (
-                <button
-                  key={dept}
-                  onClick={() => handleDeptClick(dept)}
-                  className={`w-full text-left px-4 py-2.5 text-[13px] transition-colors ${
-                    selectedDept === dept && !searchQuery
-                      ? 'text-primary-teal font-semibold bg-primary-teal/5'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  {dept}
-                </button>
-              ))}
-            </div>
-
-            {/* Sort */}
-            <div className="border-t border-gray-100 px-4 pt-3 pb-3">
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Sort By</p>
-              <div className="space-y-1">
-                {SORT_OPTIONS.map(({ value, label }) => (
-                  <button
-                    key={value}
-                    onClick={() => setSortBy(value)}
-                    className={`w-full text-left px-2 py-2 rounded-lg text-[13px] transition-colors ${
-                      sortBy === value
-                        ? 'text-primary-teal font-semibold bg-primary-teal/5'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#374151]">
+      <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        {/* Header */}
+        <div>
+          <h1 className="text-[28px] font-bold text-[#111827] tracking-tight">Find a Specialist</h1>
+          <p className="text-sm text-[#6B7280] mt-1">
+            Book OPD appointments or online video consultations with verified specialists.
+          </p>
         </div>
 
-        {/* ── DOCTOR LIST ─────────────────────────────────────── */}
-        <div className="lg:col-span-3">
-          {/* Result count + mobile sort */}
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-gray-500">
-              {loading ? 'Loading…' : `${processedDoctors.length} doctors`}
-              {selectedDept !== 'All' && !searchQuery && (
-                <span className="text-gray-400"> in {selectedDept}</span>
-              )}
-            </p>
-            {/* Mobile sort */}
+        {/* Search & Sort Panel */}
+        <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-4 flex flex-col md:flex-row gap-4 items-center justify-between shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+          <div className="relative w-full md:max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9CA3AF]" />
+            <input
+              type="text"
+              placeholder="Search by name, department, or qualification..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="w-full bg-white border border-[#E5E7EB] rounded-[12px] pl-10 pr-9 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] focus:outline-none focus:border-[#1E7F6A] focus:shadow-[0_0_0_3px_rgba(30,127,106,0.12)] transition-all duration-150"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => { setSearchQuery(''); fetchAllDoctors(); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#374151]"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end">
+            <span className="text-xs font-semibold text-[#6B7280]">Sort by:</span>
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value)}
-              className="lg:hidden text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white text-gray-600 focus:outline-none focus:border-primary-teal"
+              className="text-xs bg-white border border-[#E5E7EB] rounded-[10px] px-3 py-2 text-[#374151] focus:outline-none focus:border-[#1E7F6A] font-semibold"
             >
               {SORT_OPTIONS.map(({ value, label }) => (
                 <option key={value} value={value}>{label}</option>
               ))}
             </select>
           </div>
+        </div>
 
-          <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-            {loading ? (
-              <div className="divide-y divide-gray-50">
-                {[1, 2, 3, 4].map(i => <SkeletonRow key={i} />)}
+        {/* Content Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          {/* Sidebar Filters */}
+          <div className="lg:col-span-3 space-y-4">
+            {/* Desktop department list */}
+            <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+              <p className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mb-3">Departments</p>
+              <div className="space-y-1">
+                {departments.map(dept => (
+                  <button
+                    key={dept}
+                    onClick={() => handleDeptClick(dept)}
+                    className={`w-full text-left px-3 py-2 text-xs rounded-[8px] font-semibold transition-colors ${
+                      selectedDept === dept && !searchQuery
+                        ? 'bg-[#ECFDF5] text-[#1E7F6A]'
+                        : 'text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#374151]'
+                    }`}
+                  >
+                    {dept}
+                  </button>
+                ))}
               </div>
+            </div>
+          </div>
+
+          {/* Doctor Cards Grid */}
+          <div className="lg:col-span-9 space-y-4">
+            {loading ? (
+              [1, 2, 3, 4].map(i => <SkeletonCard key={i} />)
             ) : processedDoctors.length > 0 ? (
-              <div className="divide-y divide-gray-50">
-                {processedDoctors.map((doc) => {
-                  const { bg, text } = getAvatarColor(doc.name);
-                  return (
-                    <div
-                      key={doc.id}
-                      onClick={() => navigate(`/doctor/${doc.id}`)}
-                      className="group flex items-center gap-4 px-5 py-4 hover:bg-gray-50 cursor-pointer transition-colors"
-                    >
+              processedDoctors.map((doc) => (
+                <div
+                  key={doc.id}
+                  onClick={() => navigate(`/doctor/${doc.id}`)}
+                  className="bg-white border border-[#E5E7EB] rounded-[14px] p-5 cursor-pointer hover:border-[#D1D5DB] hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-150 group"
+                >
+                  <div className="flex flex-col md:flex-row justify-between gap-5">
+                    
+                    {/* Left: Avatar + Details */}
+                    <div className="flex items-start gap-4 min-w-0">
                       {/* Avatar */}
-                      <div className={`w-11 h-11 rounded-full ${bg} flex items-center justify-center shrink-0`}>
-                        <span className={`text-[12px] font-bold ${text}`}>
+                      <div className="w-14 h-14 rounded-[12px] bg-[#ECFDF5] border border-[#A7F3D0] flex items-center justify-center shrink-0">
+                        <span className="text-lg font-bold text-[#1E7F6A]">
                           {doc.initials || getDoctorInitials(doc.name)}
                         </span>
                       </div>
 
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
+                      {/* Doctor Info */}
+                      <div className="min-w-0 space-y-1 text-left">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-[14px] font-semibold text-gray-900 leading-snug">
+                          <h2 className="text-base font-bold text-[#111827] group-hover:text-[#1E7F6A] transition-colors duration-150">
                             {doc.name}
-                          </p>
-                          {doc.isAvailable && (
-                            <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full">
-                              Available
+                          </h2>
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#047857] bg-[#D1FAE5] px-2 py-0.5 rounded-full">
+                            <ShieldCheck className="h-3 w-3" />
+                            Verified
+                          </span>
+                        </div>
+
+                        {/* Specializations & Qualifications */}
+                        <p className="text-xs text-[#374151]">
+                          <strong className="text-[#1E7F6A]">{doc.department}</strong>
+                          {doc.qualifications ? ` · ${doc.qualifications}` : ''}
+                        </p>
+
+                        <div className="flex items-center gap-3 text-xs text-[#6B7280] flex-wrap pt-0.5">
+                          <span className="font-semibold text-[#374151]">
+                            {doc.experienceYears ? `${doc.experienceYears} Years Exp` : 'Senior Consultant'}
+                          </span>
+                          <span>·</span>
+                          <span className="flex items-center gap-1">
+                            <Languages className="h-3.5 w-3.5" />
+                            {getDoctorLanguages(doc.id)}
+                          </span>
+                        </div>
+
+                        {/* Specialization Tags */}
+                        {doc.specializations && (
+                          <div className="flex flex-wrap gap-1 pt-1.5">
+                            {doc.specializations.slice(0, 3).map((spec, i) => (
+                              <span key={i} className="text-[10px] font-semibold text-[#4B5563] bg-[#F3F4F6] px-2.5 py-0.5 rounded-full">
+                                {spec}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Hospital Location */}
+                        <div className="flex items-center gap-1.5 text-xs text-[#9CA3AF] pt-1">
+                          <MapPin className="h-3.5 w-3.5" />
+                          <span>Apollo Hospital, Jubilee Hills</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Booking Actions & Consultation Mode */}
+                    <div className="flex flex-row md:flex-col justify-between md:justify-center md:items-end items-center gap-4 shrink-0 pt-4 md:pt-0 border-t md:border-t-0 border-[#F3F4F6]">
+                      
+                      {/* Price & Rating */}
+                      <div className="text-left md:text-right">
+                        <div className="flex items-center gap-1.5 md:justify-end mb-1 text-xs">
+                          {doc.rating && (
+                            <span className="inline-flex items-center gap-0.5 font-bold text-[#111827]">
+                              <Star className="h-3 w-3 fill-[#F59E0B] text-[#F59E0B]" />
+                              {Number(doc.rating).toFixed(1)}
                             </span>
                           )}
+                          <span className="text-[#9CA3AF]">Rating</span>
                         </div>
-                        <p className="text-[12px] text-gray-500 mt-0.5 truncate">
-                          {doc.department}
-                          {doc.qualifications ? ` · ${doc.qualifications}` : ''}
-                          {doc.experienceYears ? ` · ${doc.experienceYears} yrs` : ''}
+                        <p className="text-base font-bold text-[#111827] font-mono">
+                          ₹{doc.consultationFee || 800}
                         </p>
+                        {doc.offersOnlineConsultation && (
+                          <p className="text-[10px] font-semibold text-[#0369A1] mt-0.5">
+                            Online Consult Available
+                          </p>
+                        )}
                       </div>
 
-                      {/* Rating */}
-                      {doc.rating && (
-                        <div className="flex items-center gap-1 shrink-0">
-                          <Star className="h-3 w-3 text-amber-400 fill-current" />
-                          <span className="text-[13px] font-semibold text-gray-700">{doc.rating}</span>
-                        </div>
-                      )}
-
-                      {/* Fee */}
-                      <div className="hidden sm:block text-right shrink-0">
-                        <p className="text-[14px] font-bold text-gray-900">₹{doc.consultationFee}</p>
-                      </div>
-
-                      {/* Book button */}
+                      {/* CTA button */}
                       <button
-                        onClick={e => { e.stopPropagation(); navigate(`/doctor/${doc.id}#book`); }}
-                        className="shrink-0 text-[12px] font-semibold text-white bg-primary-teal px-4 py-2 rounded-lg hover:bg-primary-dark transition-all duration-150 shadow-sm"
+                        onClick={(e) => { e.stopPropagation(); navigate(`/doctor/${doc.id}`); }}
+                        className="px-5 py-2.5 bg-[#1E7F6A] hover:bg-[#165B52] text-white text-xs font-semibold rounded-[10px] transition-colors duration-150 flex items-center gap-1"
                       >
-                        Book
+                        Book Consultation
+                        <ChevronRight className="h-4 w-4" />
                       </button>
                     </div>
-                  );
-                })}
-              </div>
+
+                  </div>
+                </div>
+              ))
             ) : (
-              <div className="py-16 text-center text-sm text-gray-400">
-                No doctors found for your selection.
+              <div className="bg-white border border-[#E5E7EB] rounded-[14px] py-16 text-center shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <p className="text-sm font-semibold text-[#374151]">No specialists match your criteria</p>
+                <p className="text-xs text-[#9CA3AF] mt-1">Try resetting the department filter or typing a different search query</p>
+                <button
+                  onClick={() => { setSelectedDept('All'); setSearchQuery(''); fetchAllDoctors(); }}
+                  className="mt-4 text-xs font-semibold text-[#1E7F6A] hover:underline"
+                >
+                  Clear all filters
+                </button>
               </div>
             )}
           </div>
+
         </div>
+
       </div>
     </div>
   );

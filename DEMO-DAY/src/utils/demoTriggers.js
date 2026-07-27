@@ -4,16 +4,18 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const validateAndFormatPhone = (phoneStr) => {
   if (!phoneStr) return null;
-  let cleaned = phoneStr.trim().replace(/[\s-()]/g, '');
+  let cleaned = String(phoneStr).trim().replace(/[\s-()]/g, '');
   if (cleaned.startsWith('whatsapp:')) {
     cleaned = cleaned.replace('whatsapp:', '');
   }
-  if (cleaned.startsWith('+91')) {
-    if (cleaned.length === 13 && /^\+91\d{10}$/.test(cleaned)) {
-      return cleaned;
-    }
-  } else if (cleaned.length === 10 && /^\d{10}$/.test(cleaned)) {
-    return '+91' + cleaned;
+  let digits = cleaned.replace(/\D/g, '');
+  if (digits.length === 12 && digits.startsWith('91')) {
+    digits = digits.slice(2);
+  } else if (digits.length === 11 && digits.startsWith('0')) {
+    digits = digits.slice(1);
+  }
+  if (digits.length === 10 && /^[6-9]\d{9}$/.test(digits)) {
+    return '+91' + digits;
   }
   return null;
 };

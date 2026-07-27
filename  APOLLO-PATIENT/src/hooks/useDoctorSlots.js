@@ -3,6 +3,11 @@ import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firesto
 import { db } from '../firebase/config';
 import { COLLECTIONS } from '../firebase/collections';
 
+const STANDARD_TIMES = [
+  "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+  "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", "04:00 PM", "05:00 PM"
+];
+
 export function useDoctorSlots() {
   const [doctor, setDoctor] = useState(null);
   const [slots, setSlots] = useState([]);
@@ -46,10 +51,40 @@ export function useDoctorSlots() {
       );
 
       const querySnapshot = await getDocs(q);
-      const docsData = querySnapshot.docs.map(doc => ({
+      let docsData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+
+      // Fallback: If no slots exist in Firestore for this date, generate standard slots
+      if (docsData.length === 0) {
+        const apptsRef = collection(db, COLLECTIONS.APPOINTMENTS);
+        const apptQ = query(
+          apptsRef,
+          where("doctorId", "==", doctorId),
+          where("appointmentDate", "==", dateString)
+        );
+        const bookedTimes = new Set();
+        try {
+          const apptSnap = await getDocs(apptQ);
+          apptSnap.forEach(d => {
+            const appt = d.data();
+            if (["confirmed", "pending", "walk-in"].includes(appt.status)) {
+              bookedTimes.add(appt.appointmentTime);
+            }
+          });
+        } catch (e) {
+          console.warn("Could not check booked appointments for fallback slots:", e);
+        }
+
+        docsData = STANDARD_TIMES.map((time) => ({
+          id: `${doctorId}_${dateString}_${time.replace(/[:\s]/g, '')}`,
+          doctorId,
+          date: dateString,
+          time,
+          isAvailable: !bookedTimes.has(time),
+        }));
+      }
 
       // Sort client-side by time
       const parseTimeToMinutes = (t) => {

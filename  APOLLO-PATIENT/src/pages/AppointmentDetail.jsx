@@ -10,7 +10,10 @@ import {
   Navigation, 
   MessageSquare, 
   Loader2, 
-  AlertTriangle 
+  AlertTriangle,
+  Video,
+  ExternalLink,
+  ChevronRight
 } from 'lucide-react';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
@@ -51,18 +54,18 @@ const formatNotificationTime = (timestamp) => {
 const getStatusClasses = (status) => {
   switch (status?.toLowerCase()) {
     case 'confirmed':
-      return 'bg-green-50 text-green-600 border-green-200';
+      return 'bg-[#ECFDF5] text-[#065F46] border-[#A7F3D0]';
     case 'pending':
-      return 'bg-amber-50 text-amber-600 border-amber-200';
+      return 'bg-[#FFFBEB] text-[#92400E] border-[#FDE68A]';
     case 'completed':
-      return 'bg-light-teal text-primary-teal border-primary-teal/10';
+      return 'bg-[#F0FDF4] text-[#166534] border-[#BBF7D0]';
     case 'cancelled':
-      return 'bg-gray-100 text-gray-500 border-gray-200';
+      return 'bg-[#F9FAFB] text-[#374151] border-[#E5E7EB]';
     case 'missed':
     case 'no_show':
-      return 'bg-red-50 text-red-600 border-red-200';
+      return 'bg-[#FEF2F2] text-[#991B1B] border-[#FCA5A5]';
     default:
-      return 'bg-gray-50 text-gray-600 border-gray-200';
+      return 'bg-[#F9FAFB] text-[#374151] border-[#E5E7EB]';
   }
 };
 
@@ -110,26 +113,42 @@ const getDefaultTimeline = (persona, leadTimeDays) => {
   }
 };
 
+// Parse scheduled time in IST / local timezone
+const getScheduledTime = (dateStr, timeStr) => {
+  if (!dateStr || !timeStr) return null;
+  try {
+    const [time, modifier] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+    if (modifier === 'PM' && hours < 12) hours += 12;
+    if (modifier === 'AM' && hours === 12) hours = 0;
+    
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day, hours, minutes, 0);
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
+
 function AppointmentDetailSkeleton() {
   return (
-    <div className="max-w-[720px] mx-auto px-5 py-8 bg-white font-sans text-text-medium animate-pulse space-y-6">
-      <div className="h-4 bg-[#f3f4f6] rounded w-24 mb-6"></div>
+    <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse space-y-6">
+      <div className="h-4 bg-[#F3F4F6] rounded w-24 mb-6"></div>
       <div className="flex justify-between items-center mb-6">
         <div className="space-y-2">
-          <div className="h-6 bg-[#f3f4f6] rounded w-48"></div>
-          <div className="h-3 bg-[#f3f4f6] rounded w-24"></div>
+          <div className="h-6 bg-[#F3F4F6] rounded w-48"></div>
+          <div className="h-3 bg-[#F3F4F6] rounded w-24"></div>
         </div>
-        <div className="h-6 bg-[#f3f4f6] rounded w-16"></div>
+        <div className="h-6 bg-[#F3F4F6] rounded w-16"></div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
-          <div className="h-40 bg-[#f3f4f6] rounded-2xl"></div>
-          <div className="h-60 bg-[#f3f4f6] rounded-2xl"></div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="h-40 bg-[#F3F4F6] rounded-[14px]"></div>
+          <div className="h-60 bg-[#F3F4F6] rounded-[14px]"></div>
         </div>
-        <div className="md:col-span-1 space-y-4">
-          <div className="h-36 bg-[#f3f4f6] rounded-2xl"></div>
-          <div className="h-24 bg-[#f3f4f6] rounded-2xl"></div>
-          <div className="h-20 bg-[#f3f4f6] rounded-2xl"></div>
+        <div className="lg:col-span-1 space-y-4">
+          <div className="h-36 bg-[#F3F4F6] rounded-[14px]"></div>
+          <div className="h-24 bg-[#F3F4F6] rounded-[14px]"></div>
         </div>
       </div>
     </div>
@@ -146,6 +165,10 @@ export default function AppointmentDetail() {
   const [doctor, setDoctor] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [error, setError] = useState('');
+
+  // Timer states for online consultation countdown
+  const [timeUntilCall, setTimeUntilCall] = useState(null);
+  const [isJoinable, setIsJoinable] = useState(false);
 
   // Cancellation states
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
@@ -203,13 +226,35 @@ export default function AppointmentDetail() {
     }
   }, [id]);
 
+  // Video call timer logic
+  useEffect(() => {
+    if (!appointment || appointment.consultationMode !== 'online' || appointment.status === 'cancelled' || appointment.status === 'completed') return;
+
+    const scheduledTime = getScheduledTime(appointment.appointmentDate, appointment.appointmentTime);
+    if (!scheduledTime) return;
+
+    const updateTimer = () => {
+      const now = new Date();
+      const diff = scheduledTime.getTime() - now.getTime();
+      setTimeUntilCall(diff);
+      
+      // Active 10 minutes before, and up to 1.5 hours after scheduled start time
+      const tenMins = 10 * 60 * 1000;
+      const ninetyMins = 90 * 60 * 1000;
+      setIsJoinable(diff <= tenMins && diff >= -ninetyMins);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [appointment]);
+
   const handleConfirmCancel = async () => {
     if (cancellingProgress) return;
     setCancellingProgress(true);
     try {
       await cancelAppointment(appointment.id, cancelReason);
       setIsCancelModalOpen(false);
-      // Reload appointment to reflect new status
       await loadData();
     } catch (e) {
       console.error(e);
@@ -218,18 +263,36 @@ export default function AppointmentDetail() {
     }
   };
 
+  const formatCountdown = (ms) => {
+    if (ms === null || ms === undefined) return '';
+    if (ms <= 0) return '';
+    
+    const totalSecs = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSecs / 3600);
+    const mins = Math.floor((totalSecs % 3600) / 60);
+    const secs = totalSecs % 60;
+    
+    if (hours > 0) {
+      return `opens in ${hours}h ${mins}m`;
+    }
+    if (mins > 0) {
+      return `opens in ${mins} minute${mins > 1 ? 's' : ''}`;
+    }
+    return `opens in ${secs} second${secs > 1 ? 's' : ''}`;
+  };
+
   if (loading) {
     return <AppointmentDetailSkeleton />;
   }
 
   if (error || !appointment) {
     return (
-      <div className="max-w-[720px] mx-auto px-5 py-20 text-center font-sans">
-        <h2 className="text-xl font-bold text-red-500 mb-2">Appointment Not Found</h2>
-        <p className="text-text-medium mb-6">The requested appointment record does not exist or has been cancelled.</p>
+      <div className="max-w-[1320px] mx-auto px-4 py-20 text-center font-sans">
+        <h2 className="text-lg font-bold text-[#DC2626] mb-2">Appointment Not Found</h2>
+        <p className="text-[#6B7280] text-sm mb-6">The requested appointment record does not exist or has been cancelled.</p>
         <button
           onClick={() => navigate('/appointments')}
-          className="bg-primary-teal text-white text-xs font-semibold px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors"
+          className="bg-[#1E7F6A] text-white text-xs font-semibold px-5 py-2.5 rounded-[10px] hover:bg-[#165B52] transition-colors"
         >
           View all appointments
         </button>
@@ -237,7 +300,6 @@ export default function AppointmentDetail() {
     );
   }
 
-  // Get dynamic timeline list
   const leadDays = appointment.leadTimeDays || 0;
   const dbTimeline = notifications.map((n, idx) => ({
     id: n.id || idx,
@@ -252,108 +314,169 @@ export default function AppointmentDetail() {
     : getDefaultTimeline(appointment.persona, leadDays);
 
   const initials = doctor?.initials || appointment.doctorName?.split(' ').pop()?.substring(0, 2).toUpperCase() || 'DR';
+  const isOnline = appointment.consultationMode === 'online';
 
   return (
-    <div className="max-w-[720px] mx-auto px-5 py-8 bg-white font-sans text-text-medium">
+    <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
       
       {/* Back link */}
       <button
         onClick={() => navigate(-1)}
-        className="inline-flex items-center space-x-1.5 text-sm font-medium text-text-light hover:text-text-dark transition-colors mb-6"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#111827] transition-all mb-6"
       >
         <ArrowLeft className="h-4 w-4" />
         <span>Back to appointments</span>
       </button>
 
-      {/* Page Title */}
-      <div className="flex justify-between items-center mb-6">
+      {/* Header title */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-display font-bold text-2xl text-text-dark">Appointment Details</h1>
-          <p className="text-xs text-text-light mt-0.5">Booking ID: {appointment.bookingId || `#${appointment.id}`}</p>
+          <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">
+            ID: {appointment.bookingId || `#${appointment.id}`}
+          </span>
+          <h1 className="text-2xl font-bold text-[#111827] tracking-tight mt-0.5">Appointment Details</h1>
         </div>
-        <span className={`px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusClasses(appointment.status)}`}>
-          {appointment.status?.toUpperCase()}
+        <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusClasses(appointment.status)}`}>
+          {appointment.status}
         </span>
       </div>
 
-      {/* GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Grid structure */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* MAIN COLUMN (2 cols on desktop) */}
-        <div className="md:col-span-2 space-y-6">
+        {/* Main Column */}
+        <div className="lg:col-span-8 space-y-6">
           
-          {/* Card: Core info */}
-          <div className="bg-white border border-border-custom rounded-2xl p-5 space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-text-light">
+          {/* Online Call Live Card */}
+          {isOnline && appointment.status !== 'cancelled' && appointment.status !== 'completed' && (
+            <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-5">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-[10px] bg-[#E0F2FE] border border-[#BAE6FD] flex items-center justify-center text-[#0284C7] shrink-0">
+                  <Video className="h-5 w-5" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-xs font-bold text-[#0284C7] uppercase tracking-wider">
+                    Tele-Consultation Lobby
+                  </p>
+                  <h3 className="text-sm font-semibold text-[#111827] mt-1">
+                    {isJoinable ? 'The doctor is ready to connect.' : 'Your virtual consultation room'}
+                  </h3>
+                  <p className="text-xs text-[#6B7280] mt-1">
+                    {isJoinable 
+                      ? 'Click join to open the secure video consultation screen. Please allow camera and microphone access when prompted.'
+                      : `The join button will activate 10 minutes prior to your slot. (${formatCountdown(timeUntilCall)})`
+                    }
+                  </p>
+
+                  <div className="mt-4 flex items-center gap-3">
+                    {isJoinable ? (
+                      <a
+                        href={appointment.videoRoomUrl || `https://apollo-opd-test.daily.co/apollo-consult-${appointment.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-4.5 py-2.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold rounded-[10px] transition-colors duration-150"
+                      >
+                        Join Video Call
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    ) : (
+                      <button
+                        disabled
+                        className="inline-flex items-center gap-1.5 px-4.5 py-2.5 bg-[#F3F4F6] text-[#9CA3AF] text-xs font-semibold rounded-[10px] cursor-not-allowed border border-[#E5E7EB]"
+                      >
+                        Join Call ({timeUntilCall > 0 ? formatCountdown(timeUntilCall) : 'opens shortly'})
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Core Visit Info Card */}
+          <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-5 space-y-4 text-left">
+            <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">
               Visit Information
             </h3>
             
-            <div className="space-y-3">
-              <div className="flex items-start space-x-3 text-xs">
-                <Calendar className="h-4 w-4 text-primary-teal shrink-0 mt-0.5" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex items-start gap-3">
+                <Calendar className="h-4 w-4 text-[#1E7F6A] shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-text-dark">{formatApptDate(appointment.appointmentDate)}</p>
-                  <p className="text-text-light mt-0.5">{appointment.appointmentTime}</p>
+                  <p className="text-xs font-bold text-[#9CA3AF] uppercase tracking-wider">Date</p>
+                  <p className="text-sm font-semibold text-[#111827] mt-0.5">{formatApptDate(appointment.appointmentDate)}</p>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-3 text-xs">
-                <MapPin className="h-4 w-4 text-primary-teal shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3">
+                <Clock className="h-4 w-4 text-[#1E7F6A] shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-text-dark">Clinic Visit</p>
-                  <p className="text-text-light mt-0.5 leading-relaxed">
-                    {appointment.room ? `${appointment.room}, ` : ''} 
-                    {doctor?.hospital || appointment.hospital || "Apollo Hospital, Jubilee Hills"}
+                  <p className="text-xs font-bold text-[#9CA3AF] uppercase tracking-wider">Time Slot</p>
+                  <p className="text-sm font-semibold text-[#111827] mt-0.5">{appointment.appointmentTime}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 sm:col-span-2">
+                <MapPin className="h-4 w-4 text-[#1E7F6A] shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-bold text-[#9CA3AF] uppercase tracking-wider">Type / Location</p>
+                  <p className="text-sm font-semibold text-[#111827] mt-0.5">
+                    {isOnline ? 'Online Video Consultation' : 'In-Person Consultation'}
+                  </p>
+                  <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed">
+                    {isOnline 
+                      ? 'Secure, browser-based video lobby. Link available on this page.' 
+                      : `${appointment.room || 'Room 302'}, ${doctor?.hospital || appointment.hospital || 'Apollo Hospital, Jubilee Hills'}`
+                    }
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Directions button */}
-            <div className="pt-2">
-              <a
-                href={`https://maps.google.com/?q=${encodeURIComponent(doctor?.hospital || appointment.hospital || 'Apollo Hospitals Jubilee Hills')}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center space-x-2 text-xs font-semibold text-primary-teal hover:underline"
-              >
-                <Navigation className="h-3.5 w-3.5" />
-                <span>Get Directions on Google Maps</span>
-              </a>
-            </div>
+            {!isOnline && (
+              <div className="pt-2 border-t border-[#F3F4F6]">
+                <a
+                  href={`https://maps.google.com/?q=${encodeURIComponent(doctor?.hospital || appointment.hospital || 'Apollo Hospital, Jubilee Hills')}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1E7F6A] hover:underline"
+                >
+                  <Navigation className="h-3.5 w-3.5" />
+                  <span>Get Directions on Google Maps</span>
+                </a>
+              </div>
+            )}
           </div>
 
-          {/* 📄 DIGITAL PRESCRIPTION & MEDICAL REPORT CARD */}
+          {/* Prescription widget */}
           <MedicalPrescriptionCard appointment={appointment} />
 
-          {/* Card: Vertical Reminder Timeline */}
+          {/* Timeline of Whatsapp notifications */}
           {appointment.status !== 'cancelled' && (
-            <div className="bg-white border border-border-custom rounded-2xl p-5">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-text-light mb-5">
-                WhatsApp Notifications Timeline
+            <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-5 text-left">
+              <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF] mb-5">
+                Communication Timeline
               </h3>
 
               <div className="relative pl-6 space-y-6 select-none">
-                {/* Vertical line connector */}
-                <div className="absolute left-[7px] top-2 bottom-2 w-[2px] bg-border-light z-0"></div>
+                <div className="absolute left-[7px] top-2 bottom-2 w-[2px] bg-[#E5E7EB] z-0"></div>
 
                 {timeline.map((step) => (
                   <div key={step.id} className="relative flex items-start gap-4">
-                    {/* Status Indicator Dot */}
                     <div className={`absolute -left-6 w-[16px] h-[16px] rounded-full border-2 bg-white flex items-center justify-center z-10 ${
-                      step.sent ? 'border-primary-teal text-primary-teal' : 'border-gray-300 text-text-light'
+                      step.sent ? 'border-[#1E7F6A] text-[#1E7F6A]' : 'border-[#D1D5DB] text-[#9CA3AF]'
                     }`}>
-                      {step.sent && <div className="w-1.5 h-1.5 rounded-full bg-primary-teal"></div>}
+                      {step.sent && <div className="w-1.5 h-1.5 rounded-full bg-[#1E7F6A]"></div>}
                     </div>
 
-                    <div className="space-y-1 w-full text-left">
+                    <div className="space-y-0.5 w-full text-left">
                       <div className="flex items-baseline justify-between flex-wrap gap-x-2">
-                        <h4 className={`text-xs font-semibold ${step.sent ? 'text-text-dark' : 'text-[#6b7280]'}`}>
+                        <h4 className={`text-xs font-semibold ${step.sent ? 'text-[#111827]' : 'text-[#9CA3AF]'}`}>
                           {step.title}
                         </h4>
-                        <span className="text-[10px] text-text-light shrink-0">{step.time}</span>
+                        <span className="text-[10px] text-[#9CA3AF] shrink-0">{step.time}</span>
                       </div>
-                      <p className="text-[11px] text-text-light leading-relaxed">
+                      <p className="text-[11px] text-[#6B7280] leading-relaxed">
                         {step.description}
                       </p>
                     </div>
@@ -364,84 +487,81 @@ export default function AppointmentDetail() {
           )}
         </div>
 
-        {/* SIDEBAR COLUMN (1 col) */}
-        <div className="md:col-span-1 space-y-4">
+        {/* Sidebar Column */}
+        <div className="lg:col-span-4 space-y-4">
           
-          {/* Doctor Summary Mini card */}
-          <div className="bg-white border border-border-custom rounded-2xl p-4 text-center">
-            <div className="w-12 h-12 rounded-full bg-light-teal flex items-center justify-center mx-auto mb-3 shrink-0">
-              <span className="text-[14px] font-semibold text-primary-teal">{initials}</span>
+          {/* Doctor Info Sidebar */}
+          <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-5 text-center">
+            <div className="w-12 h-12 rounded-[10px] bg-[#ECFDF5] border border-[#A7F3D0] flex items-center justify-center mx-auto mb-3 text-[#1E7F6A] font-bold">
+              {initials}
             </div>
-            <h4 className="text-xs font-bold text-text-dark truncate">{appointment.doctorName}</h4>
-            <p className="text-[10px] text-text-light font-medium uppercase mt-0.5">{appointment.department}</p>
-            <p className="text-[10px] text-text-light truncate mt-1">{doctor?.hospital || appointment.hospital || "Apollo Hospital"}</p>
+            <h4 className="text-sm font-semibold text-[#111827] truncate">{appointment.doctorName}</h4>
+            <p className="text-[10px] font-bold text-[#1E7F6A] uppercase tracking-wider mt-0.5">{appointment.department}</p>
+            <p className="text-xs text-[#6B7280] truncate mt-1">{doctor?.hospital || appointment.hospital || "Apollo Hospital"}</p>
             
-            <div className="border-t border-[#f3f4f6] mt-4 pt-3 flex justify-between items-center text-xs text-text-dark font-semibold">
-              <span className="text-[10px] text-text-light uppercase tracking-wider font-normal">Fee</span>
-              <span>₹{appointment.consultationFee}</span>
+            <div className="border-t border-[#F3F4F6] mt-4 pt-3 flex justify-between items-center text-xs">
+              <span className="text-[#9CA3AF] font-medium">Consultation Fee</span>
+              <span className="font-bold text-[#111827] font-mono">₹{appointment.consultationFee}</span>
             </div>
           </div>
 
-          {/* Reminder Preference widget */}
-          <div className="bg-white border border-border-custom rounded-2xl p-4 space-y-3">
-            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-text-light">
-              Alert profile
-            </h4>
-            <div className="flex items-center space-x-2 bg-light-teal px-2.5 py-1.5 rounded-lg border border-primary-teal/15">
-              <MessageSquare className="h-4 w-4 text-primary-teal" />
-              <div className="text-left">
-                <p className="text-[10px] font-semibold text-primary-teal leading-none">WhatsApp</p>
-                <p className="text-[9px] text-[#4b5563] mt-0.5 leading-none">{getPersonaLabel(appointment.persona)}</p>
+          {/* Alert Preference Widget */}
+          <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-4 space-y-3 text-left">
+            <p className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider">Alert Profile</p>
+            <div className="flex items-center gap-3 p-2.5 rounded-[8px] bg-[#F9FAFB] border border-[#E5E7EB]">
+              <MessageSquare className="h-4 w-4 text-[#1E7F6A]" />
+              <div>
+                <p className="text-xs font-semibold text-[#111827]">WhatsApp Alerts</p>
+                <p className="text-[10px] text-[#6B7280]">{getPersonaLabel(appointment.persona)}</p>
               </div>
             </div>
             <Link
               to="/profile"
-              className="text-[11px] font-semibold text-primary-teal hover:underline block text-center mt-1"
+              className="text-xs font-semibold text-[#1E7F6A] hover:underline block text-center mt-1"
             >
               Update Preferences &rarr;
             </Link>
           </div>
 
-          {/* Reschedule/Cancel buttons */}
-          {appointment.status !== 'cancelled' && (
+          {/* Cancellation Actions */}
+          {appointment.status !== 'cancelled' && appointment.status !== 'completed' && (
             <div className="space-y-2">
               <Link
                 to={`/doctor/${appointment.doctorId}?reschedule=true`}
-                className="w-full inline-block py-2.5 text-center border border-border-custom text-text-medium hover:border-[#d1d5db] bg-white rounded-lg text-xs font-semibold transition-all duration-200"
+                className="w-full block text-center py-2.5 bg-white border border-[#E5E7EB] text-[#374151] hover:border-[#D1D5DB] rounded-[10px] text-xs font-semibold transition-all duration-150"
               >
                 Reschedule appointment
               </Link>
               <button 
                 onClick={() => setIsCancelModalOpen(true)}
-                className="w-full py-2.5 text-center border border-red-200 text-red-500 hover:bg-red-55 rounded-lg text-xs font-semibold transition-all duration-200"
+                className="w-full py-2.5 text-center bg-[#FEF2F2] border border-[#FCA5A5] text-[#991B1B] hover:bg-[#FEE2E2] rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer"
               >
                 Cancel appointment
               </button>
             </div>
           )}
         </div>
-
       </div>
 
       {/* Cancellation Modal Dialog */}
       {isCancelModalOpen && (
-        <div className="fixed inset-0 bg-text-dark/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white border border-border-custom rounded-[16px] p-6 max-w-[420px] w-full space-y-4">
-            <div className="flex items-center space-x-2 text-red-600">
+        <div className="fixed inset-0 bg-[#111827]/40 flex items-center justify-center p-4 z-50">
+          <div className="bg-white border border-[#E5E7EB] rounded-[18px] p-6 max-w-[420px] w-full space-y-4 text-left shadow-lg">
+            <div className="flex items-center gap-2 text-[#DC2626]">
               <AlertTriangle className="h-5 w-5" />
-              <h3 className="text-base font-bold text-text-dark">Cancel Appointment</h3>
+              <h3 className="text-base font-bold text-[#111827]">Cancel Appointment</h3>
             </div>
             
-            <p className="text-xs text-text-medium leading-relaxed">
-              Are you sure you want to cancel your appointment with <span className="font-semibold">{appointment.doctorName}</span> on {formatApptDate(appointment.appointmentDate)}? This action cannot be undone.
+            <p className="text-xs text-[#6B7280] leading-relaxed">
+              Are you sure you want to cancel your appointment with <span className="font-semibold text-[#111827]">{appointment.doctorName}</span> on {formatApptDate(appointment.appointmentDate)}? This action cannot be undone.
             </p>
 
-            <div className="text-xs space-y-1">
-              <label className="block text-text-light font-semibold">Select reason for cancellation:</label>
+            <div className="text-xs space-y-1.5">
+              <label className="block text-[#6B7280] font-semibold">Select reason for cancellation:</label>
               <select
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
-                className="w-full px-3 py-2 border border-border-custom bg-white rounded-lg focus:outline-none focus:border-primary-teal"
+                className="w-full px-3 py-2 border border-[#E5E7EB] bg-white rounded-[10px] focus:outline-none focus:border-[#1E7F6A] text-xs"
               >
                 <option>Change of plans</option>
                 <option>Doctor unavailable</option>
@@ -451,21 +571,21 @@ export default function AppointmentDetail() {
               </select>
             </div>
 
-            <div className="flex justify-end space-x-3 pt-3 border-t border-[#f3f4f6] text-xs">
+            <div className="flex justify-end gap-3 pt-3 border-t border-[#F3F4F6] text-xs">
               <button
                 onClick={() => setIsCancelModalOpen(false)}
                 disabled={cancellingProgress}
-                className="px-4 py-2 border border-border-custom text-text-medium rounded-lg hover:bg-bg-subtle transition-colors"
+                className="px-4 py-2 border border-[#E5E7EB] text-[#374151] rounded-[10px] hover:bg-[#F9FAFB] transition-colors"
               >
                 Go Back
               </button>
               <button
                 onClick={handleConfirmCancel}
                 disabled={cancellingProgress}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold flex items-center space-x-1.5 transition-colors"
+                className="px-4 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded-[10px] font-semibold flex items-center gap-1.5 transition-colors"
               >
                 {cancellingProgress ? (
-                  <Loader2 className="h-4.5 w-4.5 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <span>Cancel Appointment</span>
                 )}

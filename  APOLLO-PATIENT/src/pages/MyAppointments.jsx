@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Bell, CheckCircle, Loader2, AlertTriangle, ChevronRight, Clock, MapPin } from 'lucide-react';
+import { Calendar, Bell, CheckCircle, Loader2, AlertTriangle, ChevronRight, Clock, MapPin, Video } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useAppointments } from '../hooks/useAppointments';
 
@@ -13,23 +13,23 @@ const formatApptDate = (dateStr) => {
   } catch { return dateStr; }
 };
 
-const STATUS_STYLES = {
-  confirmed:  { dot: 'bg-emerald-500', text: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-100' },
-  pending:    { dot: 'bg-amber-400',   text: 'text-amber-700',   bg: 'bg-amber-50 border-amber-100'   },
-  completed:  { dot: 'bg-teal-500',    text: 'text-teal-700',    bg: 'bg-teal-50 border-teal-100'     },
-  cancelled:  { dot: 'bg-gray-400',    text: 'text-gray-500',    bg: 'bg-gray-50 border-gray-100'     },
-  no_show:    { dot: 'bg-red-400',     text: 'text-red-600',     bg: 'bg-red-50 border-red-100'       },
+const getStatusClasses = (status) => {
+  switch (status?.toLowerCase()) {
+    case 'confirmed':
+      return 'bg-[#ECFDF5] text-[#065F46] border-[#A7F3D0]';
+    case 'pending':
+      return 'bg-[#FFFBEB] text-[#92400E] border-[#FDE68A]';
+    case 'completed':
+      return 'bg-[#F0FDF4] text-[#166534] border-[#BBF7D0]';
+    case 'cancelled':
+      return 'bg-[#F9FAFB] text-[#374151] border-[#E5E7EB]';
+    case 'missed':
+    case 'no_show':
+      return 'bg-[#FEF2F2] text-[#991B1B] border-[#FCA5A5]';
+    default:
+      return 'bg-[#F9FAFB] text-[#374151] border-[#E5E7EB]';
+  }
 };
-const getStatus = (s) => STATUS_STYLES[s?.toLowerCase()] || STATUS_STYLES.pending;
-
-const AVATAR_COLORS = [
-  { bg: 'bg-violet-100', text: 'text-violet-700' },
-  { bg: 'bg-sky-100',    text: 'text-sky-700'    },
-  { bg: 'bg-amber-100',  text: 'text-amber-700'  },
-  { bg: 'bg-rose-100',   text: 'text-rose-700'   },
-  { bg: 'bg-teal-100',   text: 'text-teal-700'   },
-];
-const getAvatarColor = (name = '') => AVATAR_COLORS[(name.charCodeAt(0) || 0) % AVATAR_COLORS.length];
 
 const getPersonaLabel = (p) => ({
   working_professional: 'Working Professional',
@@ -58,19 +58,19 @@ const getRemindersList = (persona, leadTimeDays) => {
 
 function SkeletonCard() {
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-5 animate-pulse space-y-3">
+    <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-5 animate-pulse space-y-3">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-gray-100 shrink-0" />
+        <div className="w-10 h-10 rounded-[10px] bg-[#F3F4F6] shrink-0" />
         <div className="space-y-1.5 flex-1">
-          <div className="h-3.5 bg-gray-100 rounded w-36" />
-          <div className="h-3 bg-gray-100 rounded w-24" />
+          <div className="h-3.5 bg-[#F3F4F6] rounded w-36" />
+          <div className="h-3 bg-[#F3F4F6] rounded w-24" />
         </div>
-        <div className="h-5 bg-gray-100 rounded-full w-20" />
+        <div className="h-5 bg-[#F3F4F6] rounded-full w-20" />
       </div>
-      <div className="h-px bg-gray-100" />
+      <div className="h-px bg-[#F3F4F6]" />
       <div className="flex gap-6">
-        <div className="h-3 bg-gray-100 rounded w-28" />
-        <div className="h-3 bg-gray-100 rounded w-20" />
+        <div className="h-3 bg-[#F3F4F6] rounded w-28" />
+        <div className="h-3 bg-[#F3F4F6] rounded w-20" />
       </div>
     </div>
   );
@@ -102,199 +102,212 @@ export default function MyAppointments() {
   };
 
   return (
-    <div className="max-w-[760px] mx-auto px-5 py-7">
+    <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#374151]">
+      <div className="max-w-[760px] mx-auto px-4 py-8 space-y-6">
 
-      {/* ── HEADER ──────────────────────────────────────────────── */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">My Appointments</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage your upcoming and past visits.</p>
-      </div>
+        {/* Header */}
+        <div>
+          <h1 className="text-[28px] font-bold text-[#111827] tracking-tight">My Appointments</h1>
+          <p className="text-sm text-[#6B7280] mt-1">Manage and track your upcoming and past medical consultations.</p>
+        </div>
 
-      {/* ── TAB SWITCHER ─────────────────────────────────────────── */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit mb-7">
-        {[
-          { id: 'upcoming', label: `Upcoming${!loading ? ` (${upcoming.length})` : ''}` },
-          { id: 'past',     label: `Past${!loading ? ` (${past.length})` : ''}` },
-        ].map(({ id, label }) => (
-          <button
-            key={id}
-            onClick={() => setActiveTab(id)}
-            className={`px-5 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-              activeTab === id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+        {/* Tab selector */}
+        <div className="flex gap-1.5 border-b border-[#E5E7EB] pb-px">
+          {[
+            { id: 'upcoming', label: `Upcoming${!loading ? ` (${upcoming.length})` : ''}` },
+            { id: 'past',     label: `Past Visits${!loading ? ` (${past.length})` : ''}` },
+          ].map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all duration-150 -mb-px ${
+                activeTab === id
+                  ? 'border-[#1E7F6A] text-[#1E7F6A] font-bold'
+                  : 'border-transparent text-[#6B7280] hover:text-[#374151] hover:border-[#D1D5DB]'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
-      {/* ── LIST ─────────────────────────────────────────────────── */}
-      <div className="space-y-3">
-        {loading && list.length === 0 ? (
-          <> <SkeletonCard /> <SkeletonCard /> </>
-        ) : list.length > 0 ? (
-          list.map((appt, idx) => {
-            const { bg, text } = getAvatarColor(appt.doctorName || '');
-            const initials = (appt.doctorName || 'DR').replace(/^Dr\.\s+/i, '').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-            const st = getStatus(appt.status);
-            const reminders = getRemindersList(appt.persona, appt.leadTimeDays || 0);
-            const isUpcoming = activeTab === 'upcoming';
-            const isFirst = idx === 0 && isUpcoming && upcoming.length > 0;
+        {/* List content */}
+        <div className="space-y-4">
+          {loading && list.length === 0 ? (
+            <>
+              <SkeletonCard />
+              <SkeletonCard />
+            </>
+          ) : list.length > 0 ? (
+            list.map((appt, idx) => {
+              const initials = (appt.doctorName || 'DR').replace(/^Dr\.\s+/i, '').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+              const reminders = getRemindersList(appt.persona, appt.leadTimeDays || 0);
+              const isUpcoming = activeTab === 'upcoming';
+              const isFirst = idx === 0 && isUpcoming && upcoming.length > 0;
+              const isOnline = appt.consultationMode === 'online';
 
-            return (
-              <div
-                key={appt.id}
-                className={`bg-white border rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-md ${
-                  isFirst
-                    ? 'border-primary-teal/30 ring-1 ring-primary-teal/10'
-                    : 'border-gray-200'
-                }`}
-              >
-                {/* ── Top strip (upcoming highlight) */}
-                {isFirst && (
-                  <div className="bg-primary-teal/5 border-b border-primary-teal/10 px-5 py-2 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary-teal animate-pulse" />
-                    <span className="text-[11px] font-semibold text-primary-teal uppercase tracking-wider">
-                      Next Visit
-                    </span>
-                  </div>
-                )}
-
-                <div className="px-5 py-4">
-                  {/* ── Doctor row */}
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full ${bg} flex items-center justify-center shrink-0`}>
-                      <span className={`text-[12px] font-bold ${text}`}>{initials}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[14px] font-semibold text-gray-900 leading-snug">{appt.doctorName}</p>
-                      <p className="text-[12px] text-gray-500 truncate">{appt.department} · Apollo Hospital</p>
-                    </div>
-                    {/* Status pill */}
-                    <span className={`text-[10.5px] font-semibold border px-2.5 py-1 rounded-full capitalize ${st.bg} ${st.text}`}>
-                      <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1 ${st.dot}`} />
-                      {appt.status}
-                    </span>
-                  </div>
-
-                  {/* ── Date / Time / Persona row */}
-                  <div className="flex flex-wrap gap-4 mt-3.5 text-xs text-gray-500">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                      <span className="font-medium text-gray-700">{formatApptDate(appt.appointmentDate)}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5 text-gray-400" />
-                      <span className="font-medium text-gray-700">{appt.appointmentTime}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Bell className="h-3.5 w-3.5 text-gray-400" />
-                      <span>{getPersonaLabel(appt.persona)} reminders</span>
-                    </div>
-                  </div>
-
-                  {/* ── Reminder timeline (upcoming only) */}
-                  {appt.status !== 'cancelled' && isUpcoming && (
-                    <div className="mt-4 pt-3.5 border-t border-gray-50">
-                      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
-                        WhatsApp Reminders
-                      </p>
-                      <div className="flex items-center gap-0">
-                        {reminders.map((rem, i) => (
-                          <React.Fragment key={i}>
-                            <div className="flex flex-col items-center">
-                              <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                                rem.sent ? 'bg-primary-teal' : 'bg-gray-100'
-                              }`}>
-                                {rem.sent
-                                  ? <CheckCircle className="h-3 w-3 text-white stroke-[2.5]" />
-                                  : <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
-                                }
-                              </div>
-                              <span className={`text-[9px] font-medium mt-1 ${rem.sent ? 'text-primary-teal' : 'text-gray-400'}`}>
-                                {rem.label}
-                              </span>
-                            </div>
-                            {i < reminders.length - 1 && (
-                              <div className={`flex-1 h-px mx-1 mb-4 ${
-                                reminders[i + 1].sent ? 'bg-primary-teal' : 'bg-gray-200'
-                              }`} />
-                            )}
-                          </React.Fragment>
-                        ))}
-                      </div>
+              return (
+                <div
+                  key={appt.id}
+                  className={`bg-white border rounded-[14px] overflow-hidden transition-all duration-150 ${
+                    isFirst
+                      ? 'border-[#1E7F6A] shadow-[0_2px_12px_rgba(30,127,106,0.06)]'
+                      : 'border-[#E5E7EB]'
+                  }`}
+                >
+                  {/* Next Visit Banner */}
+                  {isFirst && (
+                    <div className="bg-[#ECFDF5] border-b border-[#A7F3D0] px-5 py-2 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#1E7F6A] animate-pulse" />
+                      <span className="text-[10px] font-bold text-[#1E7F6A] uppercase tracking-wider">
+                        Next Scheduled Visit
+                      </span>
                     </div>
                   )}
 
-                  {/* ── Actions row */}
-                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-50">
-                    <Link
-                      to={`/appointment/${appt.id}`}
-                      className="text-[12.5px] font-semibold text-primary-teal flex items-center gap-0.5 hover:text-primary-dark transition-colors"
-                    >
-                      View Details <ChevronRight className="h-3.5 w-3.5" />
-                    </Link>
-                    {isUpcoming && appt.status !== 'cancelled' && (
-                      <div className="flex items-center gap-4 text-[12.5px]">
-                        <Link to={`/doctor/${appt.doctorId}`} className="text-gray-400 hover:text-gray-600 transition-colors">
-                          Reschedule
-                        </Link>
-                        <button
-                          onClick={(e) => { e.preventDefault(); setApptToCancel(appt); }}
-                          className="text-red-400 hover:text-red-600 transition-colors"
-                        >
-                          Cancel
-                        </button>
+                  <div className="p-5 space-y-4">
+                    {/* Doctor Info Row */}
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-[10px] bg-[#ECFDF5] border border-[#A7F3D0] flex items-center justify-center shrink-0">
+                          <span className="text-xs font-bold text-[#1E7F6A]">{initials}</span>
+                        </div>
+                        <div className="min-w-0 text-left">
+                          <p className="text-sm font-bold text-[#111827] leading-snug">{appt.doctorName}</p>
+                          <p className="text-xs text-[#6B7280]">{appt.department} · Apollo Hospital</p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1.5 shrink-0">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusClasses(appt.status)}`}>
+                          {appt.status}
+                        </span>
+                        {isOnline && appt.status !== 'cancelled' && (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-bold text-[#0369A1] bg-[#E0F2FE] px-2 py-0.5 rounded-full border border-[#BAE6FD]">
+                            <Video className="h-2.5 w-2.5" />
+                            Video Call
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Date/Time info */}
+                    <div className="flex flex-wrap gap-4 text-xs text-[#6B7280] pt-1">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5 text-[#9CA3AF]" />
+                        <span className="font-semibold text-[#374151]">{formatApptDate(appt.appointmentDate)}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-[#9CA3AF]" />
+                        <span className="font-semibold text-[#374151]">{appt.appointmentTime}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Bell className="h-3.5 w-3.5 text-[#9CA3AF]" />
+                        <span>{getPersonaLabel(appt.persona)} alerts</span>
+                      </div>
+                    </div>
+
+                    {/* Timeline of reminders (upcoming only) */}
+                    {appt.status !== 'cancelled' && appt.status !== 'completed' && isUpcoming && (
+                      <div className="pt-3 border-t border-[#F3F4F6]">
+                        <p className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mb-2.5">
+                          Reminders Dispatch
+                        </p>
+                        <div className="flex items-center gap-0 w-full max-w-md">
+                          {reminders.map((rem, i) => (
+                            <React.Fragment key={i}>
+                              <div className="flex flex-col items-center shrink-0">
+                                <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
+                                  rem.sent ? 'bg-[#1E7F6A]' : 'bg-[#F3F4F6]'
+                                }`}>
+                                  {rem.sent && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                </div>
+                                <span className={`text-[9px] font-semibold mt-1 ${rem.sent ? 'text-[#1E7F6A]' : 'text-[#9CA3AF]'}`}>
+                                  {rem.label}
+                                </span>
+                              </div>
+                              {i < reminders.length - 1 && (
+                                <div className={`flex-1 h-0.5 mx-1 mb-4 ${
+                                  reminders[i + 1].sent ? 'bg-[#1E7F6A]' : 'bg-[#F3F4F6]'
+                                }`} />
+                              )}
+                            </React.Fragment>
+                          ))}
+                        </div>
                       </div>
                     )}
+
+                    {/* Actions Row */}
+                    <div className="flex items-center justify-between pt-3 border-t border-[#F3F4F6] text-xs">
+                      <Link
+                        to={`/appointment/${appt.id}`}
+                        className="font-semibold text-[#1E7F6A] flex items-center gap-0.5 hover:underline"
+                      >
+                        View Details <ChevronRight className="h-3.5 w-3.5" />
+                      </Link>
+
+                      {isUpcoming && appt.status !== 'cancelled' && appt.status !== 'completed' && (
+                        <div className="flex items-center gap-4">
+                          <Link to={`/doctor/${appt.doctorId}?reschedule=true`} className="font-semibold text-[#6B7280] hover:text-[#374151]">
+                            Reschedule
+                          </Link>
+                          <button
+                            onClick={(e) => { e.preventDefault(); setApptToCancel(appt); }}
+                            className="font-semibold text-[#DC2626] hover:text-[#B91C1C] cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
                   </div>
                 </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="py-16 text-center border border-gray-200 rounded-2xl bg-white">
-            <Calendar className="h-8 w-8 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm font-medium text-gray-600">No {activeTab} appointments</p>
-            <p className="text-xs text-gray-400 mt-1">
-              {activeTab === 'upcoming'
-                ? 'Book a consultation to get started.'
-                : 'Past visits will appear here.'}
-            </p>
-            {activeTab === 'upcoming' && (
-              <Link
-                to="/doctors"
-                className="inline-block mt-4 bg-primary-teal text-white text-xs font-semibold px-5 py-2.5 rounded-xl hover:bg-primary-dark transition-all"
-              >
-                Find a Doctor
-              </Link>
-            )}
-          </div>
-        )}
+              );
+            })
+          ) : (
+            <div className="py-16 text-center border border-[#E5E7EB] rounded-[14px] bg-white">
+              <Calendar className="h-8 w-8 text-[#9CA3AF] mx-auto mb-3" />
+              <p className="text-sm font-semibold text-[#374151]">No {activeTab} appointments</p>
+              <p className="text-xs text-[#9CA3AF] mt-1">
+                {activeTab === 'upcoming'
+                  ? 'Schedule an appointment to consult with our specialists.'
+                  : 'Your past consultations will appear here.'}
+              </p>
+              {activeTab === 'upcoming' && (
+                <Link
+                  to="/doctors"
+                  className="inline-block mt-4 bg-[#1E7F6A] hover:bg-[#165B52] text-white text-xs font-semibold px-5 py-2.5 rounded-[10px] transition-colors"
+                >
+                  Book Appointment
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
+
       </div>
 
-      {/* ── CANCEL MODAL ────────────────────────────────────────── */}
+      {/* Cancellation dialog */}
       {apptToCancel && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-[400px] w-full shadow-xl">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
-              </div>
-              <h3 className="text-[15px] font-bold text-gray-900">Cancel Appointment</h3>
+        <div className="fixed inset-0 bg-[#111827]/40 flex items-center justify-center p-4 z-50">
+          <div className="bg-white border border-[#E5E7EB] rounded-[18px] p-6 max-w-[400px] w-full space-y-4 text-left shadow-lg">
+            <div className="flex items-center gap-2 text-[#DC2626]">
+              <AlertTriangle className="h-5 w-5" />
+              <h3 className="text-base font-bold text-[#111827]">Cancel Appointment</h3>
             </div>
-            <p className="text-sm text-gray-600 leading-relaxed mb-4">
-              Cancel appointment with <span className="font-semibold text-gray-800">{apptToCancel.doctorName}</span> on{' '}
-              {formatApptDate(apptToCancel.appointmentDate)}? This cannot be undone.
+            
+            <p className="text-xs text-[#6B7280] leading-relaxed">
+              Cancel your appointment with <span className="font-semibold text-[#111827]">{apptToCancel.doctorName}</span> on{' '}
+              {formatApptDate(apptToCancel.appointmentDate)}? This action cannot be undone.
             </p>
-            <div className="mb-4">
-              <label className="text-xs font-semibold text-gray-500 block mb-1.5">Reason</label>
+
+            <div className="text-xs space-y-1.5">
+              <label className="block text-[#6B7280] font-semibold">Select reason for cancellation:</label>
               <select
                 value={cancelReason}
                 onChange={e => setCancelReason(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-700 bg-white focus:outline-none focus:border-primary-teal"
+                className="w-full px-3 py-2 border border-[#E5E7EB] bg-white rounded-[10px] focus:outline-none focus:border-[#1E7F6A] text-xs"
               >
                 <option>Change of plans</option>
                 <option>Doctor unavailable</option>
@@ -303,20 +316,21 @@ export default function MyAppointments() {
                 <option>Other</option>
               </select>
             </div>
-            <div className="flex gap-3">
+
+            <div className="flex gap-3 pt-2">
               <button
                 onClick={() => setApptToCancel(null)}
                 disabled={cancellingProgress}
-                className="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2 border border-[#E5E7EB] text-[#374151] rounded-[10px] hover:bg-[#F9FAFB] transition-colors text-xs font-semibold"
               >
                 Go Back
               </button>
               <button
                 onClick={handleConfirmCancel}
                 disabled={cancellingProgress}
-                className="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
+                className="flex-1 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded-[10px] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
               >
-                {cancellingProgress ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Cancel Appointment'}
+                {cancellingProgress ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Confirm Cancel'}
               </button>
             </div>
           </div>

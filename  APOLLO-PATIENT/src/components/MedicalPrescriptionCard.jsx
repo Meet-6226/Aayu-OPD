@@ -19,11 +19,14 @@ import { Link } from 'react-router-dom';
 
 export default function MedicalPrescriptionCard({ appointment }) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [showDemoPreview, setShowDemoPreview] = useState(false);
 
-  // Use dynamic prescription data if saved in appointment document, otherwise fall back to demo mock data
-  const prescriptionData = appointment?.prescription || {
+  const hasRealPrescription = Boolean(appointment?.prescription);
+
+  // Default demo data only shown if user clicks "Preview Sample Prescription"
+  const demoMockPrescription = {
     rxNumber: 'APO-2026-9812',
-    date: appointment?.appointmentDate || '2026-07-22',
+    date: appointment?.appointmentDate || '2026-07-25',
     doctorName: appointment?.doctorName || 'Dr. Arvind Mehta',
     department: appointment?.department || 'Cardiology',
     hospital: appointment?.hospital || 'Apollo Hospital, Jubilee Hills',
@@ -57,16 +60,6 @@ export default function MedicalPrescriptionCard({ appointment }) {
         duration: '30 Days',
         instructions: 'Do not skip dinner',
         badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200'
-      },
-      {
-        name: 'Vitamin D3 (60,000 IU)',
-        type: 'Sachet',
-        dosage: '1 Sachet in Milk',
-        timing: 'Sunday Morning',
-        frequency: 'Once a week',
-        duration: '4 Weeks',
-        instructions: 'Mix thoroughly in warm milk',
-        badgeColor: 'bg-amber-50 text-amber-700 border-amber-200'
       }
     ],
     followUp: {
@@ -77,15 +70,56 @@ export default function MedicalPrescriptionCard({ appointment }) {
     precautions: [
       { rule: 'Avoid extra table salt', detail: 'Limit total daily salt intake under 5 grams.' },
       { rule: 'Avoid deep-fried & junk food', detail: 'Helps control BP and cholesterol levels.' },
-      { rule: 'Avoid caffeine near meds', detail: 'Do not drink tea/coffee within 2 hours of taking medication.' },
-      { rule: 'Hydration Goal', detail: 'Drink minimum 3.5 Liters of water daily.' },
-      { rule: 'Daily Exercise', detail: '30 minutes light morning brisk walk daily.' }
+      { rule: 'Hydration Goal', detail: 'Drink minimum 3.5 Liters of water daily.' }
     ]
   };
+
+  const prescriptionData = hasRealPrescription ? appointment.prescription : (showDemoPreview ? demoMockPrescription : null);
 
   const handlePrint = () => {
     window.print();
   };
+
+  // ── EMPTY STATE FOR NEW USERS / PATIENTS WITHOUT PRESCRIPTIONS ──
+  if (!prescriptionData) {
+    return (
+      <div className="bg-white border-2 border-dashed border-teal-200 rounded-3xl p-8 sm:p-10 text-center space-y-5 shadow-xs my-3">
+        <div className="w-16 h-16 rounded-2xl bg-teal-50 text-teal-800 flex items-center justify-center mx-auto border border-teal-100 shadow-xs">
+          <Stethoscope className="h-8 w-8" />
+        </div>
+
+        <div className="max-w-md mx-auto space-y-2">
+          <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-full text-xs font-bold font-mono">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Real-time OPD Sync Listening...</span>
+          </div>
+
+          <h3 className="text-xl font-bold text-gray-900 font-display">
+            No Digital Prescription Available Yet
+          </h3>
+          <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
+            You don't have an issued prescription yet. As soon as your consulting doctor creates and dispatches your prescription from the Doctor OPD Studio, it will instantly appear here in real time.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <Link
+            to="/doctors"
+            className="w-full sm:w-auto px-6 py-2.5 bg-teal-900 hover:bg-teal-950 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2"
+          >
+            <Calendar className="h-4 w-4" />
+            <span>Book Doctor Consultation</span>
+          </Link>
+          <button
+            onClick={() => setShowDemoPreview(true)}
+            className="w-full sm:w-auto px-5 py-2.5 bg-gray-50 hover:bg-gray-100 text-teal-900 border border-gray-200 font-semibold text-xs rounded-xl transition-all"
+          >
+            Preview Sample Rx Format
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#fcfbf9] border border-[#e2dcd0] rounded-2xl overflow-hidden shadow-md my-2 font-sans relative">
