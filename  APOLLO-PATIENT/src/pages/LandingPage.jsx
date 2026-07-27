@@ -250,30 +250,30 @@ export default function LandingPage() {
         </div>
       </div>
     )}
-    <div ref={pageContainerRef} className="min-h-screen bg-white text-[#3B4452] font-inter selection:bg-white selection:text-[#1E7F6A]">
+    <div ref={pageContainerRef} className="min-h-screen bg-[#F8FAFC] text-[#334155] font-sans selection:bg-[#ccfbf1] selection:text-[#0f766e] antialiased">
       
-      {/* SECTION 1 — SCROLL-AWARE DYNAMIC HERITAGE NAVBAR */}
+      {/* SECTION 1 — SCROLL-AWARE DYNAMIC ENTERPRISE NAVBAR */}
       <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
         isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-md shadow-[#1E7F6A]/5 border-b border-[#E8ECEF]'
-          : 'bg-white/80 backdrop-blur-sm border-b border-[#E8ECEF]/60'
+          ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-[#E2E8F0]'
+          : 'bg-white/80 backdrop-blur-sm border-b border-[#E2E8F0]/60'
       }`}>
-        <div className={`max-w-[1280px] mx-auto px-6 md:px-10 flex items-center justify-between font-inter transition-all duration-300 ${
+        <div className={`max-w-[1280px] mx-auto px-6 md:px-10 flex items-center justify-between transition-all duration-300 ${
           isScrolled ? 'h-14 sm:h-15' : 'h-16 sm:h-18'
         }`}>
           
-          {/* Left Logo — Aether OPD */}
+          {/* Left Logo — CareFlow */}
           <Link to="/" className="flex items-center select-none shrink-0">
-            <BrandLogo height={44} />
+            <BrandLogo height={28} />
           </Link>
 
-          {/* Center Nav Links — Scroll-Aware Active Section Tracking */}
-          <div className="hidden lg:flex items-center space-x-2 text-[13.5px] font-medium text-[#3B4452]">
+          {/* Center Nav Links */}
+          <div className="hidden lg:flex items-center space-x-1 text-xs font-semibold text-[#64748B]">
             {[
-              { id: 'problem', label: 'Problem' },
-              { id: 'comparison', label: 'Showdown' },
+              { id: 'problem', label: 'Overview' },
+              { id: 'comparison', label: 'Metrics' },
               { id: 'solution', label: 'Solution' },
-              { id: 'workflow', label: 'Journey' },
+              { id: 'workflow', label: 'Process' },
               { id: 'features', label: 'Features' },
               { id: 'results', label: 'Impact' },
               { id: 'faq', label: 'FAQ' }
@@ -283,10 +283,10 @@ export default function LandingPage() {
                 <a
                   key={link.id}
                   href={`#${link.id}`}
-                  className={`px-3 py-1 rounded-full transition-all duration-200 ${
+                  className={`px-3 py-1.5 rounded-[8px] transition-all duration-200 ${
                     isActive
-                      ? 'bg-[#1E7F6A] text-white font-bold shadow-2xs'
-                      : 'hover:text-[#1E7F6A] hover:bg-white/60 text-[#3B4452]'
+                      ? 'bg-[#F1F5F9] text-[#0F172A] font-bold'
+                      : 'hover:text-[#0F172A] hover:bg-[#F8FAFC] text-[#64748B]'
                   }`}
                 >
                   {link.label}
@@ -295,22 +295,22 @@ export default function LandingPage() {
             })}
           </div>
 
-          {/* Right Actions — Tailored & Crisp */}
-          <div className="flex items-center space-x-6 text-[13.5px]">
+          {/* Right Actions */}
+          <div className="flex items-center space-x-4 text-xs font-semibold">
             <a
               href="https://apollo-opd-staff.vercel.app/staff/login"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:inline-block font-medium text-[#3B4452] hover:text-[#1E7F6A] transition-colors duration-200"
+              className="hidden sm:inline-block text-[#64748B] hover:text-[#0F172A] transition-colors duration-150"
             >
-              Staff Login
+              Staff Portal
             </a>
 
             <Link
               to="/login"
-              className="px-5 py-2 bg-[#1E7F6A] hover:bg-[#165B52] text-white font-semibold text-[13.5px] rounded-[8px] transition-all duration-200 shadow-2xs hover:shadow-xs active:scale-[0.98]"
+              className="px-4 py-2 bg-[#0f766e] hover:bg-[#0d5a54] text-white font-bold rounded-[8px] transition-all duration-150 shadow-sm active:scale-[0.98]"
             >
-              Book Visit
+              Launch Portal
             </Link>
           </div>
 
@@ -318,70 +318,70 @@ export default function LandingPage() {
 
         {/* Scroll Progress Indicator Bar */}
         <div
-          className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#1E7F6A] via-white to-[#1E7F6A] transition-all duration-150"
+          className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#0f766e] via-teal-400 to-[#0f766e] transition-all duration-150"
           style={{ width: `${scrollProgress}%` }}
         />
       </header>
 
-      {/* SECTION 2 — HERO WITH LIVING PULSE NETWORK 3D CANVAS */}
-      <section className="relative pt-[104px] pb-[48px] lg:pt-[136px] lg:pb-[96px] bg-white overflow-hidden">
+      {/* SECTION 2 — HERO WITH LIVING PULSE NETWORK */}
+      <section className="relative pt-[104px] pb-[48px] lg:pt-[136px] lg:pb-[96px] bg-[#F8FAFC] overflow-hidden border-b border-[#E2E8F0]">
         <div className="max-w-[1280px] mx-auto px-6 md:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 xl:gap-20 items-center">
             
-            {/* LEFT COLUMN (42% Width on Desktop) */}
+            {/* LEFT COLUMN */}
             <div className="lg:col-span-5 flex flex-col items-start text-left z-20">
               
-              {/* 2 & 3. Main Headline — Clip-path masked 2 lines */}
-              <h1 className="font-fraunces font-[620] text-[44px] sm:text-[64px] lg:text-[88px] leading-[1.05] tracking-[-0.01em] text-[#182033]">
+              {/* Main Headline */}
+              <h1 className="font-sans font-black text-[38px] sm:text-[54px] lg:text-[68px] leading-[1.1] tracking-tight text-[#0F172A]">
                 <span ref={headlineLine1Ref} className="block overflow-hidden pb-1">
-                  Your appointment.
+                  Predictive Hospital
                 </span>
                 <span ref={headlineLine2Ref} className="block overflow-hidden pb-1">
-                  <span className="text-[#1E7F6A]">Remembered</span> before you forget it.
+                  Operations <span className="text-[#0f766e]">Intelligence</span>.
                 </span>
               </h1>
 
-              {/* 4. Subtitle — Inter 19px, max-w-[420px] (650ms load sequence) */}
-              <p ref={subtitleRef} className="text-[19px] text-[#3B4452] leading-[1.6] max-w-[420px] mt-6 font-inter">
-                We watch for the signals that predict a missed visit — distance, weather, timing — and step in before it happens. Quietly, on WhatsApp, in your language.
+              {/* Subtitle */}
+              <p ref={subtitleRef} className="text-sm sm:text-base text-[#475569] leading-relaxed max-w-[420px] mt-6 font-medium">
+                CareFlow works as an intelligence layer on top of your existing hospital software to predict patient no-shows, optimize doctor schedules, and recover lost clinic time automatically.
               </p>
 
-              {/* 5. CTA Buttons (850ms load sequence) */}
-              <div ref={ctaButtonRef} className="flex flex-wrap items-center gap-4 mt-8 w-full sm:w-auto font-inter">
+              {/* CTA Buttons */}
+              <div ref={ctaButtonRef} className="flex flex-wrap items-center gap-3.5 mt-8 w-full sm:w-auto">
                 <Link
                   to="/login"
-                  className="flex items-center justify-center space-x-2.5 px-[28px] py-[14px] bg-[#1E7F6A] text-white text-[16px] font-[560] rounded-[6px] hover:bg-[#165B52] hover:tracking-wider transition-all duration-200 shadow-md shadow-[#1E7F6A]/15"
+                  className="flex items-center justify-center space-x-2 px-6 py-3 bg-[#0f766e] text-white text-xs font-bold rounded-[8px] hover:bg-[#0d5a54] transition-all duration-150 shadow-sm shadow-[#0f766e]/10"
                 >
-                  <span>Book your visit</span>
-                  <ArrowRight className="h-4 w-4" />
+                  <span>Open Portal</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
 
                 <button
                   onClick={() => setShowVideoModal(true)}
-                  className="flex items-center justify-center space-x-2 px-5 py-[14px] bg-white text-[#182033] border border-[#1E7F6A]/20 font-medium text-sm rounded-[6px] hover:bg-white/80 transition-all duration-150 cursor-pointer shadow-sm"
+                  className="flex items-center justify-center space-x-2 px-5 py-3 bg-white text-[#0F172A] border border-[#E2E8F0] hover:bg-[#F8FAFC] font-bold text-xs rounded-[8px] transition-all duration-150 cursor-pointer shadow-sm"
                 >
-                  <Play className="h-3.5 w-3.5 fill-current text-[#1E7F6A]" />
-                  <span>Watch Video Demo</span>
+                  <Play className="h-3 w-3 fill-current text-[#0f766e]" />
+                  <span>Platform Walkthrough</span>
                 </button>
               </div>
 
               {/* Trust Badges */}
-              <div className="flex flex-wrap gap-x-6 gap-y-3 mt-10 pt-5 border-t border-[#1E7F6A]/15 w-full font-inter">
-                <div className="flex items-center space-x-2 text-[#3B4452]">
-                  <Check className="h-4 w-4 text-[#1E7F6A] bg-white rounded-[6px] p-0.5" />
-                  <span className="text-[12.5px] font-medium">ABDM Compliant</span>
+              <div className="flex flex-wrap gap-x-5 gap-y-3.5 mt-10 pt-6 border-t border-[#E2E8F0] w-full">
+                <div className="flex items-center space-x-1.5 text-[#475569]">
+                  <Check className="h-3.5 w-3.5 text-[#0d9488] bg-teal-50 rounded-[4px] p-0.5" />
+                  <span className="text-xs font-semibold">ABDM Compliant</span>
                 </div>
-                <div className="flex items-center space-x-2 text-[#3B4452]">
-                  <Check className="h-4 w-4 text-[#1E7F6A] bg-white rounded-[6px] p-0.5" />
-                  <span className="text-[12.5px] font-medium">SHAP Explainability</span>
+                <div className="flex items-center space-x-1.5 text-[#475569]">
+                  <Check className="h-3.5 w-3.5 text-[#0d9488] bg-teal-50 rounded-[4px] p-0.5" />
+                  <span className="text-xs font-semibold">SHAP Explained</span>
                 </div>
-                <div className="flex items-center space-x-2 text-[#3B4452]">
-                  <Check className="h-4 w-4 text-[#1E7F6A] bg-white rounded-[6px] p-0.5" />
-                  <span className="text-[12.5px] font-medium">WhatsApp Integrated</span>
+                <div className="flex items-center space-x-1.5 text-[#475569]">
+                  <Check className="h-3.5 w-3.5 text-[#0d9488] bg-teal-50 rounded-[4px] p-0.5" />
+                  <span className="text-xs font-semibold">SaaS Integrated</span>
                 </div>
-                <div className="flex items-center space-x-2 text-[#3B4452]">
-                  <Check className="h-4 w-4 text-[#1E7F6A] bg-white rounded-[6px] p-0.5" />
-                  <span className="text-[12.5px] font-medium">Hindi Voice Calls</span>
+                <div className="flex items-center space-x-1.5 text-[#475569]">
+                  <Check className="h-3.5 w-3.5 text-[#0d9488] bg-teal-50 rounded-[4px] p-0.5" />
+                  <span className="text-xs font-semibold">IVR Call Nudges</span>
                 </div>
               </div>
             </div>
@@ -389,7 +389,7 @@ export default function LandingPage() {
             {/* 6. RIGHT COLUMN — Smart OPD AI Journey & Intervention Visualizer */}
             <div
               ref={threeCanvasRef}
-              className="lg:col-span-7 relative w-full lg:pl-6 xl:pl-10"
+              className="lg:col-span-7 relative w-full lg:pl-6"
             >
               <LivingPulseNetwork />
             </div>

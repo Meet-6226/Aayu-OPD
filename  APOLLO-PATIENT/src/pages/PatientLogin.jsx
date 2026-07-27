@@ -627,26 +627,26 @@ export default function PatientLogin() {
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="fixed top-6 right-6 left-6 sm:left-auto sm:w-[390px] bg-[#165B52]/95 backdrop-blur-xl text-white p-4 rounded-[20px] shadow-2xl border border-[#EAF7F2]/30 flex items-start space-x-3.5 z-50 select-none font-inter"
+            className="fixed top-6 right-6 left-6 sm:left-auto sm:w-[390px] bg-[#0F172A] text-white p-4 rounded-[10px] shadow-elev-3 border border-[#334155] flex items-start space-x-3.5 z-50 select-none font-inter"
           >
-            <div className="w-10 h-10 rounded-full bg-[#1E7F6A] border border-[#EAF7F2]/40 flex items-center justify-center text-[#EAF7F2] shrink-0 shadow-md">
-              <MessageSquare className="h-5 w-5 fill-[#EAF7F2]/20" />
+            <div className="w-10 h-10 rounded-[8px] bg-[#0f766e] border border-[#0d9488]/40 flex items-center justify-center text-white shrink-0">
+              <MessageSquare className="h-5 w-5" />
             </div>
 
             <div className="flex-1 text-left">
               <div className="flex items-center justify-between">
-                <span className="text-[10.5px] font-mono-data font-bold text-[#EAF7F2] uppercase tracking-wider">
-                  APOLLO SMS · MESSAGES
+                <span className="text-[10px] font-mono-data font-semibold text-[#94A3B8] uppercase tracking-wider">
+                  Verification · SMS
                 </span>
-                <span className="text-[10px] text-white/60 font-mono-data">now</span>
+                <span className="text-[10px] text-[#64748B] font-mono-data">now</span>
               </div>
 
-              <p className="text-xs text-white/90 mt-1 font-medium leading-relaxed">
+              <p className="text-xs text-[#E2E8F0] mt-1 font-medium leading-relaxed">
                 Use verification code{' '}
-                <span className="font-mono font-bold text-sm text-[#EAF7F2] bg-white/10 px-2 py-0.5 rounded-md border border-[#EAF7F2]/40 tracking-wider">
+                <span className="font-mono font-bold text-sm text-white bg-[#1E293B] px-2 py-0.5 rounded-[6px] border border-[#334155] tracking-wider">
                   {generatedOtp}
                 </span>{' '}
-                to log in to Aether OPD.
+                to sign in to CareFlow.
               </p>
             </div>
 
@@ -671,7 +671,7 @@ export default function PatientLogin() {
         <div className="flex items-center justify-between text-xs text-[#3B4452] pt-4 border-t border-[#E8ECEF]/80 font-medium">
           <span>✓ ABDM & ABHA Compliant</span>
           <span>🔒 256-Bit Security</span>
-          <span>Aether OPD Platform</span>
+          <span>CareFlow Platform</span>
         </div>
       </div>
 
@@ -693,56 +693,49 @@ export default function PatientLogin() {
           {currentStep === 1 && (
             <div className="flex flex-col">
               {/* Logo block / Banner */}
-              <div className="relative w-full bg-white rounded-[14px] h-[80px] flex items-center justify-center border border-[#1E7F6A]/20 lg:hidden mb-4">
-                {/* Live System Pulsing Dot Badge */}
-                <div className="absolute top-3 right-3 flex items-center space-x-1.5 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-[6px] border border-[#1E7F6A]/20 shadow-2xs">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1E7F6A] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#1E7F6A]"></span>
+              <div className="relative w-full bg-[#F8FAFC] rounded-[10px] h-[72px] flex items-center justify-center border border-[#E2E8F0] lg:hidden mb-4">
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-white px-2 py-0.5 rounded-[6px] border border-[#E2E8F0]">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#0d9488]"></span>
                   </span>
-                  <span className="text-[9px] font-semibold text-[#1E7F6A] uppercase tracking-wider select-none leading-none">
-                    Live System
-                  </span>
+                  <span className="text-[9px] font-semibold text-[#64748B] uppercase tracking-wider">Connected</span>
                 </div>
-
-                <div className="w-11 h-11 rounded-full bg-[#1E7F6A] flex items-center justify-center shrink-0 text-white font-bold text-[18px] shadow-2xs select-none">
-                  A
-                </div>
+                <BrandLogo variant="inline" height={28} />
               </div>
 
               {/* Brand heading */}
-              <div className="mt-4 text-center lg:hidden font-inter">
-                <h2 className="font-fraunces font-bold text-[22px] text-[#182033] tracking-tight leading-none">
-                  Aether OPD
+              <div className="mt-4 text-center lg:hidden font-sans">
+                <h2 className="font-sans font-black text-xl text-[#0F172A] tracking-tight leading-none">
+                  CareFlow
                 </h2>
-                <p className="text-[13px] text-[#3B4452] tracking-wide mt-1 select-none">
-                  Intelligence Platform
+                <p className="text-xs text-[#64748B] tracking-wide mt-1 select-none font-semibold">
+                  Operations Intelligence Platform
                 </p>
               </div>
 
               {/* Headings */}
-              <div className="mt-6 text-left font-inter">
-                <h1 className="text-2xl sm:text-3xl font-bold font-fraunces text-[#182033] tracking-tight leading-tight">
-                  Book your <span className="text-[#1E7F6A]">consultation.</span>
+              <div className="mt-6 text-left font-sans">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight leading-tight">
+                  Access your <span className="text-[#0f766e]">patient portal.</span>
                 </h1>
-                <p className="text-sm text-[#3B4452] mt-2 leading-relaxed">
-                  Enter your mobile number to access patient records, live queue tracking, and smart WhatsApp reminders.
+                <p className="text-xs sm:text-sm text-[#475569] mt-2 leading-relaxed font-medium">
+                  Enter your mobile number to coordinate check-ins, access reports, and manage schedule alerts.
                 </p>
               </div>
 
               {/* Phone Form Input */}
               <div className="mt-6 text-left font-inter">
-                <label className="font-inter text-[13px] font-[550] text-[#3B4452] mb-1.5 block">
+                <label className="font-sans text-[13px] font-semibold text-[#0F172A] mb-1.5 block">
                   Mobile number
                 </label>
                 <div
-                  className="flex rounded-[8px] overflow-hidden border border-[#E8ECEF] focus-within:border-[#1E7F6A] focus-within:shadow-[0_0_0_3px_rgba(19,115,122,0.12)] bg-white transition-all duration-150"
+                  className="flex rounded-[8px] overflow-hidden border border-[#E2E8F0] focus-within:border-[#0f766e] focus-within:shadow-[0_0_0_2px_rgba(15,118,110,0.15)] bg-white transition-all duration-150"
                 >
-                  <span className="bg-white/80 border-r border-[#E8ECEF] text-[#182033] text-[14px] font-bold px-3.5 h-[48px] flex items-center select-none shrink-0 font-mono-data">
+                  <span className="bg-white/80 border-r border-[#E2E8F0] text-[#0F172A] text-[14px] font-bold px-3.5 h-[48px] flex items-center select-none shrink-0 font-mono-data">
                     +91
                   </span>
                   <div className="flex items-center flex-1 px-3 space-x-2">
-                    <Phone className="h-4 w-4 text-[#1E7F6A] shrink-0" />
+                    <Phone className="h-4 w-4 text-[#0f766e] shrink-0" />
                     <input
                       type="text"
                       inputMode="numeric"
@@ -752,38 +745,38 @@ export default function PatientLogin() {
                       onFocus={() => setPhoneFocused(true)}
                       onBlur={() => setPhoneFocused(false)}
                       onKeyDown={(e) => handleKeyPress(e, handlePhoneSubmit)}
-                      className="bg-transparent border-none outline-none w-full h-[48px] text-sm text-[#182033] placeholder-[#3B4452]/55 p-0 font-medium font-inter"
+                      className="bg-transparent border-none outline-none w-full h-[48px] text-sm text-[#0F172A] placeholder-[#94A3B8] p-0 font-medium font-sans"
                     />
                   </div>
                 </div>
-                <p className="text-[11px] text-[#3B4452] mt-1.5 text-left font-inter">
+                <p className="text-[11px] text-[#64748B] mt-1.5 text-left font-sans">
                   We'll send a 6-digit verification code to your phone
                 </p>
                 {step1Error && (
-                  <p className="text-xs text-[#B8623F] mt-2 font-semibold font-inter">{step1Error}</p>
+                  <p className="text-xs text-[#E11D48] mt-2 font-semibold font-sans">{step1Error}</p>
                 )}
               </div>
 
               {/* Bespoke WhatsApp Consent Card (Zero AI-tells) */}
-              <div className="bg-white/40 border border-[#1E7F6A]/20 rounded-[12px] p-4 mt-5 mb-5 flex items-start gap-3 transition-all font-inter">
+              <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-[10px] p-4 mt-5 mb-5 flex items-start gap-3 transition-all font-sans">
                 {/* Custom Checkbox */}
                 <button
                   type="button"
                   onClick={() => setWhatsappOptInStep1(!whatsappOptInStep1)}
                   className={`h-5 w-5 rounded-[4px] border flex items-center justify-center shrink-0 transition-all duration-150 cursor-pointer mt-0.5 ${
                     whatsappOptInStep1
-                      ? 'border-[#1E7F6A] bg-[#1E7F6A] text-white'
-                      : 'border-[#E8ECEF] bg-white'
+                      ? 'border-[#0f766e] bg-[#0f766e] text-white'
+                      : 'border-[#E2E8F0] bg-white'
                   }`}
                 >
                   {whatsappOptInStep1 && <Check className="h-3.5 w-3.5 stroke-[3.5]" />}
                 </button>
 
                 <div className="flex-1 text-left">
-                  <span className="text-xs font-bold text-[#182033] block">
+                  <span className="text-xs font-bold text-[#0F172A] block">
                     Receive WhatsApp Appointment Updates
                   </span>
-                  <p className="text-[11.5px] text-[#3B4452] mt-0.5 leading-relaxed">
+                  <p className="text-[11.5px] text-[#475569] mt-0.5 leading-relaxed font-medium">
                     Get instant slot confirmations, localized delay alerts & waitlist recovery nudges directly on WhatsApp.
                   </p>
                 </div>
@@ -793,10 +786,10 @@ export default function PatientLogin() {
               <button
                 onClick={handlePhoneSubmit}
                 disabled={!isStep1Valid || loading}
-                className={`group w-full h-[48px] rounded-[6px] font-semibold text-[14px] flex items-center justify-center space-x-1.5 transition-all duration-150 ${
+                className={`group w-full h-[48px] rounded-[6px] font-bold text-[14px] flex items-center justify-center space-x-1.5 transition-all duration-150 ${
                   isStep1Valid && !loading
-                    ? 'bg-[#1E7F6A] text-white hover:bg-[#165B52] cursor-pointer shadow-2xs'
-                    : 'bg-[#E8ECEF] text-[#3B4452] cursor-not-allowed shadow-none'
+                    ? 'bg-[#0f766e] text-white hover:bg-[#0d5a54] cursor-pointer shadow-sm'
+                    : 'bg-[#F1F5F9] text-[#94A3B8] cursor-not-allowed shadow-none'
                 }`}
               >
                 {loading ? (
@@ -871,22 +864,22 @@ export default function PatientLogin() {
 
           {/* STEP 2: OTP VERIFICATION */}
           {currentStep === 2 && !showSuccessAnimation && (
-            <div className="flex flex-col my-auto py-4 font-inter text-left">
+            <div className="flex flex-col my-auto py-4 font-sans text-left">
               {/* Logo block / Banner for Mobile */}
-              <div className="relative w-full bg-white rounded-[14px] h-[80px] flex items-center justify-center border border-[#1E7F6A]/20 lg:hidden mb-4">
-                <div className="w-11 h-11 rounded-full bg-[#1E7F6A] flex items-center justify-center shrink-0 text-white font-bold text-[18px] shadow-2xs select-none">
-                  A
+              <div className="relative w-full bg-white rounded-[10px] h-[80px] flex items-center justify-center border border-[#E2E8F0] lg:hidden mb-4">
+                <div className="w-11 h-11 rounded-full bg-[#0f766e] flex items-center justify-center shrink-0 text-white font-bold text-[18px] shadow-sm select-none">
+                  C
                 </div>
               </div>
 
               {/* Headings */}
-              <div className="text-center font-inter">
-                <h1 className="text-2xl sm:text-3xl font-bold font-fraunces text-[#182033] tracking-tight">
+              <div className="text-center font-sans">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
                   Verify your number
                 </h1>
-                <p className="text-sm text-[#3B4452] mt-2 leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#475569] mt-2 leading-relaxed">
                   We sent a 6-digit code to{' '}
-                  <span className="font-bold text-[#182033]">{getFormattedPhoneString()}</span>
+                  <span className="font-bold text-[#0F172A]">{getFormattedPhoneString()}</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -894,7 +887,7 @@ export default function PatientLogin() {
                       setOtp(['', '', '', '', '', '']);
                       setStep2Error('');
                     }}
-                    className="text-[#1E7F6A] font-bold hover:underline inline ml-2 text-xs uppercase tracking-wider"
+                    className="text-[#0f766e] font-extrabold hover:underline inline ml-2 text-xs uppercase tracking-wider"
                   >
                     Edit
                   </button>
@@ -915,20 +908,20 @@ export default function PatientLogin() {
                     onChange={(e) => handleOtpChange(idx, e.target.value)}
                     onKeyDown={(e) => handleOtpKeyDown(idx, e)}
                     onPaste={handleOtpPaste}
-                    className="w-12 h-[56px] border-2 border-[#E8ECEF] rounded-[12px] text-center font-mono-data font-bold text-[24px] text-[#182033] bg-white focus:outline-none focus:border-[#1E7F6A] focus:shadow-[0_0_0_4px_rgba(19,115,122,0.15)] transition-all duration-150"
+                    className="w-12 h-[56px] border-2 border-[#E2E8F0] rounded-[8px] text-center font-mono-data font-bold text-[24px] text-[#0F172A] bg-white focus:outline-none focus:border-[#0f766e] focus:shadow-[0_0_0_2px_rgba(15,118,110,0.15)] transition-all duration-150"
                   />
                 ))}
               </div>
               {step2Error && (
-                <p className="text-xs text-red-600 mt-3 font-semibold text-center">{step2Error}</p>
+                <p className="text-xs text-[#E11D48] mt-3 font-semibold text-center">{step2Error}</p>
               )}
 
-              {/* PROMINENT HAVELI TEAL CTA VERIFY BUTTON */}
+              {/* CTA VERIFY BUTTON */}
               <button
                 type="button"
                 onClick={handleOtpSubmit}
                 disabled={loading}
-                className="w-full h-[52px] rounded-[12px] font-bold text-sm bg-[#1E7F6A] hover:bg-[#165B52] text-white shadow-lg flex items-center justify-center space-x-2 transition-all duration-200 mt-8 cursor-pointer active:scale-[0.99]"
+                className="w-full h-[52px] rounded-[6px] font-bold text-sm bg-[#0f766e] hover:bg-[#0d5a54] text-white shadow-sm flex items-center justify-center space-x-2 transition-all duration-150 mt-8 cursor-pointer active:scale-[0.99]"
               >
                 {loading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -941,11 +934,11 @@ export default function PatientLogin() {
               </button>
 
               {/* Resend info */}
-              <div className="mt-6 text-center text-xs text-[#3B4452]">
+              <div className="mt-6 text-center text-xs text-[#475569]">
                 <p>
                   Didn't receive the code?{' '}
                   {resendTimer > 0 ? (
-                    <span className="text-[#1E7F6A] font-bold ml-1">Resend in {resendTimer}s</span>
+                    <span className="text-[#0f766e] font-bold ml-1">Resend in {resendTimer}s</span>
                   ) : (
                     <button
                       type="button"
@@ -962,7 +955,7 @@ export default function PatientLogin() {
                         
                         otpInputsRef.current[0]?.focus();
                       }}
-                      className="text-[#1E7F6A] font-bold hover:underline ml-1 uppercase tracking-wider text-[11px]"
+                      className="text-[#0f766e] font-extrabold hover:underline ml-1 uppercase tracking-wider text-[11px]"
                     >
                       Resend OTP
                     </button>
@@ -975,10 +968,10 @@ export default function PatientLogin() {
           {/* Step 2 Success brief checkmark overlay */}
           {currentStep === 2 && showSuccessAnimation && (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="w-14 h-14 rounded-full bg-white text-primary-teal flex items-center justify-center mb-4 shrink-0 shadow-none border border-primary-teal/10">
+              <div className="w-14 h-14 rounded-full bg-white text-[#0f766e] flex items-center justify-center mb-4 shrink-0 shadow-none border border-[#0f766e]/10">
                 <Check className="h-6 w-6 stroke-[3]" />
               </div>
-              <h3 className="font-display font-semibold text-lg text-text-dark">
+              <h3 className="font-sans font-bold text-base text-[#0F172A]">
                 Number Verified
               </h3>
             </div>
@@ -986,46 +979,46 @@ export default function PatientLogin() {
 
           {/* STEP 3: PROFILE SETUP (New Users Only) */}
           {currentStep === 3 && (
-            <div className="flex flex-col font-inter">
+            <div className="flex flex-col font-sans">
               {/* Header */}
-              <div className="text-center">
-                <h1 className="text-2xl font-bold font-fraunces text-[#182033] tracking-tight">
+              <div className="text-center font-sans">
+                <h1 className="text-2xl font-extrabold text-[#0F172A] tracking-tight">
                   Setup your patient profile
                 </h1>
-                <p className="text-sm text-[#3B4452] mt-1.5 font-medium">
+                <p className="text-xs sm:text-sm text-[#475569] mt-1.5 font-medium">
                   Help us personalize your experience
                 </p>
               </div>
 
               {/* Step indicator dots */}
               <div className="mt-4 flex items-center justify-center space-x-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#1E7F6A]"></span>
-                <span className="w-2 h-2 rounded-full border border-[#E8ECEF] bg-white"></span>
-                <span className="w-2 h-2 rounded-full border border-[#E8ECEF] bg-white"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0f766e]"></span>
+                <span className="w-1.5 h-1.5 rounded-full border border-[#E2E8F0] bg-white"></span>
+                <span className="w-1.5 h-1.5 rounded-full border border-[#E2E8F0] bg-white"></span>
               </div>
 
               {/* Fields Stack */}
-              <div className="mt-6 space-y-4 text-left font-inter">
+              <div className="mt-6 space-y-4 text-left font-sans">
                 
                 {/* Field 1: Name */}
                 <div className="relative">
-                  <label className="block text-[13px] font-semibold text-[#182033] mb-1.5">
+                  <label className="block text-[13px] font-semibold text-[#0F172A] mb-1.5">
                     Full name *
                   </label>
-                  <div className={`relative flex items-center bg-white/40 border rounded-[6px] px-3.5 focus-within:border-[#1E7F6A] focus-within:shadow-[0_0_0_3px_rgba(19,115,122,0.12)] transition-all duration-150 ${
-                    isSubmittedStep3 && !fullName.trim() ? 'border-[#B8623F]' : 'border-[#E8ECEF]'
+                  <div className={`relative flex items-center bg-white/40 border rounded-[6px] px-3.5 focus-within:border-[#0f766e] focus-within:shadow-[0_0_0_2px_rgba(15,118,110,0.15)] transition-all duration-150 ${
+                    isSubmittedStep3 && !fullName.trim() ? 'border-[#E11D48]' : 'border-[#E2E8F0]'
                   }`}>
-                    <User className="h-4 w-4 text-[#3B4452] mr-2.5 shrink-0" />
+                    <User className="h-4 w-4 text-[#475569] mr-2.5 shrink-0" />
                     <input
                       type="text"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Priya Sharma"
-                      className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#182033] placeholder-[#3B4452]/50 p-0 font-medium font-inter"
+                      className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#0F172A] placeholder-[#94A3B8] p-0 font-semibold font-sans"
                     />
                   </div>
                   {isSubmittedStep3 && !fullName.trim() && (
-                    <p className="text-xs text-[#B8623F] mt-1">This field is required</p>
+                    <p className="text-xs text-[#E11D48] mt-1">This field is required</p>
                   )}
                 </div>
 
@@ -1033,32 +1026,32 @@ export default function PatientLogin() {
                 <div className="grid grid-cols-2 gap-4">
                   {/* Field 2: Age */}
                   <div className="relative">
-                    <label className="block text-[13px] font-semibold text-[#182033] mb-1.5">
+                    <label className="block text-[13px] font-semibold text-[#0F172A] mb-1.5">
                       Age *
                     </label>
-                    <div className={`relative flex items-center bg-white/40 border rounded-[6px] px-3.5 focus-within:border-[#1E7F6A] focus-within:shadow-[0_0_0_3px_rgba(19,115,122,0.12)] transition-all duration-150 ${
-                      isSubmittedStep3 && !age.trim() ? 'border-[#B8623F]' : 'border-[#E8ECEF]'
+                    <div className={`relative flex items-center bg-white/40 border rounded-[6px] px-3.5 focus-within:border-[#0f766e] focus-within:shadow-[0_0_0_2px_rgba(15,118,110,0.15)] transition-all duration-150 ${
+                      isSubmittedStep3 && !age.trim() ? 'border-[#E11D48]' : 'border-[#E2E8F0]'
                     }`}>
-                      <span className="text-sm font-semibold text-[#3B4452] mr-2 shrink-0 select-none">#</span>
+                      <span className="text-sm font-semibold text-[#475569] mr-2 shrink-0 select-none">#</span>
                       <input
                         type="number"
                         value={age}
                         onChange={(e) => setAge(e.target.value)}
                         placeholder="28"
-                        className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#182033] placeholder-[#3B4452]/50 p-0 font-medium font-inter"
+                        className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#0F172A] placeholder-[#94A3B8] p-0 font-semibold font-sans"
                       />
                     </div>
                     {isSubmittedStep3 && !age.trim() && (
-                      <p className="text-xs text-[#B8623F] mt-1">This field is required</p>
+                      <p className="text-xs text-[#E11D48] mt-1">This field is required</p>
                     )}
                   </div>
 
                   {/* Field 3: Gender */}
                   <div className="relative">
-                    <label className="block text-[13px] font-semibold text-[#182033] mb-1.5">
+                    <label className="block text-[13px] font-semibold text-[#0F172A] mb-1.5">
                       Gender *
                     </label>
-                    <div className="flex bg-white/40 border border-[#E8ECEF] rounded-[6px] p-1 h-[46px] items-center">
+                    <div className="flex bg-white border border-[#E2E8F0] rounded-[6px] p-1 h-[46px] items-center">
                       {['Male', 'Female', 'Other'].map((option) => (
                         <button
                           key={option}
@@ -1066,8 +1059,8 @@ export default function PatientLogin() {
                           onClick={() => setGender(option)}
                           className={`flex-1 h-full rounded-[4px] text-[11px] font-bold transition-all duration-150 ${
                             gender === option
-                              ? 'bg-[#1E7F6A] text-white shadow-2xs'
-                              : 'text-[#3B4452] hover:text-[#182033]'
+                              ? 'bg-[#0f766e] text-white shadow-sm'
+                              : 'text-[#475569] hover:text-[#0F172A]'
                           }`}
                         >
                           {option}
@@ -1075,7 +1068,7 @@ export default function PatientLogin() {
                       ))}
                     </div>
                     {isSubmittedStep3 && !gender && (
-                      <p className="text-xs text-[#B8623F] mt-1">This field is required</p>
+                      <p className="text-xs text-[#E11D48] mt-1">This field is required</p>
                     )}
                   </div>
                 </div>
@@ -1084,32 +1077,32 @@ export default function PatientLogin() {
                 <div className="grid grid-cols-2 gap-4">
                   {/* Field 4: City */}
                   <div className="relative">
-                    <label className="block text-[13px] font-semibold text-[#182033] mb-1.5">
+                    <label className="block text-[13px] font-semibold text-[#0F172A] mb-1.5">
                       City
                     </label>
-                    <div className="relative flex items-center bg-white/40 border border-[#E8ECEF] rounded-[6px] px-3.5 focus-within:border-[#1E7F6A] focus-within:shadow-[0_0_0_3px_rgba(19,115,122,0.12)] transition-all duration-150">
-                      <MapPin className="h-4 w-4 text-[#3B4452] mr-2.5 shrink-0" />
+                    <div className="relative flex items-center bg-white/40 border border-[#E2E8F0] rounded-[6px] px-3.5 focus-within:border-[#0f766e] focus-within:shadow-[0_0_0_2px_rgba(15,118,110,0.15)] transition-all duration-150">
+                      <MapPin className="h-4 w-4 text-[#475569] mr-2.5 shrink-0" />
                       <input
                         type="text"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                         placeholder="Hyderabad"
-                        className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#182033] placeholder-[#3B4452]/50 p-0 font-medium font-inter"
+                        className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#0F172A] placeholder-[#94A3B8] p-0 font-semibold font-sans"
                       />
                     </div>
                   </div>
 
                   {/* Field 5: Blood Group */}
                   <div className="relative">
-                    <label className="block text-[13px] font-semibold text-[#182033] mb-1.5">
+                    <label className="block text-[13px] font-semibold text-[#0F172A] mb-1.5">
                       Blood group
                     </label>
-                    <div className="relative flex items-center bg-white/40 border border-[#E8ECEF] rounded-[6px] px-3.5 focus-within:border-[#1E7F6A] focus-within:shadow-[0_0_0_3px_rgba(19,115,122,0.12)] transition-all duration-150">
-                      <Droplet className="h-4 w-4 text-[#B8623F] mr-2.5 shrink-0" />
+                    <div className="relative flex items-center bg-white/40 border border-[#E2E8F0] rounded-[6px] px-3.5 focus-within:border-[#0f766e] focus-within:shadow-[0_0_0_2px_rgba(15,118,110,0.15)] transition-all duration-150">
+                      <Droplet className="h-4 w-4 text-[#e11d48] mr-2.5 shrink-0" />
                       <select
                         value={bloodGroup}
                         onChange={(e) => setBloodGroup(e.target.value)}
-                        className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#182033] focus:ring-0 cursor-pointer p-0 font-medium font-inter"
+                        className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#0F172A] focus:ring-0 cursor-pointer p-0 font-semibold font-sans"
                       >
                         <option value="">Select</option>
                         <option value="A+">A+</option>
@@ -1127,32 +1120,32 @@ export default function PatientLogin() {
 
                 {/* Field 6: Email */}
                 <div className="relative">
-                  <label className="block text-[13px] font-semibold text-[#182033] mb-1.5">
+                  <label className="block text-[13px] font-semibold text-[#0F172A] mb-1.5">
                     Email address (optional)
                   </label>
-                  <div className="relative flex items-center bg-white/40 border border-[#E8ECEF] rounded-[6px] px-3.5 focus-within:border-[#1E7F6A] focus-within:shadow-[0_0_0_3px_rgba(19,115,122,0.12)] transition-all duration-150">
-                    <Mail className="h-4 w-4 text-[#3B4452] mr-2.5 shrink-0" />
+                  <div className="relative flex items-center bg-white/40 border border-[#E2E8F0] rounded-[6px] px-3.5 focus-within:border-[#0f766e] focus-within:shadow-[0_0_0_2px_rgba(15,118,110,0.15)] transition-all duration-150">
+                    <Mail className="h-4 w-4 text-[#475569] mr-2.5 shrink-0" />
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="priya@example.com"
-                      className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#182033] placeholder-[#3B4452]/50 p-0 font-medium font-inter"
+                      className="bg-transparent border-none outline-none w-full h-[44px] text-sm text-[#0F172A] placeholder-[#94A3B8] p-0 font-semibold font-sans"
                     />
                   </div>
                 </div>
               </div>
 
               {step3Error && (
-                <p className="text-xs text-red-500 mt-4 font-medium text-center">{step3Error}</p>
+                <p className="text-xs text-[#E11D48] mt-4 font-medium text-center">{step3Error}</p>
               )}
 
               {/* CTAs */}
-              <div className="mt-8 space-y-3.5 text-center">
+              <div className="mt-8 space-y-3 text-center">
                 <button
                   onClick={handleProfileSubmit}
                   disabled={loading}
-                  className="w-full h-11 bg-primary-teal text-white hover:bg-primary-dark font-medium text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-colors duration-200"
+                  className="w-full h-11 bg-[#0f766e] text-white hover:bg-[#0d5a54] font-bold text-xs rounded-[6px] flex items-center justify-center space-x-1.5 transition-colors duration-150"
                 >
                   {loading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -1168,7 +1161,7 @@ export default function PatientLogin() {
                   type="button"
                   onClick={handleProfileSkip}
                   disabled={loading}
-                  className="text-xs font-semibold text-[#6b7280] hover:text-text-medium transition-colors block w-full text-center"
+                  className="text-xs font-bold text-[#64748b] hover:text-[#0F172A] transition-colors block w-full text-center"
                 >
                   {loading ? 'Processing...' : 'Skip for now →'}
                 </button>
@@ -1177,7 +1170,7 @@ export default function PatientLogin() {
                   type="button"
                   onClick={handleUseDifferentNumber}
                   disabled={loading}
-                  className="text-xs font-extrabold text-[#0d9488] hover:underline transition-colors block w-full text-center pt-1"
+                  className="text-xs font-extrabold text-[#0f766e] hover:underline transition-colors block w-full text-center pt-1"
                 >
                   ← Use a different phone number
                 </button>
@@ -1187,21 +1180,21 @@ export default function PatientLogin() {
 
           {/* STEP 4: ABHA ID + PERSONA SELECTION */}
           {currentStep === 4 && (
-            <div className="flex flex-col">
+            <div className="flex flex-col font-sans">
               {/* Logo block */}
               <div className="flex flex-col items-center lg:hidden">
-                <div className="w-10 h-10 rounded-full bg-primary-teal flex items-center justify-center shrink-0 text-white font-bold text-[16px]">
-                  A
+                <div className="w-10 h-10 rounded-full bg-[#0f766e] flex items-center justify-center shrink-0 text-white font-bold text-[16px]">
+                  C
                 </div>
-                <h2 className="font-display font-semibold text-[18px] text-primary-teal tracking-tight mt-2.5">
-                  Aether OPD
+                <h2 className="font-sans font-extrabold text-[18px] text-[#0f766e] tracking-tight mt-2.5">
+                  CareFlow
                 </h2>
               </div>
 
               {/* Headings */}
               <div className="mt-6 text-center">
-                <h1 className="text-xl font-semibold text-[#111827]">Almost done!</h1>
-                <p className="text-xs text-[#6b7280] mt-1">
+                <h1 className="text-xl font-bold text-[#0F172A]">Almost done!</h1>
+                <p className="text-xs text-[#64748B] mt-1 font-medium">
                   Two quick preferences to set up
                 </p>
               </div>
@@ -1210,9 +1203,9 @@ export default function PatientLogin() {
               <div className="mt-6 space-y-6">
                 
                 {/* Part A: ABHA ID */}
-                <div className="bg-[#f9fafb] border border-[#f3f4f6] rounded-xl p-4">
+                <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-[10px] p-4">
                   <div className="flex justify-between items-center relative">
-                    <span className="text-sm font-medium text-text-dark flex items-center space-x-1">
+                    <span className="text-sm font-semibold text-[#0F172A] flex items-center space-x-1">
                       <span>ABHA Health ID</span>
                       
                       {/* Tooltip trigger */}
@@ -1221,20 +1214,20 @@ export default function PatientLogin() {
                         onMouseEnter={() => setShowAbhaTooltip(true)}
                         onMouseLeave={() => setShowAbhaTooltip(false)}
                       >
-                        <HelpCircle className="h-3.5 w-3.5 text-[#9ca3af] hover:text-[#6b7280] transition-colors" />
+                        <HelpCircle className="h-3.5 w-3.5 text-[#94A3B8] hover:text-[#64748B] transition-colors" />
                         
                         {/* Hover Tooltip Box */}
                         {showAbhaTooltip && (
-                          <span className="absolute left-[-80px] bottom-6 z-40 bg-text-dark text-white text-[10px] rounded-lg p-2.5 w-[200px] leading-relaxed shadow-lg font-normal block">
+                          <span className="absolute left-[-80px] bottom-6 z-40 bg-[#0f172a] text-white text-[10px] rounded-lg p-2.5 w-[200px] leading-relaxed shadow-lg font-normal block">
                             Your 14-digit ABHA ID from Ayushman Bharat. Get one at abdm.gov.in
                           </span>
                         )}
                       </span>
                     </span>
-                    <span className="text-[11px] text-[#9ca3af] italic font-semibold">Optional</span>
+                    <span className="text-[11px] text-[#94A3B8] italic font-semibold">Optional</span>
                   </div>
                   
-                  <p className="text-xs text-[#6b7280] mt-1 leading-relaxed">
+                  <p className="text-xs text-[#64748B] mt-1 leading-relaxed">
                     Link your Ayushman Bharat Digital Health Account for seamless health records across hospitals.
                   </p>
 
@@ -1243,16 +1236,16 @@ export default function PatientLogin() {
                     placeholder="XX-XXXX-XXXX-XXXX"
                     value={abhaId}
                     onChange={(e) => setAbhaId(e.target.value)}
-                    className="w-full px-3 py-2 border border-[#e5e7eb] rounded-lg bg-white focus:outline-none focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 mt-3 text-sm text-[#111827]"
+                    className="w-full px-3 py-2 border border-[#E2E8F0] rounded-[6px] bg-white focus:outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#0f766e]/10 mt-3 text-sm text-[#0F172A] font-semibold"
                   />
                 </div>
 
                 {/* Part B: Reminder Persona */}
                 <div>
-                  <label className="block text-sm font-medium text-[#111827]">
+                  <label className="block text-sm font-bold text-[#0F172A]">
                     How should we remind you?
                   </label>
-                  <p className="text-xs text-[#6b7280] mt-0.5">
+                  <p className="text-xs text-[#64748B] mt-0.5 font-medium">
                     This helps us send the right reminder at the right time.
                   </p>
 
@@ -1262,27 +1255,27 @@ export default function PatientLogin() {
                     {/* Option 1: Working Professional */}
                     <div
                       onClick={() => setSelectedPersona('Professional')}
-                      className={`border rounded-xl p-3.5 flex items-center justify-between cursor-pointer transition-all duration-200 ${
+                      className={`border rounded-[10px] p-3.5 flex items-center justify-between cursor-pointer transition-all duration-150 ${
                         selectedPersona === 'Professional'
-                          ? 'border-primary-teal bg-light-teal/30'
-                          : 'border-[#e5e7eb] hover:border-[#d1d5db] bg-white'
+                          ? 'border-[#0f766e] bg-[#f0fdfa]'
+                          : 'border-[#E2E8F0] hover:border-[#cbd5e1] bg-white'
                       }`}
                     >
                       <div className="flex items-start space-x-3">
-                        <div className="p-2 rounded-lg bg-blue-50 text-blue-600 shrink-0">
+                        <div className="p-2 rounded-lg bg-blue-50/50 text-blue-600 shrink-0">
                           <Briefcase className="h-4.5 w-4.5" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[#111827]">Working Professional</p>
-                          <p className="text-[12px] text-[#6b7280] mt-0.5 leading-snug">I need 48 hours to plan leave from work</p>
-                          <p className="text-[10px] text-[#9ca3af] mt-1">Reminders: 48h · 24h · morning</p>
+                          <p className="text-sm font-bold text-[#0F172A]">Working Professional</p>
+                          <p className="text-[12px] text-[#64748B] mt-0.5 leading-snug font-medium">I need 48 hours to plan leave from work</p>
+                          <p className="text-[10px] text-[#94A3B8] mt-1 font-semibold">Reminders: 48h · 24h · morning</p>
                         </div>
                       </div>
                       <div className="shrink-0 ml-3">
                         <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                          selectedPersona === 'Professional' ? 'border-primary-teal' : 'border-[#d1d5db]'
+                          selectedPersona === 'Professional' ? 'border-[#0f766e]' : 'border-[#cbd5e1]'
                         }`}>
-                          {selectedPersona === 'Professional' && <span className="w-2.5 h-2.5 rounded-full bg-primary-teal"></span>}
+                          {selectedPersona === 'Professional' && <span className="w-2.5 h-2.5 rounded-full bg-[#0f766e]"></span>}
                         </div>
                       </div>
                     </div>
@@ -1290,27 +1283,27 @@ export default function PatientLogin() {
                     {/* Option 2: Elderly / Need Help */}
                     <div
                       onClick={() => setSelectedPersona('Elderly')}
-                      className={`border rounded-xl p-3.5 flex items-center justify-between cursor-pointer transition-all duration-200 ${
+                      className={`border rounded-[10px] p-3.5 flex items-center justify-between cursor-pointer transition-all duration-150 ${
                         selectedPersona === 'Elderly'
-                          ? 'border-primary-teal bg-light-teal/30'
-                          : 'border-[#e5e7eb] hover:border-[#d1d5db] bg-white'
+                          ? 'border-[#0f766e] bg-[#f0fdfa]'
+                          : 'border-[#E2E8F0] hover:border-[#cbd5e1] bg-white'
                       }`}
                     >
                       <div className="flex items-start space-x-3">
-                        <div className="p-2 rounded-lg bg-purple-50 text-purple-600 shrink-0">
+                        <div className="p-2 rounded-lg bg-purple-50/50 text-purple-600 shrink-0">
                           <Heart className="h-4.5 w-4.5" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[#111827]">Elderly / Need Help</p>
-                          <p className="text-[12px] text-[#6b7280] mt-0.5 leading-snug">A family member will bring me to the appointment</p>
-                          <p className="text-[10px] text-[#9ca3af] mt-1">Reminders: 48h (+ family) · 24h (family) · 3h</p>
+                          <p className="text-sm font-bold text-[#0F172A]">Elderly / Need Help</p>
+                          <p className="text-[12px] text-[#64748B] mt-0.5 leading-snug font-medium">A family member will bring me to the appointment</p>
+                          <p className="text-[10px] text-[#94A3B8] mt-1 font-semibold">Reminders: 48h (+ family) · 24h (family) · 3h</p>
                         </div>
                       </div>
                       <div className="shrink-0 ml-3">
                         <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                          selectedPersona === 'Elderly' ? 'border-primary-teal' : 'border-[#d1d5db]'
+                          selectedPersona === 'Elderly' ? 'border-[#0f766e]' : 'border-[#cbd5e1]'
                         }`}>
-                          {selectedPersona === 'Elderly' && <span className="w-2.5 h-2.5 rounded-full bg-primary-teal"></span>}
+                          {selectedPersona === 'Elderly' && <span className="w-2.5 h-2.5 rounded-full bg-[#0f766e]"></span>}
                         </div>
                       </div>
                     </div>
@@ -1318,27 +1311,27 @@ export default function PatientLogin() {
                     {/* Option 3: Student */}
                     <div
                       onClick={() => setSelectedPersona('Student')}
-                      className={`border rounded-xl p-3.5 flex items-center justify-between cursor-pointer transition-all duration-200 ${
+                      className={`border rounded-[10px] p-3.5 flex items-center justify-between cursor-pointer transition-all duration-150 ${
                         selectedPersona === 'Student'
-                          ? 'border-primary-teal bg-light-teal/30'
-                          : 'border-[#e5e7eb] hover:border-[#d1d5db] bg-white'
+                          ? 'border-[#0f766e] bg-[#f0fdfa]'
+                          : 'border-[#E2E8F0] hover:border-[#cbd5e1] bg-white'
                       }`}
                     >
                       <div className="flex items-start space-x-3">
-                        <div className="p-2 rounded-lg bg-orange-50 text-orange-600 shrink-0">
+                        <div className="p-2 rounded-lg bg-orange-50/50 text-orange-600 shrink-0">
                           <GraduationCap className="h-4.5 w-4.5" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[#111827]">Student</p>
-                          <p className="text-[12px] text-[#6b7280] mt-0.5 leading-snug">Just remind me the day before</p>
-                          <p className="text-[10px] text-[#9ca3af] mt-1">Reminders: 24h · 1h before</p>
+                          <p className="text-sm font-bold text-[#0F172A]">Student</p>
+                          <p className="text-[12px] text-[#64748B] mt-0.5 leading-snug font-medium">Just remind me the day before</p>
+                          <p className="text-[10px] text-[#94A3B8] mt-1 font-semibold">Reminders: 24h · 1h before</p>
                         </div>
                       </div>
                       <div className="shrink-0 ml-3">
                         <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                          selectedPersona === 'Student' ? 'border-primary-teal' : 'border-[#d1d5db]'
+                          selectedPersona === 'Student' ? 'border-[#0f766e]' : 'border-[#cbd5e1]'
                         }`}>
-                          {selectedPersona === 'Student' && <span className="w-2.5 h-2.5 rounded-full bg-primary-teal"></span>}
+                          {selectedPersona === 'Student' && <span className="w-2.5 h-2.5 rounded-full bg-[#0f766e]"></span>}
                         </div>
                       </div>
                     </div>
@@ -1346,27 +1339,27 @@ export default function PatientLogin() {
                     {/* Option 4: Other / Standard */}
                     <div
                       onClick={() => setSelectedPersona('Other')}
-                      className={`border rounded-xl p-3.5 flex items-center justify-between cursor-pointer transition-all duration-200 ${
+                      className={`border rounded-[10px] p-3.5 flex items-center justify-between cursor-pointer transition-all duration-150 ${
                         selectedPersona === 'Other'
-                          ? 'border-primary-teal bg-light-teal/30'
-                          : 'border-[#e5e7eb] hover:border-[#d1d5db] bg-white'
+                          ? 'border-[#0f766e] bg-[#f0fdfa]'
+                          : 'border-[#E2E8F0] hover:border-[#cbd5e1] bg-white'
                       }`}
                     >
                       <div className="flex items-start space-x-3">
-                        <div className="p-2 rounded-lg bg-gray-50 text-gray-500 shrink-0">
+                        <div className="p-2 rounded-lg bg-gray-50/50 text-gray-500 shrink-0">
                           <Clock className="h-4.5 w-4.5" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[#111827]">Other</p>
-                          <p className="text-[12px] text-[#6b7280] mt-0.5 leading-snug">Standard reminders only</p>
-                          <p className="text-[10px] text-[#9ca3af] mt-1">Reminders: 24h · 2h before</p>
+                          <p className="text-sm font-bold text-[#0F172A]">Other</p>
+                          <p className="text-[12px] text-[#64748B] mt-0.5 leading-snug font-medium">Standard reminders only</p>
+                          <p className="text-[10px] text-[#94A3B8] mt-1 font-semibold">Reminders: 24h · 2h before</p>
                         </div>
                       </div>
                       <div className="shrink-0 ml-3">
                         <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                          selectedPersona === 'Other' ? 'border-primary-teal' : 'border-[#d1d5db]'
+                          selectedPersona === 'Other' ? 'border-[#0f766e]' : 'border-[#cbd5e1]'
                         }`}>
-                          {selectedPersona === 'Other' && <span className="w-2.5 h-2.5 rounded-full bg-primary-teal"></span>}
+                          {selectedPersona === 'Other' && <span className="w-2.5 h-2.5 rounded-full bg-[#0f766e]"></span>}
                         </div>
                       </div>
                     </div>
@@ -1376,12 +1369,12 @@ export default function PatientLogin() {
 
                 {/* Sub-form: Family member details (Displayed only when Elderly is selected) */}
                 {selectedPersona === 'Elderly' && (
-                  <div className="bg-[#f9fafb] border border-[#f3f4f6] rounded-xl p-4 space-y-3.5">
+                  <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-[10px] p-4 space-y-3">
                     <div>
-                      <h4 className="text-[13px] font-semibold text-text-dark leading-none">
+                      <h4 className="text-[13px] font-bold text-[#0F172A] leading-none">
                         Family member details
                       </h4>
-                      <p className="text-xs text-[#6b7280] mt-1">
+                      <p className="text-xs text-[#64748B] mt-1 font-medium">
                         We'll send reminders to this relative as well.
                       </p>
                     </div>
@@ -1392,23 +1385,23 @@ export default function PatientLogin() {
                         placeholder="Family member name"
                         value={caretakerName}
                         onChange={(e) => setCaretakerName(e.target.value)}
-                        className="w-full px-3 py-2 border border-[#e5e7eb] bg-white rounded-lg focus:outline-none focus:border-primary-teal"
+                        className="w-full px-3 py-2 border border-[#E2E8F0] bg-white rounded-[6px] focus:outline-none focus:border-[#0f766e]"
                       />
                       <input
                         type="text"
                         placeholder="Family member phone"
                         value={caretakerPhone}
                         onChange={(e) => setCaretakerPhone(e.target.value)}
-                        className="w-full px-3 py-2 border border-[#e5e7eb] bg-white rounded-lg focus:outline-none focus:border-primary-teal"
+                        className="w-full px-3 py-2 border border-[#E2E8F0] bg-white rounded-[6px] focus:outline-none focus:border-[#0f766e]"
                       />
                     </div>
 
                     <div className="text-xs">
-                      <label className="block text-text-light font-semibold mb-1">Relationship</label>
+                      <label className="block text-[#64748B] font-bold mb-1">Relationship</label>
                       <select
                         value={caretakerRelation}
                         onChange={(e) => setCaretakerRelation(e.target.value)}
-                        className="w-full px-3 py-2 border border-[#e5e7eb] bg-white rounded-lg focus:outline-none focus:border-primary-teal"
+                        className="w-full px-3 py-2 border border-[#E2E8F0] bg-white rounded-[6px] focus:outline-none focus:border-[#0f766e]"
                       >
                         <option>Son/Daughter</option>
                         <option>Spouse</option>
@@ -1423,11 +1416,11 @@ export default function PatientLogin() {
               </div>
 
               {/* CTA Buttons */}
-              <div className="mt-8 space-y-3.5 text-center">
+              <div className="mt-8 space-y-3 text-center">
                 <button
                   onClick={handleFinalSubmit}
                   disabled={loading}
-                  className="w-full h-11 bg-primary-teal text-white hover:bg-primary-dark font-medium text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-colors duration-200"
+                  className="w-full h-11 bg-[#0f766e] text-white hover:bg-[#0d5a54] font-bold text-xs rounded-[6px] flex items-center justify-center space-x-1.5 transition-colors duration-150"
                 >
                   {loading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -1443,7 +1436,7 @@ export default function PatientLogin() {
                   type="button"
                   onClick={handleFinalSkip}
                   disabled={loading}
-                  className="text-xs font-semibold text-[#6b7280] hover:text-text-medium transition-colors block w-full text-center"
+                  className="text-xs font-bold text-[#64748b] hover:text-[#0F172A] transition-colors block w-full text-center"
                 >
                   Skip for now &rarr;
                 </button>

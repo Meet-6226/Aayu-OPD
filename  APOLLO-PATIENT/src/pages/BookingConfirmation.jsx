@@ -412,7 +412,7 @@ export default function BookingConfirmation() {
       case 'Student':
         return `Hey ${patientName}! Ready for your consult with ${booking.doctorName} on ${timeText}? Friendly nudge: don't skip! Reply 1 to confirm.`;
       default:
-        return `Appointment confirmed: ${patientName} with ${booking.doctorName}. ${timeText}. Location: Aether OPD. Reply 1 to confirm.`;
+        return `Appointment confirmed: ${patientName} with ${booking.doctorName}. ${timeText}. Location: CareFlow Clinic. Reply 1 to confirm.`;
     }
   };
 
@@ -792,7 +792,7 @@ export default function BookingConfirmation() {
       <div className="flex items-center justify-center space-x-2 text-[10px] uppercase font-bold tracking-widest text-[#9ca3af] mb-5 font-display select-none">
         <span>1. Select Doctor</span>
         <span className="text-gray-300">&rarr;</span>
-        <span className="text-[#1E7F6A] bg-[#ECFDF5] border border-[#A7F3D0] px-2.5 py-1 rounded-[6px] font-semibold">2. Review & Confirm</span>
+        <span className="text-[#0f766e] bg-[#f0fdfa] border border-[#ccfbf1] px-2.5 py-1 rounded-[6px] font-semibold">2. Review & Confirm</span>
       </div>
 
       {/* Title */}
@@ -864,7 +864,7 @@ export default function BookingConfirmation() {
                     <div className="w-10 h-10 rounded-xl bg-primary-teal text-white flex items-center justify-center shadow-md shadow-primary-teal/10">
                       <MapPin className="h-4.5 w-4.5" />
                     </div>
-                    <span className="text-[10px] font-bold text-text-dark mt-2.5">Aether OPD</span>
+                    <span className="text-[10px] font-bold text-text-dark mt-2.5">CareFlow Clinic</span>
                     <span className="text-[11px] font-bold text-primary-teal bg-light-teal border border-primary-teal/10 px-1.5 py-0.5 rounded-md mt-1.5">
                       Arrival
                     </span>
@@ -936,7 +936,7 @@ export default function BookingConfirmation() {
 
                 {/* Simulated Live Route Map */}
                 <a 
-                  href="https://www.google.com/maps/dir/?api=1&destination=Apollo+Hospitals+Jubilee+Hills"
+                  href="https://www.google.com/maps/dir/?api=1&destination=CareFlow+Clinic"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="relative h-[200px] w-full bg-[#f1f5f9] rounded-2xl overflow-hidden border border-slate-200 mt-5 shadow-inner select-none block group cursor-pointer hover:border-primary-teal transition-colors"
@@ -947,14 +947,14 @@ export default function BookingConfirmation() {
                     {/* Water Body (River) */}
                     <path d="M -20,180 Q 200,160 380,185 T 620,175" fill="none" stroke="#bae6fd" strokeWidth="24" strokeLinecap="round" opacity="0.6" />
                     <path d="M -20,180 Q 200,160 380,185 T 620,175" fill="none" stroke="#e0f2fe" strokeWidth="20" strokeLinecap="round" opacity="0.8" />
-
+ 
                     {/* Park Areas */}
                     <path d="M 180,120 C 180,110 220,110 250,115 C 280,120 290,140 290,160 C 290,175 220,180 180,175 Z" fill="#dcfce7" stroke="#bbf7d0" strokeWidth="1" opacity="0.9" />
-                    <text x="235" y="145" fill="#15803d" fontSize="7" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">KBR Park</text>
-
+                    <text x="235" y="145" fill="#15803d" fontSize="7" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Central Park</text>
+ 
                     <rect x="470" y="10" width="110" height="60" rx="8" fill="#dcfce7" stroke="#bbf7d0" strokeWidth="1" opacity="0.8" />
-                    <text x="525" y="32" fill="#15803d" fontSize="7" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Apollo Green Zone</text>
-
+                    <text x="525" y="32" fill="#15803d" fontSize="7" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Clinic Green Zone</text>
+ 
                     {/* Secondary Roads (Under-layer/Casing) */}
                     <path d="M -10,35 L 610,35 M -10,75 L 610,75 M -10,115 L 610,115 M -10,155 L 610,155" stroke="white" strokeWidth="5" strokeLinecap="round" opacity="0.9" />
                     <path d="M 110,-10 L 110,210 M 230,-10 L 230,210 M 350,-10 L 350,210 M 470,-10 L 470,210" stroke="white" strokeWidth="5" strokeLinecap="round" opacity="0.9" />
@@ -1023,7 +1023,7 @@ export default function BookingConfirmation() {
                     <div className="w-8 h-8 rounded-full bg-primary-teal border-2 border-white flex items-center justify-center shadow text-white animate-pulse">
                       <MapPin className="h-4 w-4" />
                     </div>
-                    <span className="text-[8px] font-bold text-primary-teal bg-white/95 px-1.5 py-0.2 rounded shadow mt-1 border border-teal-100">Apollo Hospital</span>
+                    <span className="text-[8px] font-bold text-primary-teal bg-white/95 px-1.5 py-0.2 rounded shadow mt-1 border border-teal-100">CareFlow Clinic</span>
                   </div>
 
                   {/* Animating Car Marker along the path */}
@@ -1067,20 +1067,20 @@ export default function BookingConfirmation() {
                       </h5>
                     </div>
                     <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                      Apollo Transit Partner
+                      CareFlow Transit Partner
                     </span>
                   </div>
 
                   {cabBookingStatus === 'idle' && (
                     <>
                       <p className="text-[11px] text-text-light mb-3">
-                        Ensure an on-time arrival. Pre-book your ride to Apollo Hospital with our transit partners:
+                        Ensure an on-time arrival. Pre-book your ride to CareFlow Clinic with our transit partners:
                       </p>
                       <div className="grid grid-cols-1 gap-2">
                         {[
                           { id: 'ubergo', name: 'Uber Go', price: '₹180', eta: '3 min away', desc: 'Standard sedan, fast response' },
                           { id: 'uberauto', name: 'Uber Auto', price: '₹110', eta: '5 min away', desc: 'Convenient 3-wheeler commute' },
-                          { id: 'apolloassist', name: 'Apollo Care Cab', price: '₹290', eta: '4 min away', desc: 'Wheelchair & oxygen assist, priority entry' }
+                          { id: 'apolloassist', name: 'CareFlow Assist Cab', price: '₹290', eta: '4 min away', desc: 'Wheelchair & oxygen assist, priority entry' }
                         ].map(opt => (
                           <div 
                             key={opt.id}
@@ -1193,10 +1193,10 @@ export default function BookingConfirmation() {
                   <div
                     key={persona.id}
                     onClick={() => setSelectedPersona(persona.id)}
-                    className={`border rounded-2xl p-4 flex items-start justify-between cursor-pointer transition-all duration-300 hover:translate-y-[-1px] ${
+                    className={`border rounded-xl p-4 flex items-start justify-between cursor-pointer transition-all duration-150 hover:translate-y-[-1px] ${
                       isSelected
-                        ? 'border-[#1E7F6A] bg-white/60'
-                        : 'border-[#E8ECEF] hover:border-[#1E7F6A]/30 bg-white'
+                        ? 'border-[#0f766e] bg-white/60'
+                        : 'border-[#E8ECEF] hover:border-[#0f766e]/30 bg-white'
                     }`}
                   >
                     <div className="flex items-start space-x-3.5">
@@ -1329,7 +1329,7 @@ export default function BookingConfirmation() {
                 <p className="text-[#9ca3af] uppercase tracking-wider text-[9px] font-bold">Consultation Fee</p>
                 <p className="font-extrabold text-text-dark text-base">{booking.fees}</p>
                 <p className="text-[10px] text-text-light">
-                  {consultationMode === 'online' ? 'Video Call · Join via link' : 'Aether OPD · Jubilee Hills'}
+                  {consultationMode === 'online' ? 'Video Call · Join via link' : 'CareFlow Clinic · Jubilee Hills'}
                 </p>
               </div>
             </div>
@@ -1372,7 +1372,7 @@ export default function BookingConfirmation() {
                     </p>
                   ) : (
                     <p className="text-[9.5px] text-[#0d9488] font-bold mt-0.5 truncate" title={closestHospital.name}>
-                      to Apollo {closestHospital.city}
+                      to CareFlow {closestHospital.city}
                     </p>
                   )}
                   {userAddress && (
@@ -1557,8 +1557,8 @@ export default function BookingConfirmation() {
           {processing && (
             <div className="bg-[#FAFBFB] border border-[#E5E7EB] rounded-[8px] p-3 text-left space-y-1.5 mb-3 transition-all duration-150">
               <div className="flex items-center gap-2">
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-[#1E7F6A]" />
-                <span className="text-[10px] font-bold text-[#1E7F6A] uppercase tracking-wider">Processing OPD Booking</span>
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-[#0f766e]" />
+                <span className="text-[10px] font-bold text-[#0f766e] uppercase tracking-wider">Processing OPD Booking</span>
               </div>
               <p className="text-[11px] text-[#475569] font-mono leading-tight">
                 &gt; {loadingStep || 'Initializing secure request...'}
@@ -1573,7 +1573,7 @@ export default function BookingConfirmation() {
             className={`w-full py-3.5 rounded-[6px] font-semibold text-sm text-center flex items-center justify-center space-x-2 transition-all duration-150 ${
               processing
                 ? 'bg-gray-100 text-[#9ca3af] cursor-not-allowed'
-                : 'bg-[#1E7F6A] text-white hover:bg-[#165B52] cursor-pointer shadow-2xs'
+                : 'bg-[#0f766e] text-white hover:bg-[#0d5a54] cursor-pointer shadow-2xs'
             }`}
           >
             {processing ? (
@@ -1629,7 +1629,7 @@ export default function BookingConfirmation() {
                 <div>
                   <div className="flex items-center space-x-1">
                     <Activity className="h-4 w-4 text-amber-900" />
-                    <span className="text-[8px] font-black tracking-widest uppercase font-display text-amber-950">Apollo Priority</span>
+                    <span className="text-[8px] font-black tracking-widest uppercase font-display text-amber-950">CareFlow Priority</span>
                   </div>
                   <h4 className="text-[10px] font-black text-amber-950 mt-0.5 tracking-tight font-display">OPD Priority Access Token</h4>
                 </div>

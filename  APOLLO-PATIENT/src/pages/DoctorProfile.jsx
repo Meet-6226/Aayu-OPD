@@ -177,20 +177,20 @@ export default function DoctorProfile() {
         
         {/* LEFT COLUMN: Doctor info (2 cols, sticky on desktop) */}
         <div className="lg:col-span-2 space-y-6 lg:sticky lg:top-24 self-start">
-          <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-6">
+          <div className="bg-white border border-[#E5E7EB] rounded-[10px] p-6">
             <div className="flex items-start">
-              <div className="w-14 h-14 rounded-[12px] bg-[#ECFDF5] border border-[#A7F3D0] flex items-center justify-center shrink-0">
-                <span className="text-lg font-bold text-[#1E7F6A]">{doctor.initials || "DR"}</span>
+              <div className="w-14 h-14 rounded-[6px] bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center shrink-0">
+                <span className="text-lg font-bold text-[#0f766e]">{doctor.initials || "DR"}</span>
               </div>
               <div className="ml-4 space-y-1">
                 <h1 className="text-[18px] font-bold text-[#111827] leading-snug">
                   {doctor.name}
                 </h1>
-                <span className="inline-block bg-[#ECFDF5] text-[#1E7F6A] text-[10px] font-bold uppercase px-2 py-0.5 rounded-full tracking-wider">
+                <span className="inline-block bg-[#f0fdfa] text-[#0f766e] text-[10px] font-bold uppercase px-2 py-0.5 rounded-full tracking-wider">
                   {doctor.department}
                 </span>
                 <p className="text-xs text-[#6B7280] mt-1">{doctor.qualifications}</p>
-                <p className="text-xs text-[#9CA3AF]">{doctor.hospital || "Apollo Hospital, Jubilee Hills"}</p>
+                <p className="text-xs text-[#9CA3AF]">{doctor.hospital || "CareFlow Clinic, Jubilee Hills"}</p>
               </div>
             </div>
 
@@ -285,10 +285,10 @@ export default function DoctorProfile() {
                   {datesList.map((dt, i) => (
                     <button
                       key={i}
-                      onClick={() => { setSelectedDate(dt); }}
-                      className={`flex flex-col items-center justify-center p-3 rounded-[10px] border text-center shrink-0 min-w-[66px] transition-all duration-150 ${
+                      onClick={() => setSelectedDate(dt)}
+                      className={`flex flex-col items-center justify-center p-3 rounded-[6px] border text-center shrink-0 min-w-[66px] transition-all duration-150 ${
                         selectedDate.dateString === dt.dateString
-                          ? 'border-[#1E7F6A] bg-[#ECFDF5] text-[#1E7F6A]'
+                          ? 'border-[#0f766e] bg-[#f0fdfa] text-[#0f766e]'
                           : 'border-[#E5E7EB] bg-white text-[#374151] hover:border-[#D1D5DB]'
                       }`}
                     >
@@ -319,12 +319,12 @@ export default function DoctorProfile() {
                             key={slot.id || i}
                             disabled={!slot.isAvailable}
                             onClick={() => setSelectedSlot(slot)}
-                          className={`py-2.5 text-center text-xs font-semibold rounded-[8px] border transition-all duration-150 ${
+                          className={`py-2.5 text-center text-xs font-semibold rounded-[6px] border transition-all duration-150 ${
                               !slot.isAvailable
                                 ? 'bg-[#F9FAFB] border-transparent text-[#D1D5DB] cursor-not-allowed line-through'
                                 : selectedSlot?.id === slot.id
-                                ? 'border-[#1E7F6A] bg-[#1E7F6A] text-white'
-                                : 'border-[#E5E7EB] bg-white text-[#374151] hover:border-[#1E7F6A]/50'
+                                ? 'border-[#0f766e] bg-[#0f766e] text-white'
+                                : 'border-[#E5E7EB] bg-white text-[#374151] hover:border-[#0f766e]/50'
                             }`}
                           >
                             {slot.time}
@@ -361,14 +361,13 @@ export default function DoctorProfile() {
             
             <button
               onClick={handleBookingRedirect}
-              className="px-6 py-2.5 bg-[#1E7F6A] text-white font-semibold text-sm rounded-[10px] hover:bg-[#165B52] transition-colors duration-150 shrink-0"
+              className="px-6 py-2.5 bg-[#0f766e] text-white font-semibold text-sm rounded-[6px] hover:bg-[#0d5a54] transition-colors duration-150 shrink-0"
             >
               Confirm →
             </button>
           </div>
         </div>
       )}
-
     </div>
   );
 }

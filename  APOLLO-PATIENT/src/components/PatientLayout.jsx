@@ -80,32 +80,32 @@ export default function PatientLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F5F7F8] text-[#374151] font-sans flex flex-col relative">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#334155] font-sans flex flex-col relative antialiased">
       {/* ── HEADER ──────────────────────────────────────────────────── */}
-      <header className="fixed top-0 left-0 right-0 h-14 lg:h-16 bg-white border-b border-[#E5E7EB] z-50">
-        <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 h-14 lg:h-16 bg-white border-b border-[#E2E8F0] z-50 shadow-sm">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
 
           {/* Logo */}
           <Link to="/home" className="shrink-0">
-            <BrandLogo variant="inline" />
+            <BrandLogo variant="inline" height={28} />
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-0.5 h-full">
+          <nav className="hidden lg:flex items-center gap-1 h-full">
             {[
-              { to: '/home', label: 'Home' },
-              { to: '/doctors', label: 'Find Doctors' },
-              { to: '/appointments', label: 'My Appointments' },
-              { to: '/reports', label: 'My Reports' },
+              { to: '/home', label: 'Dashboard' },
+              { to: '/doctors', label: 'Doctors' },
+              { to: '/appointments', label: 'Appointments' },
+              { to: '/reports', label: 'Reports' },
             ].map(({ to, label }) => (
               <NavLink
                 key={to}
                 to={to}
                 className={({ isActive }) =>
-                  `relative px-4 py-2 text-[13px] font-medium rounded-[8px] transition-all duration-150 ${
+                  `relative px-3.5 py-1.5 text-xs font-semibold rounded-[8px] transition-all duration-150 ${
                     isActive
-                      ? 'text-[#111827] bg-[#F3F4F6] font-semibold'
-                      : 'text-[#6B7280] hover:text-[#374151] hover:bg-[#F9FAFB]'
+                      ? 'text-[#0F172A] bg-[#F1F5F9] font-bold'
+                      : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
                   }`
                 }
               >
@@ -115,29 +115,29 @@ export default function PatientLayout() {
           </nav>
 
           {/* Right: Bell + Avatar */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Link
               to="/notifications"
-              className="relative p-2 rounded-[8px] text-[#6B7280] hover:text-[#374151] hover:bg-[#F3F4F6] transition-all"
+              className="relative p-2 rounded-[8px] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-all"
             >
-              <Bell className="h-[18px] w-[18px]" />
+              <Bell className="h-4.5 w-4.5" />
               {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-[#DC2626]" />
+                <span className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full bg-[#E11D48]" />
               )}
             </Link>
 
             <Link
               to="/profile"
-              className="w-8 h-8 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] flex items-center justify-center hover:border-[#1E7F6A] transition-all"
+              className="w-8 h-8 rounded-full bg-[#F1F5F9] border border-[#E2E8F0] flex items-center justify-center hover:border-[#CBD5E1] transition-all"
             >
-              <span className="text-[11px] font-bold text-[#1E7F6A]">{getInitials()}</span>
+              <span className="text-xs font-bold text-[#475569]">{getInitials()}</span>
             </Link>
           </div>
         </div>
       </header>
 
       {/* ── BOTTOM NAV (Mobile only) ─────────────────────────────────── */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-[#E5E7EB] z-50 lg:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-[#E2E8F0] z-50 lg:hidden shadow-lg">
         <div className="flex items-center justify-around max-w-[440px] mx-auto h-full px-3">
           {navItems.map(({ to, icon: Icon, label, badge }) => (
             <NavLink
@@ -150,16 +150,16 @@ export default function PatientLayout() {
                   <div className="relative flex items-center justify-center">
                     <Icon
                       className={`h-[18px] w-[18px] transition-colors duration-150 ${
-                        isActive ? 'text-[#1E7F6A]' : 'text-[#9CA3AF]'
+                        isActive ? 'text-[#0f766e]' : 'text-[#94A3B8]'
                       }`}
                     />
                     {badge && (
-                      <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#DC2626]" />
+                      <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#E11D48]" />
                     )}
                   </div>
                   <span
                     className={`text-[10px] mt-1 leading-none transition-colors ${
-                      isActive ? 'font-semibold text-[#1E7F6A]' : 'font-medium text-[#9CA3AF]'
+                      isActive ? 'font-bold text-[#0f766e]' : 'font-medium text-[#94A3B8]'
                     }`}
                   >
                     {label}
@@ -172,7 +172,7 @@ export default function PatientLayout() {
       </nav>
 
       {/* ── Main Content ─────────────────────────────────────────────── */}
-      <main className="flex-grow pt-14 lg:pt-16 pb-[72px] lg:pb-0 bg-[#F5F7F8]">
+      <main className="flex-grow pt-14 lg:pt-16 pb-[72px] lg:pb-0 bg-[#F8FAFC]">
         <Outlet />
       </main>
 
