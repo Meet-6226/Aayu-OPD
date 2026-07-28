@@ -26,7 +26,7 @@ class ClinicalCard extends StatelessWidget {
       border: border ?? Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.015),
+          color: Colors.black.withValues(alpha: 0.015),
           blurRadius: 10.0,
           offset: const Offset(0, 4),
         )

@@ -36,7 +36,6 @@ class NidaanOneApp extends StatelessWidget {
           primary: const Color(0xFF0F766E),
           secondary: const Color(0xFF0D9488),
           surface: Colors.white,
-          background: const Color(0xFFF8FAFC),
         ),
         textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
         appBarTheme: const AppBarTheme(
@@ -109,7 +108,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
           selectedItemColor: const Color(0xFF0F766E),
           unselectedItemColor: const Color(0xFF64748B),
           selectedLabelStyle: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold),
-          unselectedLabelStyle: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.medium),
+          unselectedLabelStyle: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w500),
           elevation: 0,
           type: BottomNavigationBarType.fixed,
           items: const [

@@ -190,7 +190,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               },
               labelStyle: GoogleFonts.inter(
                 fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.medium,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 color: isSelected ? const Color(0xFF0F766E) : const Color(0xFF475569),
               ),
               selectedColor: const Color(0xFFF0FDFA),
@@ -227,7 +227,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
-          value: _selectedBloodGroup,
+          initialValue: _selectedBloodGroup,
           items: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']
               .map((bg) => DropdownMenuItem(value: bg, child: Text(bg, style: GoogleFonts.inter(fontSize: 13))))
               .toList(),
@@ -433,7 +433,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(height: 2),
           Text(
             value,
-            style: GoogleFonts.inter(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.medium),
+            style: GoogleFonts.inter(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -443,7 +443,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   InputDecoration _inputDecoration(String labelText) {
     return InputDecoration(
       labelText: labelText,
-      labelStyle: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.medium),
+      labelStyle: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.w500),
       filled: true,
       fillColor: Colors.white,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),

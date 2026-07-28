@@ -265,7 +265,7 @@ class _BookingScreenState extends State<BookingScreen> {
               children: [
                 Text(name, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A))),
                 const SizedBox(height: 1),
-                Text(dept, style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.medium)),
+                Text(dept, style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -333,7 +333,7 @@ class _BookingScreenState extends State<BookingScreen> {
           const SizedBox(height: 1),
           Text(subtitle, style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF64748B))),
           const SizedBox(height: 8),
-          Text(price, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.black, color: const Color(0xFF0F172A))),
+          Text(price, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w900, color: const Color(0xFF0F172A))),
         ],
       ),
     );
@@ -372,7 +372,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     const SizedBox(height: 2),
                     Text(
                       _dateNumberFormat.format(date),
-                      style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.black, color: isSelected ? const Color(0xFF0F766E) : const Color(0xFF0F172A)),
+                      style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w900, color: isSelected ? const Color(0xFF0F766E) : const Color(0xFF0F172A)),
                     ),
                     const SizedBox(height: 1),
                     Text(
@@ -419,7 +419,7 @@ class _BookingScreenState extends State<BookingScreen> {
               slot,
               style: GoogleFonts.inter(
                 fontSize: 11,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.medium,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 color: isSelected ? const Color(0xFF0F766E) : const Color(0xFF475569),
               ),
             ),
@@ -448,7 +448,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SizedBox(height: 2),
                   Text(
                     '₹$fee',
-                    style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.black, color: const Color(0xFF0F172A)),
+                    style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w900, color: const Color(0xFF0F172A)),
                   ),
                 ],
               ),

@@ -104,7 +104,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(color: const Color(0xFF0D9488).withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFF0D9488).withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +118,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                 style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.tealAccent, letterSpacing: 0.8),
               ),
               const Spacer(),
-              const Icon(Icons.verified_user, color: Colors.emeraldAccent, size: 16),
+              const Icon(Icons.verified_user, color: Color(0xFF10B981), size: 16),
             ],
           ),
           const SizedBox(height: 28),
@@ -134,7 +134,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
           const SizedBox(height: 8),
           Text(
             name.toUpperCase(),
-            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white.withOpacity(0.8)),
+            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white.withValues(alpha: 0.8)),
           ),
         ],
       ),
@@ -175,7 +175,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 4.0,
                     offset: const Offset(0, 2),
                   )
@@ -187,7 +187,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
           label,
           style: GoogleFonts.inter(
             fontSize: 12,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.medium,
+            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
             color: isActive ? const Color(0xFF0F172A) : const Color(0xFF64748B),
           ),
         ),
@@ -217,7 +217,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                     ),
                     Text(
                       rx['date'],
-                      style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.medium),
+                      style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -276,7 +276,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                       style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, py: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: isNormal ? const Color(0xFFE8FAEE) : const Color(0xFFFFFBEB),
                         borderRadius: BorderRadius.circular(4),
@@ -306,7 +306,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                   children: [
                     Text(
                       'Tested on ${rep['date']}',
-                      style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF94A3B8), fontWeight: FontWeight.medium),
+                      style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
                     ),
                     const Spacer(),
                     Text(

@@ -141,7 +141,7 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
                           },
                           labelStyle: GoogleFonts.inter(
                             fontSize: 11,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.medium,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                             color: isSelected ? const Color(0xFF0F766E) : const Color(0xFF475569),
                           ),
                           selectedColor: const Color(0xFFF0FDFA),
@@ -299,7 +299,7 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
                   children: [
                     Text(
                       '$exp years experience',
-                      style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF94A3B8), fontWeight: FontWeight.medium),
+                      style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
                     ),
                     Row(
                       children: [
@@ -309,7 +309,7 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
                         ],
                         Text(
                           '₹$fee',
-                          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.black, color: const Color(0xFF0F172A)),
+                          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w900, color: const Color(0xFF0F172A)),
                         ),
                       ],
                     ),

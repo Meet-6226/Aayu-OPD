@@ -42,7 +42,7 @@ class BrandLogo extends StatelessWidget {
                 Text(
                   'Nidaan',
                   style: GoogleFonts.inter(
-                    fontWeight: FontWeight.black,
+                    fontWeight: FontWeight.w900,
                     fontSize: titleSize,
                     color: textColor ?? const Color(0xFF0F172A),
                     letterSpacing: -0.5,
@@ -51,7 +51,7 @@ class BrandLogo extends StatelessWidget {
                 Text(
                   'One',
                   style: GoogleFonts.inter(
-                    fontWeight: FontWeight.black,
+                    fontWeight: FontWeight.w900,
                     fontSize: titleSize,
                     color: const Color(0xFF0F766E),
                     letterSpacing: -0.5,
@@ -65,7 +65,7 @@ class BrandLogo extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.w900,
                 fontSize: subtitleSize,
-                color: textColor?.withOpacity(0.6) ?? const Color(0xFF64748B),
+                color: textColor?.withValues(alpha: 0.6) ?? const Color(0xFF64748B),
                 letterSpacing: 1.0,
               ),
             ),
@@ -168,13 +168,6 @@ class _CaduceusPainter extends CustomPainter {
       ..quadraticBezierTo(centerX - 12, size.height * 0.5, centerX, size.height * 0.42)
       ..quadraticBezierTo(centerX + 12, size.height * 0.35, centerX, size.height * 0.3);
     canvas.drawPath(snake2, lightTealPaint);
-  }
-
-  @override
-  Widget buildSemanticsMetadata(Size size) {
-    return const SemanticsRasterProperties(
-      label: 'Nidaan One Caduceus Emblem',
-    );
   }
 
   @override

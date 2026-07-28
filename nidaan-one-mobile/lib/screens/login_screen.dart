@@ -177,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 color: const Color(0xFF991B1B),
-                                fontWeight: FontWeight.medium,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -307,7 +307,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 2),
                     Text(
                       'Use verification code $_mockOtp to sign in to Nidaan One.',
-                      style: GoogleFonts.inter(fontSize: 11, color: Colors.white, fontWeight: FontWeight.medium),
+                      style: GoogleFonts.inter(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -327,7 +327,7 @@ class _LoginScreenState extends State<LoginScreen> {
           maxLength: 6,
           textAlign: TextAlign.center,
           decoration: _inputDecoration('6-Digit Code'),
-          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.black, letterSpacing: 8.0),
+          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 8.0),
         ),
         const SizedBox(height: 16),
         Row(
@@ -382,7 +382,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: DropdownButtonFormField<String>(
-                value: _selectedGender,
+                initialValue: _selectedGender,
                 items: ['Male', 'Female', 'Other']
                     .map((g) => DropdownMenuItem(value: g, child: Text(g, style: GoogleFonts.inter(fontSize: 13))))
                     .toList(),
@@ -446,7 +446,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
-          value: _selectedPersona,
+          initialValue: _selectedPersona,
           items: ['Busy Professional', 'Elderly / Need Help', 'Student']
               .map((p) => DropdownMenuItem(value: p, child: Text(p, style: GoogleFonts.inter(fontSize: 13))))
               .toList(),
@@ -545,7 +545,7 @@ class _LoginScreenState extends State<LoginScreen> {
   InputDecoration _inputDecoration(String labelText, {String? prefixText}) {
     return InputDecoration(
       labelText: labelText,
-      labelStyle: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF64748B), fontWeight: FontWeight.medium),
+      labelStyle: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF64748B), fontWeight: FontWeight.w500),
       prefixText: prefixText,
       prefixStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF1E293B)),
       filled: true,

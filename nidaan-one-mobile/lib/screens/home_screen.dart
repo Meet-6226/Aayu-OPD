@@ -148,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, py: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1E293B),
                   borderRadius: BorderRadius.circular(12),
@@ -160,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 4),
                     Text(
                       persona.toUpperCase(),
-                      style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.black, color: Colors.tealAccent, letterSpacing: 0.5),
+                      style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w900, color: Colors.tealAccent, letterSpacing: 0.5),
                     ),
                   ],
                 ),
@@ -168,14 +168,14 @@ class _HomeScreenState extends State<HomeScreen> {
               const Spacer(),
               if (isOnboarded)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, py: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: const Color(0xFF064E3B),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     'ABDM SYNCED',
-                    style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.emeraldAccent),
+                    style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.bold, color: const Color(0xFF10B981)),
                   ),
                 ),
             ],
@@ -183,12 +183,12 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 16),
           Text(
             'Welcome back,',
-            style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF94A3B8), fontWeight: FontWeight.medium),
+            style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 2),
           Text(
             name,
-            style: GoogleFonts.inter(fontSize: 24, color: Colors.white, fontWeight: FontWeight.black, letterSpacing: -0.5),
+            style: GoogleFonts.inter(fontSize: 24, color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: -0.5),
           ),
         ],
       ),
@@ -307,7 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, py: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: isOnline ? const Color(0xFFEEF2FF) : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(6),
@@ -316,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   isOnline ? 'VIDEO CONSULT' : 'IN-CLINIC VISIT',
                   style: GoogleFonts.inter(
                     fontSize: 9, 
-                    fontWeight: FontWeight.black, 
+                    fontWeight: FontWeight.w900, 
                     color: isOnline ? const Color(0xFF4F46E5) : const Color(0xFF475569),
                   ),
                 ),
@@ -341,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 2),
                   Text(
                     waitMin,
-                    style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.black, color: const Color(0xFF0F172A)),
+                    style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w900, color: const Color(0xFF0F172A)),
                   ),
                 ],
               ),
@@ -355,7 +355,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 2),
                   Text(
                     timeStr,
-                    style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.black, color: const Color(0xFF0F172A)),
+                    style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w900, color: const Color(0xFF0F172A)),
                   ),
                 ],
               ),
@@ -414,7 +414,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 steps[i],
                 style: GoogleFonts.inter(
                   fontSize: 10,
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.medium,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
                   color: isActive || isCompleted ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
                 ),
               ),
@@ -469,7 +469,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Icon(icon, color: color, size: 18),
