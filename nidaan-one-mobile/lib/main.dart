@@ -1,23 +1,13 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'services/auth_service.dart';
-import 'screens/login_screen.dart';
-import 'screens/home_screen.dart';
-import 'screens/doctors_screen.dart';
-import 'screens/records_screen.dart';
-import 'screens/onboarding_screen.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'widgets/brand_logo.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthService()),
-      ],
-      child: const NidaanOneApp(),
-    ),
-  );
+  runApp(const NidaanOneApp());
 }
 
 class NidaanOneApp extends StatelessWidget {
@@ -38,97 +28,215 @@ class NidaanOneApp extends StatelessWidget {
           surface: Colors.white,
         ),
         textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: Color(0xFF0F172A),
-          elevation: 0,
-        ),
       ),
-      home: const AuthGate(),
+      home: const PatientPortalWrapper(),
     );
   }
 }
 
-class AuthGate extends StatelessWidget {
-  const AuthGate({super.key});
+class PatientPortalWrapper extends StatefulWidget {
+  const PatientPortalWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final auth = Provider.of<AuthService>(context);
-    
-    // Switch between Login and Main Shell based on auth state
-    if (!auth.isLoggedIn) {
-      return const LoginScreen();
-    }
-    
-    return const MainNavigationShell();
+  State<PatientPortalWrapper> createState() => _PatientPortalWrapperState();
+}
+
+class _PatientPortalWrapperState extends State<PatientPortalWrapper> {
+  late final WebViewController _controller;
+  bool _isLoading = true;
+  double _loadingProgress = 0.0;
+  String _targetUrl = '';
+  final TextEditingController _urlInputController = TextEditingController();
+  bool _showDebugBar = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolveTargetUrl();
+    _initializeWebViewController();
   }
-}
 
-class MainNavigationShell extends StatefulWidget {
-  const MainNavigationShell({super.key});
+  void _resolveTargetUrl() {
+    // Determine local development URL based on platform
+    if (kIsWeb) {
+      _targetUrl = 'http://localhost:5173';
+    } else if (Platform.isAndroid) {
+      // 10.0.2.2 points to local machine loopback inside Android Emulator
+      _targetUrl = 'http://10.0.2.2:5173';
+    } else {
+      // iOS Simulator and Desktop macOS
+      _targetUrl = 'http://localhost:5173';
+    }
+    _urlInputController.text = _targetUrl;
+  }
 
-  @override
-  State<MainNavigationShell> createState() => _MainNavigationShellState();
-}
+  void _initializeWebViewController() {
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0xFF0F172A))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            setState(() {
+              _loadingProgress = progress / 100.0;
+            });
+          },
+          onPageStarted: (String url) {
+            setState(() {
+              _isLoading = true;
+            });
+          },
+          onPageFinished: (String url) {
+            setState(() {
+              _isLoading = false;
+            });
+          },
+          onWebResourceError: (WebResourceError error) {
+            debugPrint('❌ [WebView] Resource error: ${error.description}');
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(_targetUrl));
+  }
 
-class _MainNavigationShellState extends State<MainNavigationShell> {
-  int _selectedIndex = 0;
+  void _updateUrl(String newUrl) {
+    if (newUrl.trim().isEmpty) return;
+    String formattedUrl = newUrl.trim();
+    if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+      formattedUrl = 'http://$formattedUrl';
+    }
+    setState(() {
+      _targetUrl = formattedUrl;
+      _isLoading = true;
+      _loadingProgress = 0.0;
+    });
+    _controller.loadRequest(Uri.parse(formattedUrl));
+  }
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> screens = [
-      HomeScreen(
-        onNavigateToDoctors: () => setState(() => _selectedIndex = 1),
-        onNavigateToRecords: () => setState(() => _selectedIndex = 2),
-        onTriggerOnboarding: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-          );
-        },
-      ),
-      const DoctorsScreen(),
-      const RecordsScreen(),
-    ];
-
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: screens,
+      backgroundColor: const Color(0xFF0F172A), // Matches the dark Web theme
+      appBar: _showDebugBar || kDebugMode
+          ? AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              toolbarHeight: _showDebugBar ? 60.0 : 36.0,
+              title: _showDebugBar
+                  ? TextField(
+                      controller: _urlInputController,
+                      style: GoogleFonts.inter(fontSize: 12),
+                      decoration: InputDecoration(
+                        hintText: 'Enter React App URL (e.g. localhost:5173)',
+                        hintStyle: GoogleFonts.inter(fontSize: 11, color: Colors.grey),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.arrow_forward, size: 16),
+                          onPressed: () => _updateUrl(_urlInputController.text),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(6.0),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                      ),
+                      onSubmitted: _updateUrl,
+                    )
+                  : Text(
+                      'DEVELOPER SANDBOX MODE — double-click logo to change URL',
+                      style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: const Color(0xFF64748B)),
+                    ),
+              leading: _showDebugBar
+                  ? IconButton(
+                      icon: const Icon(Icons.close, size: 18),
+                      onPressed: () => setState(() => _showDebugBar = false),
+                    )
+                  : null,
+              actions: [
+                if (!_showDebugBar)
+                  IconButton(
+                    icon: const Icon(Icons.settings_outlined, size: 16),
+                    onPressed: () => setState(() => _showDebugBar = true),
+                  ),
+              ],
+            )
+          : null,
+      body: SafeArea(
+        child: PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (bool didPop, dynamic result) async {
+            if (didPop) return;
+            if (await _controller.canGoBack()) {
+              await _controller.goBack();
+            }
+          },
+          child: Stack(
+            children: [
+              // 1. The Main React Webapp WebView
+              WebViewWidget(controller: _controller),
+
+              // 2. Linear Progress Bar during loading
+              if (_isLoading && _loadingProgress > 0)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: LinearProgressIndicator(
+                    value: _loadingProgress,
+                    backgroundColor: Colors.transparent,
+                    color: const Color(0xFF0F766E),
+                    minHeight: 3,
+                  ),
+                ),
+
+              // 3. Premium Nidaan One Animated Splash Screen (shown on launch)
+              if (_isLoading && _loadingProgress < 0.8)
+                _buildSplashOverlay(),
+            ],
+          ),
+        ),
       ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: Color(0xFFE2E8F0), width: 1.0)),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: (index) => setState(() => _selectedIndex = index),
-          backgroundColor: Colors.white,
-          selectedItemColor: const Color(0xFF0F766E),
-          unselectedItemColor: const Color(0xFF64748B),
-          selectedLabelStyle: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold),
-          unselectedLabelStyle: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w500),
-          elevation: 0,
-          type: BottomNavigationBarType.fixed,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined, size: 22),
-              activeIcon: Icon(Icons.home, size: 22),
-              label: 'Home',
+    );
+  }
+
+  Widget _buildSplashOverlay() {
+    return Container(
+      color: const Color(0xFF0F172A), // Premium Dark Slate base
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Glowing logo
+          GestureDetector(
+            onDoubleTap: () {
+              setState(() {
+                _showDebugBar = !_showDebugBar;
+              });
+            },
+            child: const BrandLogo(
+              height: 48,
+              textColor: Colors.white,
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.search_outlined, size: 22),
-              activeIcon: Icon(Icons.search, size: 22),
-              label: 'Search',
+          ),
+          const SizedBox(height: 40),
+          const SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              color: Color(0xFF0F766E),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.folder_shared_outlined, size: 22),
-              activeIcon: Icon(Icons.folder_shared, size: 22),
-              label: 'Locker',
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Synchronizing clinical layers...',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF64748B),
+              letterSpacing: 0.5,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
