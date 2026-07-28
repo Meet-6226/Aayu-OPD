@@ -342,12 +342,12 @@ export default function MedicalOnboardingModal({ onComplete }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.97, y: 15 }}
         transition={{ duration: 0.28, ease: 'easeOut' }}
-        className="bg-white w-full max-w-[960px] shadow-elev-3 rounded-[12px] overflow-hidden border border-[#e2e8f0]"
+        className="bg-white w-full max-w-[960px] max-h-[92vh] flex flex-col shadow-elev-3 rounded-[12px] overflow-hidden border border-[#e2e8f0]"
       >
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-0">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-0 overflow-hidden flex-grow">
           
           {/* ── LEFT PANEL ────────────────────── */}
-          <div className="md:col-span-4 bg-[#0F172A] text-white p-6 flex flex-col justify-between text-left border-r border-[#1E293B] select-none">
+          <div className="hidden md:flex md:col-span-4 bg-[#0F172A] text-white p-6 flex-col justify-between text-left border-r border-[#1E293B] select-none">
 
             {/* Branding — compact */}
             <div className="flex items-center gap-2">
@@ -397,7 +397,7 @@ export default function MedicalOnboardingModal({ onComplete }) {
           </div>
 
           {/* ── RIGHT PANEL: Interactive Onboarding Questions ──────────────── */}
-          <div className="md:col-span-8 flex flex-col justify-between">
+          <div className="col-span-12 md:col-span-8 flex flex-col justify-between overflow-hidden">
             
             {/* Progress Top Bar */}
             <div className="w-full h-1 bg-[#f1f5f9]">
@@ -438,7 +438,7 @@ export default function MedicalOnboardingModal({ onComplete }) {
             </div>
 
             {/* Questions Core Body */}
-            <div className="px-8 pb-4 flex-grow min-h-[220px]">
+            <div className="px-8 pb-4 flex-grow overflow-y-auto max-h-[48vh] md:max-h-none min-h-[180px] md:min-h-[220px]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={q.id}
@@ -638,14 +638,14 @@ export default function MedicalOnboardingModal({ onComplete }) {
                   )}
                 </motion.div>
               </AnimatePresence>
-            </div>
 
-            {/* AI Purpose Box */}
-            <div className="mx-8 mb-2 p-3 bg-[#FAFBFB] border border-[#e2e8f0] rounded-[8px] flex items-start gap-2.5 text-left transition-all duration-150">
-              <Info className="h-4 w-4 text-[#0f766e] shrink-0 mt-0.5" />
-              <div className="space-y-0.5">
-                <span className="text-[9px] font-bold text-[#0f766e] uppercase tracking-wider block">Why Nidaan One AI asks this:</span>
-                <p className="text-[10.5px] text-[#475569] leading-normal font-semibold">{q.aiPurpose}</p>
+              {/* AI Purpose Box - Moved inside the scrollable questions body */}
+              <div className="mt-6 p-3 bg-[#FAFBFB] border border-[#e2e8f0] rounded-[8px] flex items-start gap-2.5 text-left transition-all duration-150">
+                <Info className="h-4 w-4 text-[#0f766e] shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <span className="text-[9px] font-bold text-[#0f766e] uppercase tracking-wider block">Why Nidaan One AI asks this:</span>
+                  <p className="text-[10.5px] text-[#475569] leading-normal font-semibold">{q.aiPurpose}</p>
+                </div>
               </div>
             </div>
 

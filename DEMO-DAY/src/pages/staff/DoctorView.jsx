@@ -5,7 +5,7 @@ import {
   Clock, User, CheckCircle, AlertTriangle, AlertCircle,
   X, Check, Sparkles, ChevronRight, RefreshCw, FileText,
   Heart, Activity, MapPin, Phone, ShieldAlert,
-  Pill, Droplets, Shield, Wind
+  Pill, Droplets, Shield, Wind, Plus
 } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import { doc, updateDoc, collection, query, where, onSnapshot } from 'firebase/firestore';
@@ -152,6 +152,7 @@ export default function DoctorViewPage() {
 
   // EMR drawer state
   const [selectedPatientForHistory, setSelectedPatientForHistory] = useState(null);
+  const [patientRealHistory, setPatientRealHistory] = useState([]);
 
   // Rx Modal state
   const [isRxModalOpen, setIsRxModalOpen] = useState(false);
@@ -218,6 +219,59 @@ export default function DoctorViewPage() {
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
+
+  // Fetch real-time prescription history from Firestore for selected patient
+  useEffect(() => {
+    if (!selectedPatientForHistory?.id) {
+      setPatientRealHistory([]);
+      return;
+    }
+    const q = query(
+      collection(db, 'appointments'),
+      where('patientId', '==', selectedPatientForHistory.id)
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const historyList = [];
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data.prescription) {
+          // Format date from YYYY-MM-DD to DD MMM YYYY if needed
+          let displayDate = data.prescription.date || data.appointmentDate || '';
+          if (displayDate.includes('-')) {
+            const parts = displayDate.split('-');
+            if (parts.length === 3 && parts[0].length === 4) {
+              const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+              displayDate = dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            }
+          }
+
+          historyList.push({
+            date: displayDate,
+            type: 'Consultation',
+            dept: data.prescription.department || data.department || 'Cardiology',
+            doctor: data.prescription.doctorName || data.doctorName || 'Doctor',
+            notes: data.prescription.diagnosis?.map(d => d.name).join(', ') || data.notes || 'Routine follow-up',
+            vitals: {
+              bp: data.prescription.vitals?.bp || data.bp || '120/80 mmHg',
+              hr: data.prescription.vitals?.heartRate || data.heartRate || '72 bpm',
+              temp: data.prescription.vitals?.temp || '98.6 F',
+              spo2: data.prescription.vitals?.spo2 || '98%'
+            },
+            prescription: data.prescription.medicines?.map(m => ({
+              med: m.name,
+              dosage: m.timing,
+              duration: m.duration
+            })) || [],
+            reports: data.prescription.precautions?.map(p => p.detail).join('\n') || ''
+          });
+        }
+      });
+      // Sort by date descending
+      historyList.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setPatientRealHistory(historyList);
+    });
+    return () => unsubscribe();
+  }, [selectedPatientForHistory?.id]);
 
   // 1. Fetch all doctors
   useEffect(() => {
@@ -1349,13 +1403,39 @@ export default function DoctorViewPage() {
 
                 {/* Visit History & Prescriptions */}
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.85rem' }}>
-                    <Clock size={14} color="#475569" />
-                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Visit History & Prescriptions</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                      <Clock size={14} color="#475569" />
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Visit History & Prescriptions</span>
+                    </div>
+                    {selectedPatientForHistory.appointmentId && (
+                      <button
+                        onClick={() => { setRxPatient(selectedPatientForHistory); setIsRxModalOpen(true); }}
+                        style={{
+                          background: 'linear-gradient(135deg, #1b504c 0%, #153f3c 100%)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '0.35rem 0.75rem',
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          boxShadow: '0 2px 6px rgba(27,80,76,0.15)',
+                          transition: 'all 0.15s'
+                        }}
+                        onMouseOver={e => e.currentTarget.style.transform = 'translateY(-1px)'}
+                        onMouseOut={e => e.currentTarget.style.transform = 'none'}
+                      >
+                        <Plus size={11} color="#86efac" /> Add Prescription
+                      </button>
+                    )}
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {getPatientMedicalHistory(selectedPatientForHistory.id, selectedPatientForHistory.name).map((record, rIdx) => (
+                    {[...patientRealHistory, ...getPatientMedicalHistory(selectedPatientForHistory.id, selectedPatientForHistory.name)].map((record, rIdx) => (
                       <div key={rIdx} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
                         {/* Record header */}
                         <div style={{ background: '#f8fafc', padding: '0.7rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0' }}>
