@@ -12,7 +12,7 @@ async function test() {
     const message = await client.messages.create({
       from: twilioWhatsappNumber,
       to: 'whatsapp:+919975027178', // sahil's number from KIs/code
-      body: 'Apollo Hospital: Twilio backend test message. If you receive this, credentials are valid!'
+      body: 'Nidaan One Clinic: Twilio backend test message. If you receive this, credentials are valid!'
     });
     console.log('✅ Success! Message SID:', message.sid);
     console.log('Status:', message.status);

@@ -1,7 +1,7 @@
 {
   "name": "apollo-opd-mongodb-backend",
   "version": "1.0.0",
-  "description": "MongoDB Express Backend for Apollo OPD Platform",
+  "description": "MongoDB Express Backend for Nidaan One OPD Platform",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

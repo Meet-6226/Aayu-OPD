@@ -219,7 +219,7 @@ function Sidebar({ onEmergencyClick }) {
           onClick={() => navigate(userRole === 'doctor' ? '/staff/doctor-view' : '/staff/dashboard')}
         >
           <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '0.9rem', color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-            Apollo OPD
+            Nidaan One OPD
           </div>
           <div style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Intelligence
@@ -377,7 +377,7 @@ function NotificationPanel({ onClose }) {
 function Header({ onNotifClick, showNotifPanel }) {
   const location = useLocation();
   const [search, setSearch] = useState('');
-  const pageInfo = PAGE_TITLES[location.pathname] || { title: 'Apollo OPD Intelligence', sub: 'AI-powered OPD management' };
+  const pageInfo = PAGE_TITLES[location.pathname] || { title: 'Nidaan One OPD Intelligence', sub: 'AI-powered OPD management' };
   const today = todayDisplayShort(); // IST-anchored via appTime.js
 
   return (
@@ -569,7 +569,7 @@ function EmergencySwapModal({ onClose }) {
           reminderType: 'doctor_change_hot_swap',
           channel: 'whatsapp',
           status: 'sent',
-          messageBody: `Apollo Hospital Alert: Dear patient, due to an emergency, your appointment today at ${appt.appointmentTime} has been re-assigned to ${backup.name} in ${backup.room}.`,
+          messageBody: `Nidaan One Clinic Alert: Dear patient, due to an emergency, your appointment today at ${appt.appointmentTime} has been re-assigned to ${backup.name} in ${backup.room}.`,
           sentAt: serverTimestamp()
         });
       }

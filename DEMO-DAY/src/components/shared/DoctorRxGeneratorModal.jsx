@@ -220,7 +220,7 @@ export default function DoctorRxGeneratorModal({ isOpen, onClose, patient, onPre
         date,
         doctorName: patient.doctorName || 'Dr. Rajesh Mehta',
         department: patient.department || 'Cardiology',
-        hospital: patient.hospital || 'Apollo Hospitals',
+        hospital: patient.hospital || 'Nidaan One Clinics',
         diagnosis: selectedDiagnoses.map(d => ({ name: d, code: 'ICD-10', severity: 'Active / Controlled' })),
         vitals: {
           bp: patient.vitals?.bp || '120/80 mmHg',

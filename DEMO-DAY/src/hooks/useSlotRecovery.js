@@ -188,7 +188,7 @@ export function useSlotRecovery() {
       const docSnap = await getDoc(docRef);
       const docName = docSnap.exists() ? docSnap.data().name : 'Doctor';
 
-      const messageBody = `Apollo Hospital: Hi ${patientData.name}! A slot has opened up with ${docName} on ${wlData.preferredDate} at the hospital. Tap to book it now.`;
+      const messageBody = `Nidaan One Clinic: Hi ${patientData.name}! A slot has opened up with ${docName} on ${wlData.preferredDate} at the hospital. Tap to book it now.`;
       const twilioSuccess = await sendWhatsAppDirect(patientData.phone, messageBody);
 
       // Create reminder log in Firestore
@@ -263,7 +263,7 @@ export function useSlotRecovery() {
           reminderSentFinal: false,
           patientConfirmed: true,
           bookingId: `APL-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-          hospital: apptData.hospital || "Apollo Hospital, Jubilee Hills",
+          hospital: apptData.hospital || "Nidaan One Clinic, Jubilee Hills",
           room: apptData.room || "OPD Cabin 104",
           notes: `Recovered slot from cancelled appointment ${appointmentId}`,
           cancelledReason: "",
@@ -332,7 +332,7 @@ export function useSlotRecovery() {
           reminderSentFinal: false,
           patientConfirmed: true,
           bookingId: `APL-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-          hospital: apptData.hospital || "Apollo Hospital, Jubilee Hills",
+          hospital: apptData.hospital || "Nidaan One Clinic, Jubilee Hills",
           room: apptData.room || "OPD Cabin 104",
           notes: `Recovered slot from cancelled appointment ${appointmentId}`,
           cancelledReason: "",

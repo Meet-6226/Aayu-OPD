@@ -1,4 +1,4 @@
-// ─── Comprehensive Mock Data File for Apollo OPD Intelligence ───
+// ─── Comprehensive Mock Data File for Nidaan One OPD Intelligence ───
 
 // 1. PATIENTS ARRAY (15 patients)
 export const PATIENTS = [
@@ -659,14 +659,14 @@ export const specialtyLoad = [
 export const WHATSAPP_MESSAGES = {
   'p-1': [
     { id: 'm1', type: 'system', text: 'Appointment booked: Thursday 3 July, 10:00 AM', time: '12 Jun, 2:30 PM' },
-    { id: 'm2', type: 'outgoing', text: 'Apollo Hospital: Hi Priya 👋 Your appointment with Dr. Mehta is confirmed for 3 July at 10:00 AM.', time: '12 Jun, 2:30 PM', channel: 'WhatsApp', status: 'read' },
+    { id: 'm2', type: 'outgoing', text: 'Nidaan One Clinic: Hi Priya 👋 Your appointment with Dr. Mehta is confirmed for 3 July at 10:00 AM.', time: '12 Jun, 2:30 PM', channel: 'WhatsApp', status: 'read' },
     { id: 'm3', type: 'outgoing', text: 'To help personalize your visit, reply:\n1 - Working Professional 💼\n2 - Elderly 👴\n3 - Student 🎓', time: '12 Jun, 2:31 PM', channel: 'WhatsApp', status: 'read' },
     { id: 'm4', type: 'incoming', text: '1', time: '12 Jun, 2:35 PM' },
     { id: 'm5', type: 'system', text: 'Persona set: Working Professional 💼', time: '12 Jun, 2:35 PM' }
   ],
   'p-3': [
     { id: 'm21', type: 'system', text: 'Appointment booked: Thursday 3 July, 11:00 AM', time: '15 Jun, 11:00 AM' },
-    { id: 'm22', type: 'outgoing', text: 'Apollo Hospital: Hi Ramesh, your appointment is confirmed for 3 July at 11:00 AM.', time: '15 Jun, 11:00 AM', channel: 'WhatsApp', status: 'read' },
+    { id: 'm22', type: 'outgoing', text: 'Nidaan One Clinic: Hi Ramesh, your appointment is confirmed for 3 July at 11:00 AM.', time: '15 Jun, 11:00 AM', channel: 'WhatsApp', status: 'read' },
     { id: 'm23', type: 'outgoing', text: 'Please reply with caregiver / family contact number.', time: '15 Jun, 11:02 AM', channel: 'WhatsApp', status: 'read' },
     { id: 'm24', type: 'incoming', text: '9876543211 Mrs. Gupta', time: '15 Jun, 11:15 AM' },
     { id: 'm25', type: 'system', text: 'Family Coordinator set: Mrs. Gupta (9876543211)', time: '15 Jun, 11:15 AM' }

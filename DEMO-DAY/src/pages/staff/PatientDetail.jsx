@@ -62,7 +62,7 @@ export default function PatientDetailPage() {
     const patient = data.patient;
     const appt = data.appointment;
     
-    const messageBody = `Apollo Hospital OPD: Hi ${patient.name}, this is a reminder for your appointment with ${appt.doctorName} on ${appt.appointmentDate} at ${appt.appointmentTime}. Please reply 1 to confirm.`;
+    const messageBody = `Nidaan One Clinic OPD: Hi ${patient.name}, this is a reminder for your appointment with ${appt.doctorName} on ${appt.appointmentDate} at ${appt.appointmentTime}. Please reply 1 to confirm.`;
     
     toast.promise(
       (async () => {
@@ -426,7 +426,7 @@ export default function PatientDetailPage() {
               <div style={{ flex: 1, minWidth: 200, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>Transit Map Coordinates</span>
                 <a 
-                  href="https://www.google.com/maps/dir/?api=1&destination=Apollo+Hospitals+Jubilee+Hills"
+                  href="https://www.google.com/maps/dir/?api=1&destination=Nidaan One+Hospitals+Jubilee+Hills"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ 
@@ -449,7 +449,7 @@ export default function PatientDetailPage() {
 
                     {/* Park Zone */}
                     <rect x="220" y="5" width="60" height="30" rx="4" fill="#dcfce7" stroke="#bbf7d0" strokeWidth="0.5" opacity="0.8" />
-                    <text x="250" y="16" fill="#15803d" fontSize="4.5" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Apollo Park</text>
+                    <text x="250" y="16" fill="#15803d" fontSize="4.5" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Nidaan One Park</text>
 
                     {/* Secondary Roads (Under-layer/Casing) */}
                     <path d="M -10,20 L 300,20 M -10,50 L 300,50 M -10,80 L 300,80" stroke="white" strokeWidth="3.5" />
