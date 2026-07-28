@@ -1,7 +1,10 @@
 // Determine backend URL:
-// - On localhost or LAN IP (172.x, 192.168.x, 10.x) → use the same host on port 5002
-// - On Vercel / any public HTTPS domain → backend is NOT reachable; show a clear error
+// - If VITE_BACKEND_URL is set in environment (e.g. on Vercel), use it.
+// - Otherwise, fallback to localhost or LAN IP depending on where it's run.
 function getBackendURL() {
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_BACKEND_URL) {
+    return import.meta.env.VITE_BACKEND_URL;
+  }
   if (typeof window === 'undefined') return 'http://localhost:5002';
   const hostname = window.location.hostname;
   const isLocal = hostname === 'localhost' 
@@ -10,7 +13,7 @@ function getBackendURL() {
     || /^192\.168\./.test(hostname)                    // 192.168.x.x
     || /^10\./.test(hostname);                         // 10.x.x.x
   if (!isLocal) {
-    console.warn(`[Bridge] ⚠️ Running on public host "${hostname}". Backend (localhost:5002) is NOT reachable from a deployed Vercel app. Visit http://localhost:5173 instead.`);
+    console.warn(`[Bridge] ⚠️ Running on public host "${hostname}". Backend (localhost:5002) is NOT reachable. Configure VITE_BACKEND_URL environment variable.`);
   }
   return `http://${hostname}:5002`;
 }
