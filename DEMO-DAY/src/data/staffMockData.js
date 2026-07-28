@@ -84,7 +84,7 @@ export const PATIENTS = [
     phone: '+91 43210 98765',
     age: 52,
     gender: 'F',
-    email: 'kavita.reddy@apollo.com',
+    email: 'kavita.reddy@nidaan-one.com',
     persona: 'default',
     trustScore: 98,
     pastVisits: 15,

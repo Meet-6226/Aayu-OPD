@@ -18,7 +18,7 @@ export default function PatientConsultationShowcase({ className = '' }) {
         >
           <Star className="h-3.5 w-3.5 fill-[#EAF7F2] text-[#EAF7F2]" />
           <span className="text-xs font-mono-data font-bold text-[#182033]">
-            APOLLO CARDIOLOGY PANEL
+            NIDAAN ONE CARDIOLOGY PANEL
           </span>
         </motion.div>
 

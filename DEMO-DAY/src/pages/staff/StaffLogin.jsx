@@ -19,8 +19,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem('apollo_staff_logged_in') === 'true') {
-      const role = localStorage.getItem('apollo_staff_role') || 'admin';
+    if (localStorage.getItem('nidaan_staff_logged_in') === 'true') {
+      const role = localStorage.getItem('nidaan_staff_role') || 'admin';
       if (role === 'doctor') {
         navigate('/staff/doctor-view');
       } else {
@@ -44,14 +44,14 @@ export default function LoginPage() {
     
     console.log("[Staff Login] Attempting login for:", cleanUsername, "Password length:", cleanPassword.length);
     
-    if (cleanUsername === 'apollo_admin@apollo.com' && cleanPassword === 'Nidaan One OPD#Staff2026!') {
-      localStorage.setItem('apollo_staff_logged_in', 'true');
-      localStorage.setItem('apollo_staff_role', 'admin');
+    if (cleanUsername === 'nidaan_admin@nidaan-one.com' && cleanPassword === 'Nidaan One OPD#Staff2026!') {
+      localStorage.setItem('nidaan_staff_logged_in', 'true');
+      localStorage.setItem('nidaan_staff_role', 'admin');
       toast.success('Welcome to Nidaan One OPD Platform!');
       navigate('/staff/dashboard');
-    } else if (cleanUsername === 'doctor@apollo.com' && cleanPassword === 'Doctor#2026!') {
-      localStorage.setItem('apollo_staff_logged_in', 'true');
-      localStorage.setItem('apollo_staff_role', 'doctor');
+    } else if (cleanUsername === 'doctor@nidaan-one.com' && cleanPassword === 'Doctor#2026!') {
+      localStorage.setItem('nidaan_staff_logged_in', 'true');
+      localStorage.setItem('nidaan_staff_role', 'doctor');
       toast.success('Welcome Doctor Rajesh Mehta!');
       navigate('/staff/doctor-view');
     } else {
@@ -181,7 +181,7 @@ export default function LoginPage() {
               <input
                 type="text"
                 required
-                placeholder="admin@apollo.com"
+                placeholder="admin@nidaan-one.com"
                 value={form.username}
                 onChange={e => setForm(p => ({ ...p, username: e.target.value }))}
                 style={{
@@ -281,7 +281,7 @@ export default function LoginPage() {
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
               <button
                 type="button"
-                onClick={() => setForm({ username: 'apollo_admin@apollo.com', password: 'Nidaan One OPD#Staff2026!' })}
+                onClick={() => setForm({ username: 'nidaan_admin@nidaan-one.com', password: 'Nidaan One OPD#Staff2026!' })}
                 style={{
                   flex: 1, height: 32, fontSize: '0.75rem', fontWeight: 600,
                   color: '#1b504c', background: '#e5f9f8', border: '1px solid #97c9c4',
@@ -292,7 +292,7 @@ export default function LoginPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setForm({ username: 'doctor@apollo.com', password: 'Doctor#2026!' })}
+                onClick={() => setForm({ username: 'doctor@nidaan-one.com', password: 'Doctor#2026!' })}
                 style={{
                   flex: 1, height: 32, fontSize: '0.75rem', fontWeight: 600,
                   color: '#1b504c', background: '#e5f9f8', border: '1px solid #97c9c4',

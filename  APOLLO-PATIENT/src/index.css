@@ -150,11 +150,11 @@ button, a, input, select {
 }
 
 /* ── Link underline ─────────────────────────────────────────────────── */
-.apollo-link-underline {
+.nidaan-one-link-underline {
   position: relative;
   text-decoration: none;
 }
-.apollo-link-underline::after {
+.nidaan-one-link-underline::after {
   content: '';
   position: absolute;
   bottom: -1px; left: 0;
@@ -162,7 +162,7 @@ button, a, input, select {
   background-color: #0f766e;
   transition: width 180ms ease;
 }
-.apollo-link-underline:hover::after { width: 100%; }
+.nidaan-one-link-underline:hover::after { width: 100%; }
 
 /* ── Scrollbar ──────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }

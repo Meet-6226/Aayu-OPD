@@ -6,7 +6,7 @@
  * ║  new Date() FOR CURRENT-TIME LOGIC.                                      ║
  * ║                                                                          ║
  * ║  All timezone math is anchored to Asia/Kolkata (IST, UTC+5:30).         ║
- * ║  This file is byte-identical in APOLLO-PATIENT and DEMO-DAY.            ║
+ * ║  This file is byte-identical in NIDAAN ONE-PATIENT and DEMO-DAY.            ║
  * ║  Any change here MUST be mirrored to the other project immediately.      ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *

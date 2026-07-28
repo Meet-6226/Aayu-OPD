@@ -1,5 +1,5 @@
 // Fixed real-world coordinates for major Nidaan One Clinics across India
-export const APOLLO_HOSPITALS = [
+export const NIDAAN_ONE_CLINICS = [
   {
     id: 'h-hyd-jh',
     name: "Nidaan One Clinics, Jubilee Hills, Hyderabad",
@@ -52,4 +52,4 @@ export const APOLLO_HOSPITALS = [
 ];
 
 // For backward compatibility
-export const APOLLO_HOSPITAL_LOCATION = APOLLO_HOSPITALS[0];
+export const NIDAAN_ONE_CLINIC_LOCATION = NIDAAN_ONE_CLINICS[0];

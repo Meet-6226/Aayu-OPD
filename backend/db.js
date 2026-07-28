@@ -8,7 +8,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config({ path: path.resolve(__dirname, './.env') });
 
 const uri = process.env.MONGODB_URI || process.env.VITE_MONGODB_URI || 'mongodb://localhost:27017';
-const dbName = 'apollo_opd_intelligence';
+const dbName = 'nidaan_opd_intelligence';
 
 console.log(`[Database] Connecting to URI: ${uri.replace(/:([^:@]+)@/, ':****@')}`);
 

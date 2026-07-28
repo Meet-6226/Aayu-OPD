@@ -1,6 +1,6 @@
 /**
  * Shared Data Formatting & Validation utilities
- * BOTH APOLLO-PATIENT and DEMO-DAY import identical copies of this file.
+ * BOTH NIDAAN ONE-PATIENT and DEMO-DAY import identical copies of this file.
  *
  * Date/time: All current-time logic delegates to appTime.js — the single
  * source of truth. Never call new Date() here for "now" or "today".

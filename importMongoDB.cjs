@@ -16,7 +16,7 @@ if (!mongoUri) {
   mongoUri = 'mongodb://localhost:27017';
 }
 
-const dbName = 'apollo_opd_intelligence';
+const dbName = 'nidaan_opd_intelligence';
 const backupPath = path.resolve(__dirname, './backup.json');
 
 if (!fs.existsSync(backupPath)) {

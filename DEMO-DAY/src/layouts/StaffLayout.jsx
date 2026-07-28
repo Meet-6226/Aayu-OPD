@@ -157,7 +157,7 @@ function Sidebar({ onEmergencyClick }) {
   const { appointments } = useStaffAppointments();
   const { openSlots } = useSlotRecovery();
 
-  const userRole = localStorage.getItem('apollo_staff_role') || 'admin';
+  const userRole = localStorage.getItem('nidaan_staff_role') || 'admin';
   const profileName = userRole === 'doctor' ? 'Dr. Rajesh Mehta' : 'OPD Administrator';
   const profileRole = userRole === 'doctor' ? 'Consultant Doctor' : 'Admin Staff';
   const profileInitials = userRole === 'doctor' ? 'RM' : 'OA';
@@ -261,8 +261,8 @@ function Sidebar({ onEmergencyClick }) {
 
         <button
           onClick={() => {
-            localStorage.removeItem('apollo_staff_logged_in');
-            localStorage.removeItem('apollo_staff_role');
+            localStorage.removeItem('nidaan_staff_logged_in');
+            localStorage.removeItem('nidaan_staff_role');
             navigate('/');
           }}
           style={{

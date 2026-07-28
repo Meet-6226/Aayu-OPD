@@ -13,7 +13,7 @@ const DAILY_API_KEY = import.meta.env.VITE_DAILY_API_KEY || "";
  * @returns {Promise<string>} - Returns the room URL
  */
 export async function createVideoRoom(appointmentId, appointmentDate, appointmentTime) {
-  const roomName = `apollo-consult-${appointmentId}`;
+  const roomName = `nidaan-one-consult-${appointmentId}`;
   
   // Calculate expiration time (2 hours after scheduled time)
   let exp = null;

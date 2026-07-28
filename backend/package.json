@@ -1,5 +1,5 @@
 {
-  "name": "apollo-opd-mongodb-backend",
+  "name": "nidaan-one-opd-mongodb-backend",
   "version": "1.0.0",
   "description": "MongoDB Express Backend for Nidaan One OPD Platform",
   "main": "server.js",

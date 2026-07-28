@@ -27,7 +27,7 @@ import { formatAppointmentDate, formatAppointmentTime, validateAppointmentData }
 import { daysBetween } from '../utils/appTime';
 import { useUserLocation } from '../hooks/useUserLocation';
 import { calculateDistanceKm } from '../utils/calculateDistance';
-import { APOLLO_HOSPITALS } from '../utils/hospitalLocation';
+import { NIDAAN_ONE_CLINICS } from '../utils/hospitalLocation';
 import { getWeatherForecast, isWithinForecastWindow } from '../utils/weatherService';
 import { estimateTrafficLevel } from '../utils/trafficEstimate';
 import { getRoadDistanceAndTraffic, reverseGeocode, getDirectionsUrl } from '../services/googleMapsService';
@@ -197,8 +197,8 @@ export default function BookingConfirmation() {
   const closestHospitalDetails = (locationReady && userLat != null && userLon != null)
     ? (() => {
         let minDistance = Infinity;
-        let closest = APOLLO_HOSPITALS[0];
-        for (const hospital of APOLLO_HOSPITALS) {
+        let closest = NIDAAN_ONE_CLINICS[0];
+        for (const hospital of NIDAAN_ONE_CLINICS) {
           const dist = calculateDistanceKm(userLat, userLon, hospital.latitude, hospital.longitude);
           if (dist < minDistance) {
             minDistance = dist;
@@ -207,7 +207,7 @@ export default function BookingConfirmation() {
         }
         return { hospital: closest, distance: minDistance };
       })()
-    : { hospital: APOLLO_HOSPITALS[0], distance: null };
+    : { hospital: NIDAAN_ONE_CLINICS[0], distance: null };
 
   const closestHospital = closestHospitalDetails.hospital;
   // Haversine straight-line distance (fallback when Google Maps unavailable)
@@ -450,12 +450,12 @@ export default function BookingConfirmation() {
       if (consultationMode === 'online') {
         try {
           videoRoomUrl = await createVideoRoom(appointmentId, booking.dateString, booking.time);
-          videoRoomName = `apollo-consult-${appointmentId}`;
+          videoRoomName = `nidaan-one-consult-${appointmentId}`;
           console.log('[VideoCall] Room created:', videoRoomUrl);
         } catch (e) {
           console.error('[VideoCall] Room creation failed, booking will continue:', e);
-          videoRoomUrl = `https://nidaan-one-test.daily.co/apollo-consult-${appointmentId}`;
-          videoRoomName = `apollo-consult-${appointmentId}`;
+          videoRoomUrl = `https://nidaan-one-test.daily.co/nidaan-one-consult-${appointmentId}`;
+          videoRoomName = `nidaan-one-consult-${appointmentId}`;
         }
       }
 
@@ -1080,7 +1080,7 @@ export default function BookingConfirmation() {
                         {[
                           { id: 'ubergo', name: 'Uber Go', price: '₹180', eta: '3 min away', desc: 'Standard sedan, fast response' },
                           { id: 'uberauto', name: 'Uber Auto', price: '₹110', eta: '5 min away', desc: 'Convenient 3-wheeler commute' },
-                          { id: 'apolloassist', name: 'Nidaan One Assist Cab', price: '₹290', eta: '4 min away', desc: 'Wheelchair & oxygen assist, priority entry' }
+                          { id: 'nidaan-oneassist', name: 'Nidaan One Assist Cab', price: '₹290', eta: '4 min away', desc: 'Wheelchair & oxygen assist, priority entry' }
                         ].map(opt => (
                           <div 
                             key={opt.id}

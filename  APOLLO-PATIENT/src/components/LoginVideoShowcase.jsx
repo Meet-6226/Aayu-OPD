@@ -167,7 +167,7 @@ export default function LoginVideoShowcase({ onExpandVideo }) {
 
               {/* WhatsApp Bubble */}
               <div className="bg-[#128C7E]/30 border border-[#128C7E]/40 p-3 rounded-[12px] space-y-1.5 text-xs text-left">
-                <div className="text-[10px] font-mono-data font-bold text-[#EAF7F2]">APOLLO WHATSAPP HINDI BOT</div>
+                <div className="text-[10px] font-mono-data font-bold text-[#EAF7F2]">NIDAAN ONE WHATSAPP HINDI BOT</div>
                 <div className="bg-white text-[#182033] p-2.5 rounded-[8px] text-[11px] font-medium leading-snug">
                   "Namaste Priya ji! Aapke 18km route par heavy rain alert hai. Confirm 2:30 PM slot?"
                 </div>

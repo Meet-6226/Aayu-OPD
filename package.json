@@ -4,5 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "cd \" APOLLO-PATIENT\" && npm install && npm run build"
+  },
+  "dependencies": {
+    "mongodb": "^7.5.0"
   }
 }

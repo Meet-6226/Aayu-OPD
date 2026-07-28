@@ -161,7 +161,7 @@ export default function MedicalPrescriptionCard({ appointment }) {
             </div>
             
             <h2 className="font-serif font-black text-lg tracking-wide text-teal-900 uppercase">
-              APOLLO HOSPITALS
+              NIDAAN ONE CLINICS
             </h2>
             <p className="text-[9px] text-gray-500 uppercase tracking-widest font-semibold mt-0.5">
               JUBILEE HILLS, HYDERABAD · EMERGENCY & OPD SERVICES
@@ -326,7 +326,7 @@ export default function MedicalPrescriptionCard({ appointment }) {
                     backgroundColor: 'rgba(59, 130, 246, 0.01)'
                   }}
                 >
-                  <span>APOLLO HOSPITALS</span>
+                  <span>NIDAAN ONE CLINICS</span>
                   <span className="font-bold text-[7px] my-0.5">VERIFIED</span>
                   <span>JUBILEE HILLS</span>
                 </div>

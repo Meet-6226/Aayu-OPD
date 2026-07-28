@@ -177,7 +177,7 @@ export default function VideoDemoModal({ isOpen, onClose, onLaunchDemo }) {
                   <div className="bg-[#0a3f43] border-2 border-[#1E7F6A] p-5 rounded-[20px] space-y-3.5 text-left shadow-lg">
                     <div className="flex items-center justify-between pb-2 border-b border-white/15">
                       <span className="text-[11px] font-mono-data font-bold text-[#EAF7F2] uppercase tracking-wider">
-                        APOLLO OPD INTELLIGENCE ENGINE
+                        NIDAAN ONE OPD INTELLIGENCE ENGINE
                       </span>
                       <span className="px-2.5 py-0.5 rounded bg-[#1E7F6A] text-white text-[10px] font-mono-data font-bold">
                         WINNING MODEL

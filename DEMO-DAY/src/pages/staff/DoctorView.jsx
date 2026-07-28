@@ -138,7 +138,7 @@ const getPatientMedicalHistory = (patientId, patientName) => {
 
 export default function DoctorViewPage() {
   const navigate = useNavigate();
-  const userRole = localStorage.getItem('apollo_staff_role') || 'admin';
+  const userRole = localStorage.getItem('nidaan_staff_role') || 'admin';
   const [showNotification, setShowNotification] = useState(true);
   const [showLateModal, setShowLateModal] = useState(false);
   const [lateStatus, setLateStatus] = useState(null); // null | 'sending' | 'done'
@@ -522,7 +522,7 @@ export default function DoctorViewPage() {
               {/* RIGHT: Video frame */}
               <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <iframe
-                  src={activeVideoCallAppt.videoRoomUrl || `https://nidaan-one-test.daily.co/apollo-consult-${activeVideoCallAppt.id}`}
+                  src={activeVideoCallAppt.videoRoomUrl || `https://nidaan-one-test.daily.co/nidaan-one-consult-${activeVideoCallAppt.id}`}
                   allow="camera; microphone; display-capture; autoplay"
                   style={{
                     width: '100%',
@@ -905,7 +905,7 @@ export default function DoctorViewPage() {
                 </div>
               </div>
 
-              {/* ✨ APOLLO CLINICAL COPILOT & CLINICAL SCRATCHPAD */}
+              {/* ✨ NIDAAN ONE CLINICAL COPILOT & CLINICAL SCRATCHPAD */}
               {/* AI Copilot Widget */}
               <div style={{
                 background: 'white', borderRadius: '12px', padding: '1.5rem', 

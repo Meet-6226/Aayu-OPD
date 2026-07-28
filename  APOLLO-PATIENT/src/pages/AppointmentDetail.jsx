@@ -371,7 +371,7 @@ export default function AppointmentDetail() {
                   <div className="mt-4 flex items-center gap-3">
                     {isJoinable ? (
                       <a
-                        href={appointment.videoRoomUrl || `https://nidaan-one-test.daily.co/apollo-consult-${appointment.id}`}
+                        href={appointment.videoRoomUrl || `https://nidaan-one-test.daily.co/nidaan-one-consult-${appointment.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 px-4.5 py-2.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold rounded-[10px] transition-colors duration-150"
