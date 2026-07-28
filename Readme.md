@@ -567,4 +567,3 @@ Upcoming Milestones:
 - Frontend Development
 - Integration
 - Testing
-- Final Demo
