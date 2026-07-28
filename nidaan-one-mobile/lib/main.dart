@@ -2,7 +2,12 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+
+// Conditional imports for cross-platform WebView support (prevents compilation failure on web/mobile)
+import 'widgets/webview_platform_stub.dart'
+    if (dart.library.html) 'widgets/webview_platform_web.dart'
+    if (dart.library.io) 'widgets/webview_platform_mobile.dart';
+
 import 'widgets/brand_logo.dart';
 
 void main() {
@@ -42,7 +47,6 @@ class PatientPortalWrapper extends StatefulWidget {
 }
 
 class _PatientPortalWrapperState extends State<PatientPortalWrapper> {
-  late final WebViewController _controller;
   bool _isLoading = true;
   double _loadingProgress = 0.0;
   String _targetUrl = '';
@@ -53,7 +57,6 @@ class _PatientPortalWrapperState extends State<PatientPortalWrapper> {
   void initState() {
     super.initState();
     _resolveTargetUrl();
-    _initializeWebViewController();
   }
 
   void _resolveTargetUrl() {
@@ -70,35 +73,6 @@ class _PatientPortalWrapperState extends State<PatientPortalWrapper> {
     _urlInputController.text = _targetUrl;
   }
 
-  void _initializeWebViewController() {
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0xFF0F172A))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onProgress: (int progress) {
-            setState(() {
-              _loadingProgress = progress / 100.0;
-            });
-          },
-          onPageStarted: (String url) {
-            setState(() {
-              _isLoading = true;
-            });
-          },
-          onPageFinished: (String url) {
-            setState(() {
-              _isLoading = false;
-            });
-          },
-          onWebResourceError: (WebResourceError error) {
-            debugPrint('❌ [WebView] Resource error: ${error.description}');
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse(_targetUrl));
-  }
-
   void _updateUrl(String newUrl) {
     if (newUrl.trim().isEmpty) return;
     String formattedUrl = newUrl.trim();
@@ -110,47 +84,41 @@ class _PatientPortalWrapperState extends State<PatientPortalWrapper> {
       _isLoading = true;
       _loadingProgress = 0.0;
     });
-    _controller.loadRequest(Uri.parse(formattedUrl));
   }
-
 
   @override
   Widget build(BuildContext context) {
     // Show phone mock frame on Web or Desktop targets to simulate mobile device view
     final bool useFrame = kIsWeb || !(Platform.isAndroid || Platform.isIOS);
 
-    Widget mainContent = PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (bool didPop, dynamic result) async {
-        if (didPop) return;
-        if (await _controller.canGoBack()) {
-          await _controller.goBack();
-        }
-      },
-      child: Stack(
-        children: [
-          // 1. The Main React Webapp WebView
-          WebViewWidget(controller: _controller),
+    Widget mainContent = Stack(
+      children: [
+        // 1. The Dynamic Cross-Platform WebView Widget (registers HTML iframe on Web, Webview on Mobile)
+        createWebView(_targetUrl, (isLoading) {
+          setState(() {
+            _isLoading = isLoading;
+            _loadingProgress = isLoading ? 0.3 : 1.0;
+          });
+        }),
 
-          // 2. Linear Progress Bar during loading
-          if (_isLoading && _loadingProgress > 0)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: LinearProgressIndicator(
-                value: _loadingProgress,
-                backgroundColor: Colors.transparent,
-                color: const Color(0xFF0F766E),
-                minHeight: 3,
-              ),
+        // 2. Linear Progress Bar during loading
+        if (_isLoading)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: LinearProgressIndicator(
+              value: _loadingProgress,
+              backgroundColor: Colors.transparent,
+              color: const Color(0xFF0F766E),
+              minHeight: 3,
             ),
+          ),
 
-          // 3. Premium Nidaan One Animated Splash Screen (shown on launch)
-          if (_isLoading && _loadingProgress < 0.8)
-            _buildSplashOverlay(),
-        ],
-      ),
+        // 3. Premium Nidaan One Animated Splash Screen (shown on launch)
+        if (_isLoading)
+          _buildSplashOverlay(),
+      ],
     );
 
     if (useFrame) {
