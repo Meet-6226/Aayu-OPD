@@ -31,7 +31,7 @@ export async function createVideoRoom(appointmentId, appointmentDate, appointmen
   }
 
   // Fallback room URL in case API key is missing or call fails
-  const fallbackUrl = `https://apollo-opd-test.daily.co/${roomName}`;
+  const fallbackUrl = `https://nidaan-one-test.daily.co/${roomName}`;
 
   if (!DAILY_API_KEY) {
     console.warn("[VideoCallService] VITE_DAILY_API_KEY not configured. Returning simulated/fallback URL.");
@@ -66,7 +66,7 @@ export async function createVideoRoom(appointmentId, appointmentDate, appointmen
       console.warn(`[VideoCallService] API call failed: ${response.status} ${errText}`);
       
       if (errText.includes("already exists")) {
-        return `https://apollo-opd-test.daily.co/${roomName}`;
+        return `https://nidaan-one-test.daily.co/${roomName}`;
       }
       return fallbackUrl;
     }

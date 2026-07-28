@@ -249,7 +249,7 @@ export default function VideoDemoModal({ isOpen, onClose, onLaunchDemo }) {
                   <div className="bg-[#128C7E]/30 border border-[#128C7E]/50 p-5 rounded-[20px] space-y-3 text-left shadow-lg">
                     <div className="flex items-center justify-between pb-2 border-b border-white/15">
                       <span className="text-[11px] font-mono-data font-bold text-white uppercase">
-                        Apollo Official WhatsApp Bot
+                        Nidaan One Official WhatsApp Bot
                       </span>
                       <span className="text-[10px] font-mono-data text-[#EAF7F2] font-bold">HINDI BOT</span>
                     </div>

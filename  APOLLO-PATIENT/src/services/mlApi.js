@@ -1,4 +1,4 @@
-// Apollo No-Show ML API Client
+// Nidaan One No-Show ML API Client
 // Calls the XGBoost FastAPI service deployed on Render.com
 
 const ML_API_URL = import.meta.env.VITE_ML_API_URL || "https://apollo-opd.onrender.com";

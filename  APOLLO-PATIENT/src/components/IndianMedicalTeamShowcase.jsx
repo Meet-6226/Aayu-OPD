@@ -5,10 +5,10 @@ export default function IndianMedicalTeamShowcase({ className = '' }) {
   return (
     <div className={`relative w-full max-w-[560px] mx-auto flex flex-col items-center justify-center select-none font-inter ${className}`}>
       
-      {/* TOP BADGE: Expert Apollo Doctors & Staff */}
+      {/* TOP BADGE: Expert Nidaan One Doctors & Staff */}
       <div className="bg-[#1E7F6A] text-white px-3.5 py-1.5 rounded-full border border-white/10 flex items-center gap-2 shrink-0 mb-4 z-20 cursor-default text-xs font-semibold">
         <Star className="h-3.5 w-3.5 fill-[#ECFDF5] text-[#ECFDF5]" />
-        <span>Expert Apollo Doctors & Staff</span>
+        <span>Expert Nidaan One Doctors & Staff</span>
       </div>
 
       {/* MAIN 5-MEMBER TRANSPARENT DOCTORS CUTOUT */}
@@ -29,7 +29,7 @@ export default function IndianMedicalTeamShowcase({ className = '' }) {
         {/* 5-Member Indian Doctors & Nurses Transparent Cutout */}
         <img
           src="/indian_team_5_cutout_transparent.png"
-          alt="Apollo Medical Team"
+          alt="Nidaan One Medical Team"
           className="w-full max-w-[500px] h-auto object-contain filter drop-shadow-md hover:scale-[1.01] transition-transform duration-300 pointer-events-none"
           onError={(e) => {
             e.target.src = "/indian_doctors_cutout_transparent.png";

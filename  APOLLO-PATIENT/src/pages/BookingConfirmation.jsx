@@ -454,7 +454,7 @@ export default function BookingConfirmation() {
           console.log('[VideoCall] Room created:', videoRoomUrl);
         } catch (e) {
           console.error('[VideoCall] Room creation failed, booking will continue:', e);
-          videoRoomUrl = `https://apollo-opd-test.daily.co/apollo-consult-${appointmentId}`;
+          videoRoomUrl = `https://nidaan-one-test.daily.co/apollo-consult-${appointmentId}`;
           videoRoomName = `apollo-consult-${appointmentId}`;
         }
       }
@@ -611,7 +611,7 @@ export default function BookingConfirmation() {
             },
             updatedAt: serverTimestamp()
           });
-          console.log(`[Location] Saved to Firestore — ${realDistanceKm} km from Apollo${isFallback ? ' (fallback)' : ''}`);
+          console.log(`[Location] Saved to Firestore — ${realDistanceKm} km from Nidaan One${isFallback ? ' (fallback)' : ''}`);
         } catch (e) {
           console.warn('[Location] Failed to save lastKnownLocation:', e);
         }

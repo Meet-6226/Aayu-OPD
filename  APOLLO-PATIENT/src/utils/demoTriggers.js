@@ -124,7 +124,7 @@ export const triggerPatientRegistrationDemo = async (patientData) => {
   console.log(`[triggerPatientRegistrationDemo] New patient registered. ID: ${patientData.uid}, Name: ${name}`);
 
   // 1. Send Welcome WhatsApp immediately
-  const welcomeMsg = `Namaste ${name}! Welcome to Apollo OPD Intelligence. You're now registered. Book your first appointment anytime.`;
+  const welcomeMsg = `Namaste ${name}! Welcome to Nidaan One OPD Intelligence. You're now registered. Book your first appointment anytime.`;
   sendWhatsAppDirect(phone, welcomeMsg);
 
   // 2. Wait exactly 8 seconds
@@ -142,7 +142,7 @@ export const triggerAppointmentBookingDemo = async (appointmentData, patientData
   console.log(`[triggerAppointmentBookingDemo] New booking written. ID: ${appointmentData.id || bookingId}, Phone: ${rawPhone}`);
 
   // 1. Send Booking Confirmation WhatsApp immediately
-  const confirmationMsg = `Apollo Hospital: Hi ${name}! Your appointment is confirmed. Doctor: ${doctorName}. Date: ${appointmentDate}. Time: ${appointmentTime}. Booking ID: ${bookingId}. Reply 1 to confirm.`;
+  const confirmationMsg = `Nidaan One Clinic: Hi ${name}! Your appointment is confirmed. Doctor: ${doctorName}. Date: ${appointmentDate}. Time: ${appointmentTime}. Booking ID: ${bookingId}. Reply 1 to confirm.`;
   sendWhatsAppDirect(rawPhone, confirmationMsg);
 
   // 2. Wait exactly 3 seconds

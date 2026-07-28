@@ -141,10 +141,10 @@ button, a, input, select {
 .shadow-elev-3 { box-shadow: var(--shadow-3); }
 
 /* ── Card interaction ───────────────────────────────────────────────── */
-.apollo-card {
+.nidaan-one-card {
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
-.apollo-card:hover {
+.nidaan-one-card:hover {
   border-color: #cbd5e1;
   box-shadow: var(--shadow-2);
 }

@@ -174,7 +174,7 @@ export default function MyAppointments() {
                         </div>
                         <div className="min-w-0 text-left">
                           <p className="text-sm font-bold text-[#111827] leading-snug">{appt.doctorName}</p>
-                          <p className="text-xs text-[#6B7280]">{appt.department} · Apollo Hospital</p>
+                          <p className="text-xs text-[#6B7280]">{appt.department} · Nidaan One Clinic</p>
                         </div>
                       </div>
 

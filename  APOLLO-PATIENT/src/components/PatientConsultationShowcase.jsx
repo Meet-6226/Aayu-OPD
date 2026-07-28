@@ -33,7 +33,7 @@ export default function PatientConsultationShowcase({ className = '' }) {
             </h4>
             <p className="text-[11px] text-white/80 mt-0.5 flex items-center space-x-1">
               <MapPin className="h-3 w-3 text-[#EAF7F2] inline" />
-              <span>Apollo Greams Road, Chennai</span>
+              <span>Nidaan One Greams Road, Chennai</span>
             </p>
           </div>
 

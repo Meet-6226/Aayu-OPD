@@ -146,7 +146,7 @@ export default function LandingPage() {
     // Scroll reveal pattern for sections below hero (Re-triggers on EVERY scroll)
     const sections = pageContainerRef.current?.querySelectorAll('.gsap-reveal-section') || [];
     sections.forEach((sec) => {
-      const cards = sec.querySelectorAll('.apollo-card');
+      const cards = sec.querySelectorAll('.nidaan-one-card');
       const shouldStagger = cards.length > 0 && cards.length <= 6;
 
       gsap.fromTo(
@@ -298,7 +298,7 @@ export default function LandingPage() {
           {/* Right Actions */}
           <div className="flex items-center space-x-4 text-xs font-semibold">
             <a
-              href="https://apollo-opd-staff.vercel.app/staff/login"
+              href="https://nidaan-one-staff.vercel.app/staff/login"
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:inline-block text-[#64748B] hover:text-[#0F172A] transition-colors duration-150"
@@ -446,7 +446,7 @@ export default function LandingPage() {
               The Problem
             </span>
             <h2 className="font-fraunces font-bold text-[30px] lg:text-[40px] text-[#182033] leading-tight tracking-tight">
-              Every empty chair costs Apollo ₹3,000
+              Every empty chair costs Nidaan One ₹3,000
             </h2>
             <p className="text-[18px] text-[#3B4452] mt-4 leading-[1.7] font-inter">
               25-30% of OPD patients don't show up. Doctors wait. Slots go empty. Revenue is lost. And nobody knows until it's too late.
@@ -457,7 +457,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             {/* Card 1 */}
-            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[14px] p-8 flex flex-col justify-between">
+            <div className="nidaan-one-card bg-white border border-[#E8ECEF] rounded-[14px] p-8 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-[6px] bg-[#B8623F]/10 text-[#B8623F] flex items-center justify-center mb-5 shrink-0">
                   <Clock className="h-5 w-5" />
@@ -480,7 +480,7 @@ export default function LandingPage() {
             </div>
 
             {/* Card 2 */}
-            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[14px] p-8 flex flex-col justify-between">
+            <div className="nidaan-one-card bg-white border border-[#E8ECEF] rounded-[14px] p-8 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-[6px] bg-[#B8623F]/10 text-[#B8623F] flex items-center justify-center mb-5 shrink-0">
                   <Users className="h-5 w-5" />
@@ -503,7 +503,7 @@ export default function LandingPage() {
             </div>
 
             {/* Card 3 */}
-            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[14px] p-8 flex flex-col justify-between">
+            <div className="nidaan-one-card bg-white border border-[#E8ECEF] rounded-[14px] p-8 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-[6px] bg-[#B8623F]/10 text-[#B8623F] flex items-center justify-center mb-5 shrink-0">
                   <TrendingDown className="h-5 w-5" />
@@ -538,7 +538,7 @@ export default function LandingPage() {
               HEAD-TO-HEAD SHOWDOWN · INDIAN OPD MARKET
             </span>
             <h2 className="font-fraunces font-bold text-[30px] lg:text-[42px] text-[#182033] leading-tight tracking-tight">
-              Why Traditional OPD Systems Fail — And How Apollo Wins
+              Why Traditional OPD Systems Fail — And How Nidaan One Wins
             </h2>
             <p className="text-[18px] text-[#3B4452] mt-4 leading-[1.7]">
               Standard booking apps in India (Practo, Lybrate, legacy hospital software) leave doctors waiting and revenue leaking. Here is how Aether OPD changes the game.
@@ -549,7 +549,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
             
             {/* Traditional Platforms Card (Muted / Failing Model) */}
-            <div className="apollo-card bg-white border border-[#B8623F]/40 rounded-[24px] p-8 shadow-xs relative overflow-hidden flex flex-col justify-between">
+            <div className="nidaan-one-card bg-white border border-[#B8623F]/40 rounded-[24px] p-8 shadow-xs relative overflow-hidden flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between pb-6 border-b border-[#E8ECEF]">
                   <div className="flex items-center space-x-3">
@@ -607,7 +607,7 @@ export default function LandingPage() {
             </div>
 
             {/* Aether OPD Intelligence Card (Dark High-Contrast Winning Model) */}
-            <div className="apollo-card bg-[#165B52] border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-xl text-white relative overflow-hidden flex flex-col justify-between">
+            <div className="nidaan-one-card bg-[#165B52] border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-xl text-white relative overflow-hidden flex flex-col justify-between">
               {/* Top Accent Light Beam */}
               <div className="absolute top-0 right-0 bg-white text-[#182033] text-[11px] font-mono-data font-bold px-4 py-1.5 rounded-bl-[14px]">
                 PROPRIETARY AI ENGINE
@@ -671,7 +671,7 @@ export default function LandingPage() {
           {/* 4 Bottom High-Contrast Metric Counter Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             
-            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[18px] p-5 shadow-2xs">
+            <div className="nidaan-one-card bg-white border border-[#E8ECEF] rounded-[18px] p-5 shadow-2xs">
               <p className="text-[11px] font-bold text-[#3B4452] uppercase tracking-wider">No-Show Prediction</p>
               <div className="flex items-baseline space-x-2 mt-2">
                 <span className="font-mono-data font-bold text-2xl text-[#1E7F6A]">84.2%</span>
@@ -680,7 +680,7 @@ export default function LandingPage() {
               <p className="text-xs text-[#3B4452] mt-1">XGBoost ML accuracy</p>
             </div>
 
-            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[18px] p-5 shadow-2xs">
+            <div className="nidaan-one-card bg-white border border-[#E8ECEF] rounded-[18px] p-5 shadow-2xs">
               <p className="text-[11px] font-bold text-[#3B4452] uppercase tracking-wider">Slot Recovery Speed</p>
               <div className="flex items-baseline space-x-2 mt-2">
                 <span className="font-mono-data font-bold text-2xl text-[#1E7F6A]">&lt; 2 Min</span>
@@ -689,7 +689,7 @@ export default function LandingPage() {
               <p className="text-xs text-[#3B4452] mt-1">Auto waitlist reassignment</p>
             </div>
 
-            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[18px] p-5 shadow-2xs">
+            <div className="nidaan-one-card bg-white border border-[#E8ECEF] rounded-[18px] p-5 shadow-2xs">
               <p className="text-[11px] font-bold text-[#3B4452] uppercase tracking-wider">Patient Engagement</p>
               <div className="flex items-baseline space-x-2 mt-2">
                 <span className="font-mono-data font-bold text-2xl text-[#1E7F6A]">3.2x</span>
@@ -698,7 +698,7 @@ export default function LandingPage() {
               <p className="text-xs text-[#3B4452] mt-1">Persona WhatsApp bot</p>
             </div>
 
-            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[18px] p-5 shadow-2xs">
+            <div className="nidaan-one-card bg-white border border-[#E8ECEF] rounded-[18px] p-5 shadow-2xs">
               <p className="text-[11px] font-bold text-[#3B4452] uppercase tracking-wider">Revenue Protection</p>
               <div className="flex items-baseline space-x-2 mt-2">
                 <span className="font-mono-data font-bold text-2xl text-[#1E7F6A]">40%</span>
@@ -881,7 +881,7 @@ export default function LandingPage() {
           {/* DYNAMIC FEATURED STAGE SPOTLIGHT CARD (STAGE REVEAL) */}
           <div className="max-w-[840px] mx-auto transition-all duration-300">
             {activeWorkflowStep === 0 && (
-              <div className="apollo-card bg-white border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-lg shadow-[#1E7F6A]/10 animate-fadeIn">
+              <div className="nidaan-one-card bg-white border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-lg shadow-[#1E7F6A]/10 animate-fadeIn">
                 <div className="flex items-center justify-between pb-4 border-b border-[#E8ECEF] mb-6">
                   <div>
                     <span className="text-[11px] uppercase tracking-widest font-mono-data font-bold text-[#1E7F6A] block mb-1">
@@ -918,7 +918,7 @@ export default function LandingPage() {
             )}
 
             {activeWorkflowStep === 1 && (
-              <div className="apollo-card bg-white border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-lg shadow-[#1E7F6A]/10 animate-fadeIn">
+              <div className="nidaan-one-card bg-white border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-lg shadow-[#1E7F6A]/10 animate-fadeIn">
                 <div className="flex items-center justify-between pb-4 border-b border-[#E8ECEF] mb-6">
                   <div>
                     <span className="text-[11px] uppercase tracking-widest font-mono-data font-bold text-[#1E7F6A] block mb-1">
@@ -951,7 +951,7 @@ export default function LandingPage() {
             )}
 
             {activeWorkflowStep === 2 && (
-              <div className="apollo-card bg-[#B8623F]/5 border-2 border-[#B8623F] rounded-[24px] p-8 shadow-lg shadow-[#B8623F]/10 animate-fadeIn">
+              <div className="nidaan-one-card bg-[#B8623F]/5 border-2 border-[#B8623F] rounded-[24px] p-8 shadow-lg shadow-[#B8623F]/10 animate-fadeIn">
                 <div className="flex items-center justify-between pb-4 border-b border-[#B8623F]/20 mb-6">
                   <div>
                     <span className="text-[11px] uppercase tracking-widest font-mono-data font-bold text-[#B8623F] block mb-1">
@@ -992,7 +992,7 @@ export default function LandingPage() {
             )}
 
             {activeWorkflowStep === 3 && (
-              <div className="apollo-card bg-white border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-lg shadow-[#1E7F6A]/10 animate-fadeIn">
+              <div className="nidaan-one-card bg-white border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-lg shadow-[#1E7F6A]/10 animate-fadeIn">
                 <div className="flex items-center justify-between pb-4 border-b border-[#E8ECEF] mb-6">
                   <div>
                     <span className="text-[11px] uppercase tracking-widest font-mono-data font-bold text-[#1E7F6A] block mb-1">
@@ -1022,7 +1022,7 @@ export default function LandingPage() {
             )}
 
             {activeWorkflowStep === 4 && (
-              <div className="apollo-card bg-white border-2 border-[#EAF7F2] rounded-[24px] p-8 shadow-lg animate-fadeIn">
+              <div className="nidaan-one-card bg-white border-2 border-[#EAF7F2] rounded-[24px] p-8 shadow-lg animate-fadeIn">
                 <div className="flex items-center justify-between pb-4 border-b border-[#EAF7F2]/40 mb-6">
                   <div>
                     <span className="text-[11px] uppercase tracking-widest font-mono-data font-bold text-[#182033] block mb-1">
@@ -1049,7 +1049,7 @@ export default function LandingPage() {
             )}
 
             {activeWorkflowStep === 5 && (
-              <div className="apollo-card bg-white border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-xl shadow-[#1E7F6A]/15 animate-fadeIn">
+              <div className="nidaan-one-card bg-white border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-xl shadow-[#1E7F6A]/15 animate-fadeIn">
                 <div className="flex items-center justify-between pb-4 border-b border-[#1E7F6A]/20 mb-6">
                   <div>
                     <span className="text-[11px] uppercase tracking-widest font-mono-data font-bold text-[#1E7F6A] block mb-1">
@@ -1355,7 +1355,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 font-inter">
             
             {/* Card 1 */}
-            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[16px] p-6 text-center shadow-2xs hover:shadow-xs transition-all duration-200">
+            <div className="nidaan-one-card bg-white border border-[#E8ECEF] rounded-[16px] p-6 text-center shadow-2xs hover:shadow-xs transition-all duration-200">
               <div className="w-12 h-12 rounded-full bg-white text-[#1E7F6A] flex items-center justify-center mx-auto mb-4 shrink-0">
                 <TrendingDown className="h-6 w-6" />
               </div>
@@ -1371,7 +1371,7 @@ export default function LandingPage() {
             </div>
 
             {/* Card 2 */}
-            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[16px] p-6 text-center shadow-2xs hover:shadow-xs transition-all duration-200">
+            <div className="nidaan-one-card bg-white border border-[#E8ECEF] rounded-[16px] p-6 text-center shadow-2xs hover:shadow-xs transition-all duration-200">
               <div className="w-12 h-12 rounded-full bg-white text-[#1E7F6A] flex items-center justify-center mx-auto mb-4 shrink-0">
                 <TrendingUp className="h-6 w-6" />
               </div>
@@ -1387,7 +1387,7 @@ export default function LandingPage() {
             </div>
 
             {/* Card 3 */}
-            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[16px] p-6 text-center shadow-2xs hover:shadow-xs transition-all duration-200">
+            <div className="nidaan-one-card bg-white border border-[#E8ECEF] rounded-[16px] p-6 text-center shadow-2xs hover:shadow-xs transition-all duration-200">
               <div className="w-12 h-12 rounded-full bg-white/30 text-[#182033] flex items-center justify-center mx-auto mb-4 shrink-0">
                 <Clock className="h-6 w-6" />
               </div>
@@ -1403,7 +1403,7 @@ export default function LandingPage() {
             </div>
 
             {/* Card 4 */}
-            <div className="apollo-card bg-white border border-[#E8ECEF] rounded-[16px] p-6 text-center shadow-2xs hover:shadow-xs transition-all duration-200">
+            <div className="nidaan-one-card bg-white border border-[#E8ECEF] rounded-[16px] p-6 text-center shadow-2xs hover:shadow-xs transition-all duration-200">
               <div className="w-12 h-12 rounded-full bg-white text-[#1E7F6A] flex items-center justify-center mx-auto mb-4 shrink-0">
                 <RefreshCw className="h-6 w-6" />
               </div>
@@ -1439,7 +1439,7 @@ export default function LandingPage() {
           <div className="space-y-3">
             
             {/* Q1 */}
-            <details className="apollo-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
+            <details className="nidaan-one-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
               <summary className="flex items-center justify-between p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                 <span className="text-[14px] font-medium text-[#182033] pr-4 select-none">
                   How does the ML model predict no-shows?
@@ -1454,7 +1454,7 @@ export default function LandingPage() {
             </details>
 
             {/* Q2 */}
-            <details className="apollo-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
+            <details className="nidaan-one-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
               <summary className="flex items-center justify-between p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                 <span className="text-[14px] font-medium text-[#182033] pr-4 select-none">
                   Is the WhatsApp integration real?
@@ -1469,7 +1469,7 @@ export default function LandingPage() {
             </details>
 
             {/* Q3 */}
-            <details className="apollo-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
+            <details className="nidaan-one-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
               <summary className="flex items-center justify-between p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                 <span className="text-[14px] font-medium text-[#182033] pr-4 select-none">
                   What about elderly patients who don't use WhatsApp?
@@ -1484,7 +1484,7 @@ export default function LandingPage() {
             </details>
 
             {/* Q4 */}
-            <details className="apollo-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
+            <details className="nidaan-one-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
               <summary className="flex items-center justify-between p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                 <span className="text-[14px] font-medium text-[#182033] pr-4 select-none">
                   What is SHAP explainability?
@@ -1499,7 +1499,7 @@ export default function LandingPage() {
             </details>
 
             {/* Q5 */}
-            <details className="apollo-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
+            <details className="nidaan-one-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
               <summary className="flex items-center justify-between p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                 <span className="text-[14px] font-medium text-[#182033] pr-4 select-none">
                   How does slot recovery work?
@@ -1514,7 +1514,7 @@ export default function LandingPage() {
             </details>
 
             {/* Q6 */}
-            <details className="apollo-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
+            <details className="nidaan-one-card group border border-[#E8ECEF] rounded-[14px] bg-white transition-all duration-200">
               <summary className="flex items-center justify-between p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                 <span className="text-[14px] font-medium text-[#182033] pr-4 select-none">
                   Can this integrate with hospital HMS?
@@ -1564,7 +1564,7 @@ export default function LandingPage() {
         <div className="max-w-[1280px] mx-auto px-6 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-text-medium">
           {/* Left Group */}
           <div className="flex flex-wrap items-center gap-4">
-            <span className="font-poppins font-bold text-[20px] text-[#182033] tracking-tight">Apollo<span className="text-[#1E7F6A] ml-1">OPD</span></span>
+            <span className="font-poppins font-bold text-[20px] text-[#182033] tracking-tight">Nidaan One<span className="text-[#1E7F6A] ml-1">OPD</span></span>
             <span className="hidden md:inline text-text-light">&#183;</span>
             <span className="text-text-light">Demo Day 2026</span>
           </div>
@@ -1575,14 +1575,14 @@ export default function LandingPage() {
               Patient Portal
             </Link>
             <a
-              href="https://apollo-opd-staff.vercel.app/staff/login"
+              href="https://nidaan-one-staff.vercel.app/staff/login"
               target="_blank"
               rel="noopener noreferrer"
               className="text-text-light hover:text-[#374151] transition-colors duration-200"
             >
               Staff Login
             </a>
-            <span className="text-gray-300">Built by Team Apollo</span>
+            <span className="text-gray-300">Built by Team Nidaan One</span>
           </div>
         </div>
       </footer>

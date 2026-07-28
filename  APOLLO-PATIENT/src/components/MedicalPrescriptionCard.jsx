@@ -29,7 +29,7 @@ export default function MedicalPrescriptionCard({ appointment }) {
     date: appointment?.appointmentDate || '2026-07-25',
     doctorName: appointment?.doctorName || 'Dr. Arvind Mehta',
     department: appointment?.department || 'Cardiology',
-    hospital: appointment?.hospital || 'Apollo Hospital, Jubilee Hills',
+    hospital: appointment?.hospital || 'Nidaan One Clinic, Jubilee Hills',
     diagnosis: [
       { name: 'Mild Essential Hypertension', code: 'ICD-10: I10', severity: 'Mild / Controlled' },
       { name: 'Vitamin D3 Deficiency', code: 'ICD-10: E55.9', severity: 'Moderate' }
