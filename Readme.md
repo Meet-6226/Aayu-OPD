@@ -565,4 +565,3 @@ Upcoming Milestones:
 - AI Model Development
 - Backend APIs
 - Frontend Development
-- Integration

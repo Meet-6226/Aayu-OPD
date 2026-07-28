@@ -11,7 +11,7 @@ const uri = process.env.MONGODB_URI || process.env.VITE_MONGODB_URI || 'mongodb:
 const dbName = 'nidaan_opd_intelligence';
 
 console.log(`[Database] Connecting to URI: ${uri.replace(/:([^:@]+)@/, ':****@')}`);
-
+  
 const client = new MongoClient(uri);
 
 let dbInstance = null;
