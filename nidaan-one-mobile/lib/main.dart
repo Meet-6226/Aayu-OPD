@@ -113,8 +113,70 @@ class _PatientPortalWrapperState extends State<PatientPortalWrapper> {
     _controller.loadRequest(Uri.parse(formattedUrl));
   }
 
+
   @override
   Widget build(BuildContext context) {
+    // Show phone mock frame on Web or Desktop targets to simulate mobile device view
+    final bool useFrame = kIsWeb || !(Platform.isAndroid || Platform.isIOS);
+
+    Widget mainContent = PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) async {
+        if (didPop) return;
+        if (await _controller.canGoBack()) {
+          await _controller.goBack();
+        }
+      },
+      child: Stack(
+        children: [
+          // 1. The Main React Webapp WebView
+          WebViewWidget(controller: _controller),
+
+          // 2. Linear Progress Bar during loading
+          if (_isLoading && _loadingProgress > 0)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: LinearProgressIndicator(
+                value: _loadingProgress,
+                backgroundColor: Colors.transparent,
+                color: const Color(0xFF0F766E),
+                minHeight: 3,
+              ),
+            ),
+
+          // 3. Premium Nidaan One Animated Splash Screen (shown on launch)
+          if (_isLoading && _loadingProgress < 0.8)
+            _buildSplashOverlay(),
+        ],
+      ),
+    );
+
+    if (useFrame) {
+      mainContent = Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 420, maxHeight: 840),
+          margin: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(40.0), // Rounded iPhone-style bezel corners
+            border: Border.all(color: const Color(0xFF1E293B), width: 12.0), // Phone bezel frame
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.55),
+                blurRadius: 32.0,
+                spreadRadius: 4.0,
+                offset: const Offset(0, 12),
+              ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: mainContent,
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A), // Matches the dark Web theme
       appBar: _showDebugBar || kDebugMode
@@ -161,39 +223,7 @@ class _PatientPortalWrapperState extends State<PatientPortalWrapper> {
             )
           : null,
       body: SafeArea(
-        child: PopScope(
-          canPop: false,
-          onPopInvokedWithResult: (bool didPop, dynamic result) async {
-            if (didPop) return;
-            if (await _controller.canGoBack()) {
-              await _controller.goBack();
-            }
-          },
-          child: Stack(
-            children: [
-              // 1. The Main React Webapp WebView
-              WebViewWidget(controller: _controller),
-
-              // 2. Linear Progress Bar during loading
-              if (_isLoading && _loadingProgress > 0)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: LinearProgressIndicator(
-                    value: _loadingProgress,
-                    backgroundColor: Colors.transparent,
-                    color: const Color(0xFF0F766E),
-                    minHeight: 3,
-                  ),
-                ),
-
-              // 3. Premium Nidaan One Animated Splash Screen (shown on launch)
-              if (_isLoading && _loadingProgress < 0.8)
-                _buildSplashOverlay(),
-            ],
-          ),
-        ),
+        child: mainContent,
       ),
     );
   }
