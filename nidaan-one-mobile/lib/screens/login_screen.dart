@@ -125,7 +125,6 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final auth = Provider.of<AuthService>(context, listen: false);
       await auth.verifyOtpAndLogin(phone, registerData: registerData);
-      // Main routing triggers navigation update automatically via isLoggedIn notifier listener
     } catch (e) {
       setState(() {
         _errorMessage = 'Registration failed. Try again.';
@@ -137,64 +136,122 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 460),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // App Branding Logo
-                  const Center(
-                    child: BrandLogo(height: 36),
-                  ),
-                  const SizedBox(height: 32),
+      backgroundColor: const Color(0xFF0F172A), // Premium Dark Slate base background
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth > 800;
+          if (isWide) {
+            return _buildDesktopLayout();
+          }
+          return _buildMobileLayout();
+        },
+      ),
+    );
+  }
 
-                  // Step indicator card
-                  _buildStepHeader(),
-                  const SizedBox(height: 16),
-
-                  // Main content wizard step
-                  ClinicalCard(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (_errorMessage != null) ...[
-                          Container(
-                            padding: const EdgeInsets.all(12.0),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFEF2F2),
-                              border: Border.all(color: const Color(0xFFFCA5A5)),
-                              borderRadius: BorderRadius.circular(6.0),
-                            ),
-                            child: Text(
-                              _errorMessage!,
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: const Color(0xFF991B1B),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                        _buildStepContent(),
-                      ],
-                    ),
-                  ),
-
-                  // Quick fill pill for testing
-                  if (_currentStep == 1) ...[
-                    const SizedBox(height: 24),
-                    _buildDemoShortcut(),
-                  ],
+  // Wide Desktop Split-Screen Layout (Matches the gorgeous Web design)
+  Widget _buildDesktopLayout() {
+    return Row(
+      children: [
+        // Left Showcase Panel
+        Expanded(
+          flex: 6,
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF021E1B), // Breathtaking deep emerald
+                  Color(0xFF063A34),
+                  Color(0xFF0F172A),
                 ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 40.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const BrandLogo(height: 48, textColor: Colors.white),
+                const SizedBox(height: 60),
+                Text(
+                  'Predict.\nPrevent.\nOptimize.',
+                  style: GoogleFonts.inter(
+                    fontSize: 48,
+                    height: 1.1,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: -1.5,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Your intelligent portal for real-time OPD queue lobbies, secure ABDM digital health lockers, and predictive clinic commute metrics.',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: const Color(0xFF94A3B8),
+                    height: 1.5,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                const SizedBox(height: 48),
+                
+                // Value propositions
+                _buildShowcaseFeature(Icons.access_time_outlined, 'Real-time Queue Tracking', 'Check live clinic wait times before you leave.'),
+                const SizedBox(height: 20),
+                _buildShowcaseFeature(Icons.folder_shared_outlined, 'ABDM Health Locker', 'Secure, verified access to electronic medical records.'),
+                const SizedBox(height: 20),
+                _buildShowcaseFeature(Icons.check_circle_outline, 'No-Show AI Predictor', 'Check-in safely and protect your schedule.'),
+              ],
+            ),
+          ),
+        ),
+
+        // Right Form Panel
+        Expanded(
+          flex: 5,
+          child: Container(
+            color: const Color(0xFFF8FAFC),
+            padding: const EdgeInsets.all(40.0),
+            child: Center(
+              child: SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: _buildFormStack(),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Mobile Single-Column Layout (With premium gradient headers and glassmorphism)
+  Widget _buildMobileLayout() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF0F172A), Color(0xFF0B3A36)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Center(
+                  child: BrandLogo(height: 38, textColor: Colors.white),
+                ),
+                const SizedBox(height: 32),
+                _buildFormStack(),
+              ],
             ),
           ),
         ),
@@ -202,7 +259,84 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Widget _buildFormStack() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildStepHeader(),
+        const SizedBox(height: 16),
+        ClinicalCard(
+          padding: const EdgeInsets.all(28.0),
+          borderRadius: 12.0,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_errorMessage != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF2F2),
+                    border: Border.all(color: const Color(0xFFFCA5A5)),
+                    borderRadius: BorderRadius.circular(6.0),
+                  ),
+                  child: Text(
+                    _errorMessage!,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: const Color(0xFF991B1B),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+              _buildStepContent(),
+            ],
+          ),
+        ),
+        if (_currentStep == 1) ...[
+          const SizedBox(height: 24),
+          _buildDemoShortcut(),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildShowcaseFeature(IconData icon, String title, String desc) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0E534B).withOpacity(0.3),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: Colors.tealAccent, size: 20),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                desc,
+                style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF94A3B8)),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildStepHeader() {
+    final onDark = _phoneController.text.isEmpty && _currentStep == 1; // Show white text on mobile dark base
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -210,7 +344,7 @@ class _LoginScreenState extends State<LoginScreen> {
           'Step $_currentStep of 4',
           style: GoogleFonts.inter(
             fontSize: 12,
-            color: const Color(0xFF64748B),
+            color: onDark ? Colors.tealAccent : const Color(0xFF64748B),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -223,7 +357,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 4.0,
               width: active ? 20.0 : 8.0,
               decoration: BoxDecoration(
-                color: active || completed ? const Color(0xFF0F766E) : const Color(0xFFE2E8F0),
+                color: active || completed ? const Color(0xFF0F766E) : const Color(0xFFCBD5E1),
                 borderRadius: BorderRadius.circular(2.0),
               ),
             );
@@ -255,22 +389,22 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         Text(
           'Enter Mobile Number',
-          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w900, color: const Color(0xFF0F172A), letterSpacing: -0.5),
         ),
         const SizedBox(height: 6),
         Text(
-          'We will send a 6-digit OTP verification code to verify your profile details.',
-          style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF64748B)),
+          'Please enter your 10-digit mobile number. We will send a secure mock verification code.',
+          style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF64748B), height: 1.4),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         TextField(
           controller: _phoneController,
           keyboardType: TextInputType.phone,
           maxLength: 10,
-          decoration: _inputDecoration('Mobile Number (10 digits)', prefixText: '+91 '),
+          decoration: _inputDecoration('Mobile Number', prefixText: '+91 '),
           style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         ElevatedButton(
           onPressed: _isLoading ? null : _handleRequestOtp,
           style: _buttonStyle(),
@@ -287,27 +421,27 @@ class _LoginScreenState extends State<LoginScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Helper OTP hint card
+        // Premium SMS Gateway Banner
         Container(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: BoxDecoration(
             color: const Color(0xFF0F172A),
-            borderRadius: BorderRadius.circular(6.0),
+            borderRadius: BorderRadius.circular(8.0),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.sms_outlined, color: Colors.tealAccent, size: 18),
-              const SizedBox(width: 10),
+              const Icon(Icons.sms_outlined, color: Colors.tealAccent, size: 20),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('MOCK SMS GATEWAY', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.tealAccent)),
-                    const SizedBox(height: 2),
+                    Text('MOCK SMS GATEWAY', style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.tealAccent, letterSpacing: 0.5)),
+                    const SizedBox(height: 4),
                     Text(
                       'Use verification code $_mockOtp to sign in to Nidaan One.',
-                      style: GoogleFonts.inter(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w500),
+                      style: GoogleFonts.inter(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -315,10 +449,10 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         Text(
           'Enter 6-Digit OTP',
-          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w900, color: const Color(0xFF0F172A), letterSpacing: -0.5),
         ),
         const SizedBox(height: 20),
         TextField(
@@ -327,9 +461,9 @@ class _LoginScreenState extends State<LoginScreen> {
           maxLength: 6,
           textAlign: TextAlign.center,
           decoration: _inputDecoration('6-Digit Code'),
-          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 8.0),
+          style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: 8.0),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         Row(
           children: [
             Expanded(
@@ -359,14 +493,14 @@ class _LoginScreenState extends State<LoginScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Personal Details',
-          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+          'Personal Profile',
+          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w900, color: const Color(0xFF0F172A), letterSpacing: -0.5),
         ),
         const SizedBox(height: 16),
         TextField(
           controller: _nameController,
           decoration: _inputDecoration('Full Name'),
-          style: GoogleFonts.inter(fontSize: 14),
+          style: GoogleFonts.inter(fontSize: 13),
         ),
         const SizedBox(height: 12),
         Row(
@@ -376,13 +510,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: _ageController,
                 keyboardType: TextInputType.number,
                 decoration: _inputDecoration('Age'),
-                style: GoogleFonts.inter(fontSize: 14),
+                style: GoogleFonts.inter(fontSize: 13),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: DropdownButtonFormField<String>(
-                initialValue: _selectedGender,
+                value: _selectedGender,
                 items: ['Male', 'Female', 'Other']
                     .map((g) => DropdownMenuItem(value: g, child: Text(g, style: GoogleFonts.inter(fontSize: 13))))
                     .toList(),
@@ -395,16 +529,16 @@ class _LoginScreenState extends State<LoginScreen> {
         const SizedBox(height: 12),
         TextField(
           controller: _cityController,
-          decoration: _inputDecoration('City'),
-          style: GoogleFonts.inter(fontSize: 14),
+          decoration: _inputDecoration('City (e.g. Hyderabad)'),
+          style: GoogleFonts.inter(fontSize: 13),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: _abhaController,
           decoration: _inputDecoration('ABHA ID (Digital Health Card)'),
-          style: GoogleFonts.inter(fontSize: 14),
+          style: GoogleFonts.inter(fontSize: 13),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         Row(
           children: [
             Expanded(
@@ -437,16 +571,16 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         Text(
           'Notification Profile',
-          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w900, color: const Color(0xFF0F172A), letterSpacing: -0.5),
         ),
         const SizedBox(height: 6),
         Text(
           'Choose how frequently you would like to receive reminders and waitlist updates.',
-          style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF64748B)),
+          style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF64748B), height: 1.4),
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
-          initialValue: _selectedPersona,
+          value: _selectedPersona,
           items: ['Busy Professional', 'Elderly / Need Help', 'Student']
               .map((p) => DropdownMenuItem(value: p, child: Text(p, style: GoogleFonts.inter(fontSize: 13))))
               .toList(),
@@ -457,7 +591,7 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(height: 16),
           Text(
             'Caregiver Information',
-            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF0F766E)),
+            style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF0F766E), letterSpacing: 0.5),
           ),
           const SizedBox(height: 8),
           TextField(
@@ -521,18 +655,19 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
             decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              color: Colors.white.withOpacity(0.08),
+              border: Border.all(color: const Color(0xFF334155)),
               borderRadius: BorderRadius.circular(20.0),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.flash_on, color: Color(0xFF0F766E), size: 14),
+                const Icon(Icons.flash_on, color: Colors.tealAccent, size: 14),
                 const SizedBox(width: 6),
                 Text(
                   'Auto-fill Demo Patient (Priya Sharma)',
-                  style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF0F766E)),
+                  style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.tealAccent),
                 ),
               ],
             ),
@@ -545,9 +680,9 @@ class _LoginScreenState extends State<LoginScreen> {
   InputDecoration _inputDecoration(String labelText, {String? prefixText}) {
     return InputDecoration(
       labelText: labelText,
-      labelStyle: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF64748B), fontWeight: FontWeight.w500),
+      labelStyle: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.w500),
       prefixText: prefixText,
-      prefixStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF1E293B)),
+      prefixStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF1E293B)),
       filled: true,
       fillColor: Colors.white,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
@@ -567,7 +702,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return ElevatedButton.styleFrom(
       backgroundColor: const Color(0xFF0F766E),
       foregroundColor: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 14.0),
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
@@ -579,7 +714,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return OutlinedButton.styleFrom(
       foregroundColor: const Color(0xFF475569),
       side: const BorderSide(color: Color(0xFFE2E8F0)),
-      padding: const EdgeInsets.symmetric(vertical: 14.0),
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
       ),
