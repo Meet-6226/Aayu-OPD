@@ -1,5 +1,21 @@
-// Firestore-to-MongoDB Client-Side Interceptor Bridge
-// Emulates the firebase/firestore SDK and routes all calls to the MongoDB local backend.
+// Determine backend URL:
+// - On localhost or LAN IP (172.x, 192.168.x, 10.x) → use the same host on port 5002
+// - On Vercel / any public HTTPS domain → backend is NOT reachable; show a clear error
+function getBackendURL() {
+  if (typeof window === 'undefined') return 'http://localhost:5002';
+  const hostname = window.location.hostname;
+  const isLocal = hostname === 'localhost' 
+    || hostname === '127.0.0.1'
+    || /^172\.(1[6-9]|2\d|3[01])\./.test(hostname)   // 172.16–31.x.x (private)
+    || /^192\.168\./.test(hostname)                    // 192.168.x.x
+    || /^10\./.test(hostname);                         // 10.x.x.x
+  if (!isLocal) {
+    console.warn(`[Bridge] ⚠️ Running on public host "${hostname}". Backend (localhost:5002) is NOT reachable from a deployed Vercel app. Visit http://localhost:5173 instead.`);
+  }
+  return `http://${hostname}:5002`;
+}
+
+const BACKEND_URL = getBackendURL();
 
 export function getFirestore() {
   return { type: 'db' };
@@ -46,7 +62,7 @@ export function increment(value) {
 
 export async function getDoc(docRef) {
   try {
-    const res = await fetch(`http://localhost:5002/api/doc?path=${encodeURIComponent(docRef.path)}&id=${encodeURIComponent(docRef.id)}`);
+    const res = await fetch(`${BACKEND_URL}/api/doc?path=${encodeURIComponent(docRef.path)}&id=${encodeURIComponent(docRef.id)}`);
     const { data } = await res.json();
     return {
       id: docRef.id,
@@ -77,7 +93,7 @@ export async function getDocs(ref) {
       });
     }
 
-    const res = await fetch('http://localhost:5002/api/query', {
+    const res = await fetch(`${BACKEND_URL}/api/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -108,7 +124,7 @@ export async function getDocs(ref) {
 export async function addDoc(collectionRef, data) {
   const id = 'mongo_' + Math.random().toString(36).substring(2, 15);
   try {
-    const res = await fetch('http://localhost:5002/api/doc', {
+    const res = await fetch(`${BACKEND_URL}/api/doc`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -128,7 +144,7 @@ export async function addDoc(collectionRef, data) {
 
 export async function setDoc(docRef, data, options) {
   try {
-    const res = await fetch('http://localhost:5002/api/doc', {
+    const res = await fetch(`${BACKEND_URL}/api/doc`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -147,7 +163,7 @@ export async function setDoc(docRef, data, options) {
 
 export async function updateDoc(docRef, data) {
   try {
-    const res = await fetch('http://localhost:5002/api/doc', {
+    const res = await fetch(`${BACKEND_URL}/api/doc`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -165,7 +181,7 @@ export async function updateDoc(docRef, data) {
 
 export async function deleteDoc(docRef) {
   try {
-    const res = await fetch('http://localhost:5002/api/transaction', {
+    const res = await fetch(`${BACKEND_URL}/api/transaction`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -261,7 +277,7 @@ export async function runTransaction(db, callback) {
 
   await callback(transaction);
 
-  const res = await fetch('http://localhost:5002/api/transaction', {
+  const res = await fetch(`${BACKEND_URL}/api/transaction`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ preconditions, operations })
@@ -286,7 +302,7 @@ export function writeBatch(db) {
       operations.push({ type: 'delete', collection: docRef.path, id: docRef.id });
     },
     commit: async () => {
-      const res = await fetch('http://localhost:5002/api/transaction', {
+      const res = await fetch(`${BACKEND_URL}/api/transaction`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ preconditions: [], operations })

@@ -9,6 +9,9 @@ const PORT = process.env.PORT || 5002;
 app.use(cors({ origin: '*' }));
 app.use(bodyParser.json({ limit: '10mb' }));
 
+// Health check for Render
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
 // Helper to convert ISO dates or Firestore server timestamps
 function parseDocValues(data) {
   if (!data) return data;
