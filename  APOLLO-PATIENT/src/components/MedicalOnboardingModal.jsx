@@ -352,7 +352,7 @@ export default function MedicalOnboardingModal({ onComplete }) {
             {/* Branding — compact */}
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-[#0d9488] shrink-0" />
-              <span className="text-[10px] font-semibold tracking-wider uppercase text-[#94A3B8]">CareFlow · ABDM</span>
+              <span className="text-[10px] font-semibold tracking-wider uppercase text-[#94A3B8]">Nidaan One · ABDM</span>
             </div>
 
             {/* Step progress dots */}
@@ -644,7 +644,7 @@ export default function MedicalOnboardingModal({ onComplete }) {
             <div className="mx-8 mb-2 p-3 bg-[#FAFBFB] border border-[#e2e8f0] rounded-[8px] flex items-start gap-2.5 text-left transition-all duration-150">
               <Info className="h-4 w-4 text-[#0f766e] shrink-0 mt-0.5" />
               <div className="space-y-0.5">
-                <span className="text-[9px] font-bold text-[#0f766e] uppercase tracking-wider block">Why CareFlow AI asks this:</span>
+                <span className="text-[9px] font-bold text-[#0f766e] uppercase tracking-wider block">Why Nidaan One AI asks this:</span>
                 <p className="text-[10.5px] text-[#475569] leading-normal font-semibold">{q.aiPurpose}</p>
               </div>
             </div>

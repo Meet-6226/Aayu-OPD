@@ -646,7 +646,7 @@ export default function PatientLogin() {
                 <span className="font-mono font-bold text-sm text-white bg-[#1E293B] px-2 py-0.5 rounded-[6px] border border-[#334155] tracking-wider">
                   {generatedOtp}
                 </span>{' '}
-                to sign in to CareFlow.
+                to sign in to Nidaan One.
               </p>
             </div>
 
@@ -671,7 +671,7 @@ export default function PatientLogin() {
         <div className="flex items-center justify-between text-xs text-[#3B4452] pt-4 border-t border-[#E8ECEF]/80 font-medium">
           <span>✓ ABDM & ABHA Compliant</span>
           <span>🔒 256-Bit Security</span>
-          <span>CareFlow Platform</span>
+          <span>Nidaan One Platform</span>
         </div>
       </div>
 
@@ -706,7 +706,7 @@ export default function PatientLogin() {
               {/* Brand heading */}
               <div className="mt-4 text-center lg:hidden font-sans">
                 <h2 className="font-sans font-black text-xl text-[#0F172A] tracking-tight leading-none">
-                  CareFlow
+                  Nidaan One
                 </h2>
                 <p className="text-xs text-[#64748B] tracking-wide mt-1 select-none font-semibold">
                   Operations Intelligence Platform
@@ -1184,10 +1184,10 @@ export default function PatientLogin() {
               {/* Logo block */}
               <div className="flex flex-col items-center lg:hidden">
                 <div className="w-10 h-10 rounded-full bg-[#0f766e] flex items-center justify-center shrink-0 text-white font-bold text-[16px]">
-                  C
+                  N
                 </div>
                 <h2 className="font-sans font-extrabold text-[18px] text-[#0f766e] tracking-tight mt-2.5">
-                  CareFlow
+                  Nidaan One
                 </h2>
               </div>
 

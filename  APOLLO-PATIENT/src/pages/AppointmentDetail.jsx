@@ -426,7 +426,7 @@ export default function AppointmentDetail() {
                   <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed">
                     {isOnline 
                       ? 'Secure, browser-based video lobby. Link available on this page.' 
-                      : `${appointment.room || 'Room 302'}, ${doctor?.hospital || appointment.hospital || 'CareFlow Clinic, Jubilee Hills'}`
+                      : `${appointment.room || 'Room 302'}, ${doctor?.hospital || appointment.hospital || 'Nidaan One Clinic, Jubilee Hills'}`
                     }
                   </p>
                 </div>
@@ -436,7 +436,7 @@ export default function AppointmentDetail() {
             {!isOnline && (
               <div className="pt-2 border-t border-[#F3F4F6]">
                 <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(doctor?.hospital || appointment.hospital || 'CareFlow Clinic, Jubilee Hills')}`}
+                  href={`https://maps.google.com/?q=${encodeURIComponent(doctor?.hospital || appointment.hospital || 'Nidaan One Clinic, Jubilee Hills')}`}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0f766e] hover:underline"
@@ -496,7 +496,7 @@ export default function AppointmentDetail() {
             </div>
             <h4 className="text-sm font-semibold text-[#111827] truncate">{appointment.doctorName}</h4>
             <p className="text-[10px] font-bold text-[#0f766e] uppercase tracking-wider mt-0.5">{appointment.department}</p>
-            <p className="text-xs text-[#6B7280] truncate mt-1">{doctor?.hospital || appointment.hospital || "CareFlow Clinic"}</p>
+            <p className="text-xs text-[#6B7280] truncate mt-1">{doctor?.hospital || appointment.hospital || "Nidaan One Clinic"}</p>
             
             <div className="border-t border-[#F3F4F6] mt-4 pt-3 flex justify-between items-center text-xs">
               <span className="text-[#9CA3AF] font-medium">Consultation Fee</span>

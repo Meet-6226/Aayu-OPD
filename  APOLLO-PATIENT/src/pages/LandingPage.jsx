@@ -262,7 +262,7 @@ export default function LandingPage() {
           isScrolled ? 'h-14 sm:h-15' : 'h-16 sm:h-18'
         }`}>
           
-          {/* Left Logo — CareFlow */}
+          {/* Left Logo — Nidaan One */}
           <Link to="/" className="flex items-center select-none shrink-0">
             <BrandLogo height={28} />
           </Link>
@@ -343,7 +343,7 @@ export default function LandingPage() {
 
               {/* Subtitle */}
               <p ref={subtitleRef} className="text-sm sm:text-base text-[#475569] leading-relaxed max-w-[420px] mt-6 font-medium">
-                CareFlow works as an intelligence layer on top of your existing hospital software to predict patient no-shows, optimize doctor schedules, and recover lost clinic time automatically.
+                Nidaan One works as an intelligence layer on top of your existing hospital software to predict patient no-shows, optimize doctor schedules, and recover lost clinic time automatically.
               </p>
 
               {/* CTA Buttons */}
