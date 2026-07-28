@@ -28,6 +28,7 @@ import { useStaffAppointments } from '../hooks/useStaffAppointments';
 import { useSlotRecovery } from '../hooks/useSlotRecovery';
 import { db } from '../firebase/config';
 import { collection, getDocs, doc, updateDoc, setDoc, query, where, serverTimestamp } from 'firebase/firestore';
+import BrandLogo from '../components/BrandLogo';
 
 // ─── Nav Config ───
 const navItems = [
@@ -192,39 +193,19 @@ function Sidebar({ onEmergencyClick }) {
       }}
     >
       {/* Logo */}
-      <div style={{
-        padding: '1.25rem 1.25rem',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.75rem',
-        borderBottom: '1px solid #f3f4f6',
-        height: 64,
-        flexShrink: 0,
-      }}>
-        <div style={{
-          width: 32,
-          height: 32,
-          borderRadius: '6px',
-          background: '#1b504c',
+      <div 
+        style={{
+          padding: '1.25rem 1.25rem',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
+          borderBottom: '1px solid #f3f4f6',
+          height: 64,
           flexShrink: 0,
           cursor: 'pointer',
-        }} onClick={() => navigate(userRole === 'doctor' ? '/staff/doctor-view' : '/staff/dashboard')}>
-          <Sparkles size={16} color="white" />
-        </div>
-        <div 
-          style={{ overflow: 'hidden', whiteSpace: 'nowrap', cursor: 'pointer' }}
-          onClick={() => navigate(userRole === 'doctor' ? '/staff/doctor-view' : '/staff/dashboard')}
-        >
-          <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '0.9rem', color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-            Nidaan One OPD
-          </div>
-          <div style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Intelligence
-          </div>
-        </div>
+        }}
+        onClick={() => navigate(userRole === 'doctor' ? '/staff/doctor-view' : '/staff/dashboard')}
+      >
+        <BrandLogo variant="inline" height={28} />
       </div>
 
       {/* Navigation Items */}

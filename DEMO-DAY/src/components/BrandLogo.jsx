@@ -4,7 +4,7 @@ import React from 'react';
  * BrandLogo — Nidaan One (Staff Portal Variant)
  * Renders the custom Nidaan One emblem (caduceus / medical curves) and typography.
  */
-export default function BrandLogo({ variant = 'inline', className = '', height = 32 }) {
+export default function BrandLogo({ variant = 'inline', className = '', height = 32, textColor = '#0F172A', subColor = '#64748B' }) {
   const iconSvg = (
     <svg
       width="48"
@@ -101,15 +101,15 @@ export default function BrandLogo({ variant = 'inline', className = '', height =
       {iconSvg}
       <div className="flex flex-col justify-center text-left leading-none">
         <span 
-          className={`font-sans font-extrabold tracking-tight text-[#0F172A] ${titleSize} flex items-center leading-none`}
-          style={{ letterSpacing: '-0.02em' }}
+          className={`font-sans font-extrabold tracking-tight ${titleSize} flex items-center leading-none`}
+          style={{ letterSpacing: '-0.02em', color: textColor }}
         >
           Nidaan<span className="text-[#0f766e] ml-1">One</span>
           <span className="font-sans font-semibold text-[13px] sm:text-[14px] text-[#0f766e] ml-1.5 px-1.5 py-0.2 bg-[#f0fdfa] border border-[#ccfbf1] rounded-[4px] tracking-normal">OPD</span>
         </span>
         <span 
-          className={`font-sans font-black tracking-widest text-[#64748B] uppercase ${subtitleSize} mt-1`}
-          style={{ letterSpacing: '0.12em' }}
+          className={`font-sans font-black tracking-widest uppercase ${subtitleSize} mt-1`}
+          style={{ letterSpacing: '0.12em', color: subColor }}
         >
           Hospital Operations Intelligence
         </span>

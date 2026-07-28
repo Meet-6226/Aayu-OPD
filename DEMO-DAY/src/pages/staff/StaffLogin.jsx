@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Sparkles, Shield, ArrowRight, Eye, EyeOff, Users, Clock, Activity, TrendingUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { now } from '../../utils/appTime';
+import BrandLogo from '../../components/BrandLogo';
 
 const stats = [
   { label: 'Patients Today', value: '284', icon: Users },
@@ -82,26 +83,8 @@ export default function LoginPage() {
         }}
       >
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '4rem' }}>
-          <div style={{
-            width: 32,
-            height: 32,
-            borderRadius: '6px',
-            background: 'rgba(255,255,255,0.12)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            <Sparkles size={16} color="white" />
-          </div>
-          <div>
-            <div style={{ color: 'white', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '1rem', lineHeight: 1.2, letterSpacing: '-0.02em' }}>
-              Nidaan One OPD
-            </div>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.62rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              Intelligence Platform
-            </div>
-          </div>
+        <div style={{ marginBottom: '4rem' }}>
+          <BrandLogo variant="inline" height={32} textColor="white" subColor="rgba(255,255,255,0.5)" />
         </div>
 
         {/* Headline */}
