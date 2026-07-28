@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'package:web/web.dart' as web;
+import 'dart:html' as html;
 import 'dart:ui_web' as ui_web;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'widgets/brand_logo.dart';
@@ -66,12 +66,12 @@ class _PatientPortalWrapperState extends State<PatientPortalWrapper> {
     ui_web.platformViewRegistry.registerViewFactory(
       _iframeViewId,
       (int viewId) {
-        final iframe = web.document.createElement('iframe') as web.HTMLIFrameElement;
-        iframe.src = url;
-        iframe.style.border = 'none';
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.allow = 'fullscreen';
+        final iframe = html.IFrameElement()
+          ..src = url
+          ..style.border = 'none'
+          ..style.width = '100%'
+          ..style.height = '100%'
+          ..allow = 'fullscreen';
         return iframe;
       },
     );
