@@ -566,4 +566,3 @@ Upcoming Milestones:
 - Backend APIs
 - Frontend Development
 - Integration
-- Testing
