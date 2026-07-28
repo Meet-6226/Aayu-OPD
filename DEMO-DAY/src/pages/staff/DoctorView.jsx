@@ -1307,7 +1307,6 @@ export default function DoctorViewPage() {
                         <Section icon={<Wind size={14} color="#059669" />} title="Lifestyle Factors"
                           chips={lifestyle} emptyLabel="Not specified"
                           chipStyle={{ bg: '#ecfdf5', color: '#065f46', border: '#a7f3d0' }} />
-
                         <Section icon={<User size={14} color="#64748b" />} title="Family History"
                           chips={family} emptyLabel="None reported"
                           chipStyle={{ bg: '#f8fafc', color: '#475569', border: '#cbd5e1' }} />
@@ -1321,13 +1320,29 @@ export default function DoctorViewPage() {
                               <p style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{mh.medicalReport.name}</p>
                             </div>
                             {mh.medicalReport.url && (
-                              <a href={mh.medicalReport.url} target="_blank" rel="noreferrer" style={{ fontSize: '0.68rem', color: '#15803d', fontWeight: 700, textDecoration: 'none', background: '#bbf7d0', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
+                              <a href={mh.medicalReport.url} target="_blank" rel="noreferrer" style={{ fontSize: '0.68rem', color: '#15803d', fontWeight: 700, textDecoration: 'none', background: '#bbf7d0', padding: '0.2rem 0.55rem', borderRadius: '6px' }}>
                                 View ↗
                               </a>
                             )}
                           </div>
                         )}
-                      </div>
+
+                        {/* Scanned Medicine Strips (AI Prescription) */}
+                        {mh.medicine_photo_names && mh.medicine_photo_names.length > 0 && (
+                          <div style={{ display: 'flex', gap: '0.6rem', padding: '0.7rem 1rem', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '10px', alignItems: 'flex-start' }}>
+                            <Sparkles size={15} color="#047857" style={{ marginTop: '0.1rem' }} />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#047857', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 0.35rem 0' }}>AI Scanned Medicine Strips</p>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                                {mh.medicine_photo_names.map((name, i) => (
+                                  <span key={i} style={{ fontSize: '0.68rem', background: 'white', color: '#047857', padding: '0.15rem 0.45rem', borderRadius: '6px', border: '1px solid #a7f3d0', fontWeight: 600 }}>
+                                    💊 {name}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}                      </div>
                     </div>
                   );
                 })()}

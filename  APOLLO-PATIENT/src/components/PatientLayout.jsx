@@ -46,6 +46,7 @@ export default function PatientLayout() {
             familyHistory: profile.family_history || [],
             familyHistoryCustom: profile.family_history_custom_details || '',
             medicalReport: profile.medical_report || null,
+            medicine_photo_names: profile.medicine_photo_names || [],
             completedAt: profile.completedAt
           },
           bloodGroup: profile.blood_group || '',
@@ -73,7 +74,7 @@ export default function PatientLayout() {
 
   const navItems = [
     { to: '/home', icon: Home, label: 'Home' },
-    { to: '/appointments', icon: Calendar, label: 'Appointments' },
+    { to: '/appointments', icon: Calendar, label: 'Bookings' },
     { to: '/reports', icon: FileText, label: 'Reports' },
     { to: '/notifications', icon: Bell, label: 'Alerts', badge: unreadCount > 0 },
     { to: '/profile', icon: User, label: 'Profile' },
@@ -81,8 +82,8 @@ export default function PatientLayout() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#334155] font-sans flex flex-col relative antialiased">
-      {/* ── HEADER ──────────────────────────────────────────────────── */}
-      <header className="fixed top-0 left-0 right-0 h-14 lg:h-16 bg-white border-b border-[#E2E8F0] z-50 shadow-sm">
+      {/* ── HEADER (Desktop only) ─────────────────────────────────────── */}
+      <header className="hidden lg:block fixed top-0 left-0 right-0 h-16 bg-white border-b border-[#E2E8F0] z-50 shadow-sm">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
 
           {/* Logo */}
@@ -136,30 +137,34 @@ export default function PatientLayout() {
         </div>
       </header>
 
-      {/* ── BOTTOM NAV (Mobile only) ─────────────────────────────────── */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-[#E2E8F0] z-50 lg:hidden shadow-lg">
-        <div className="flex items-center justify-around max-w-[440px] mx-auto h-full px-3">
+      {/* ── BOTTOM NAV (Mobile only - Floating Premium App Design) ────── */}
+      <nav className="fixed bottom-4 left-4 right-4 h-16 bg-white/90 backdrop-blur-md border border-[#E2E8F0] z-50 lg:hidden rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
+        <div className="flex items-center justify-around h-full px-2">
           {navItems.map(({ to, icon: Icon, label, badge }) => (
             <NavLink
               key={to}
               to={to}
-              className="relative flex flex-col items-center justify-center h-full px-2 text-decoration-none"
+              className="relative flex flex-col items-center justify-center flex-1 h-full text-decoration-none"
             >
-            {({ isActive }) => (
+              {({ isActive }) => (
                 <div className="relative flex flex-col items-center justify-center">
-                  <div className="relative flex items-center justify-center">
-                    <Icon
-                      className={`h-[18px] w-[18px] transition-colors duration-150 ${
-                        isActive ? 'text-[#0f766e]' : 'text-[#94A3B8]'
-                      }`}
-                    />
+                  <motion.div
+                    animate={{ scale: isActive ? 1.08 : 1 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    className={`relative flex items-center justify-center p-2 rounded-xl transition-all duration-200 ${
+                      isActive 
+                        ? 'bg-[#0f766e]/10 text-[#0f766e]' 
+                        : 'text-[#94A3B8] hover:text-[#475569]'
+                    }`}
+                  >
+                    <Icon className="h-[18px] w-[18px]" />
                     {badge && (
-                      <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#E11D48]" />
+                      <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-[#E11D48]" />
                     )}
-                  </div>
+                  </motion.div>
                   <span
-                    className={`text-[10px] mt-1 leading-none transition-colors ${
-                      isActive ? 'font-bold text-[#0f766e]' : 'font-medium text-[#94A3B8]'
+                    className={`text-[9px] mt-0.5 font-semibold tracking-wide transition-colors ${
+                      isActive ? 'text-[#0f766e] font-bold' : 'text-[#94A3B8]'
                     }`}
                   >
                     {label}
@@ -172,7 +177,7 @@ export default function PatientLayout() {
       </nav>
 
       {/* ── Main Content ─────────────────────────────────────────────── */}
-      <main className="flex-grow pt-14 lg:pt-16 pb-[72px] lg:pb-0 bg-[#F8FAFC]">
+      <main className="flex-grow pt-0 lg:pt-16 pb-24 lg:pb-0 bg-[#F8FAFC]">
         <Outlet />
       </main>
 
