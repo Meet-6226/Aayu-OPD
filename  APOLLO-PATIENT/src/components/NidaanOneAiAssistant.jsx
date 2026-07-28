@@ -9,8 +9,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
-/* ── Custom Styled Robot Mascot SVG (Aether OPD Theme Colors) ──── */
-function AetherRobotMascot({ className = 'w-24 h-24 sm:w-28 sm:h-28' }) {
+/* ── Custom Styled Robot Mascot SVG (Nidaan One OPD Theme Colors) ──── */
+function NidaanOneRobotMascot({ className = 'w-24 h-24 sm:w-28 sm:h-28' }) {
   return (
     <svg
       viewBox="0 0 500 500"
@@ -92,7 +92,7 @@ function FormattedMessageText({ text }) {
   );
 }
 
-export default function AetherAiAssistant() {
+export default function NidaanOneAiAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
@@ -109,7 +109,7 @@ export default function AetherAiAssistant() {
   const [followUpOptions, setFollowUpOptions] = useState(null);
   
   const [showSpeechBubble, setShowSpeechBubble] = useState(false);
-  const [bubbleText, setBubbleText] = useState("Chat with Aether AI Doctor");
+  const [bubbleText, setBubbleText] = useState("Chat with Nidaan One AI Doctor");
   const [highlightActive, setHighlightActive] = useState(false);
   
   const chatEndRef = useRef(null);
@@ -117,7 +117,7 @@ export default function AetherAiAssistant() {
 
   // Load patient onboarding medical details on mount
   useEffect(() => {
-    const saved = localStorage.getItem('aether_medical_profile');
+    const saved = localStorage.getItem('nidaan_medical_profile');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -141,7 +141,7 @@ export default function AetherAiAssistant() {
         initializeChat(freshProfile);
       }
       
-      setBubbleText("Profile Calibrated! Click here to consult Aether AI.");
+      setBubbleText("Profile Calibrated! Click here to consult Nidaan One AI.");
       setShowSpeechBubble(true);
       setHighlightActive(true);
 
@@ -151,8 +151,8 @@ export default function AetherAiAssistant() {
       }, 8500);
     };
 
-    window.addEventListener('aether_onboarding_completed', handleOnboardingCompleted);
-    return () => window.removeEventListener('aether_onboarding_completed', handleOnboardingCompleted);
+    window.addEventListener('nidaan_onboarding_completed', handleOnboardingCompleted);
+    return () => window.removeEventListener('nidaan_onboarding_completed', handleOnboardingCompleted);
   }, []);
 
   // Auto-scroll to bottom on new message
@@ -161,7 +161,7 @@ export default function AetherAiAssistant() {
   }, [messages, isTyping]);
 
   const initializeChat = (medProfile) => {
-    let greeting = "Hello. I am your Aether AI Health Assistant. I have loaded your basic profile parameters.";
+    let greeting = "Hello. I am your Nidaan One AI Health Assistant. I have loaded your basic profile parameters.";
     
     if (medProfile) {
       const conditions = medProfile.chronic_conditions || [];
@@ -186,10 +186,10 @@ export default function AetherAiAssistant() {
         
         greeting += `\nHow are you feeling right now? Please share any active symptoms so we can triage or recommend a matching specialist.`;
       } else {
-        greeting = "Hello. I am your Aether AI Health Assistant. Your profile parameters indicate no active chronic conditions or symptoms. How can I help support your health journey today?";
+        greeting = "Hello. I am your Nidaan One AI Health Assistant. Your profile parameters indicate no active chronic conditions or symptoms. How can I help support your health journey today?";
       }
     } else {
-      greeting = "Hello. I am your Aether AI Health Assistant. How can I assist you with your health query, symptoms analysis, or finding the right specialist today?";
+      greeting = "Hello. I am your Nidaan One AI Health Assistant. How can I assist you with your health query, symptoms analysis, or finding the right specialist today?";
     }
 
     setMessages([
@@ -253,14 +253,14 @@ export default function AetherAiAssistant() {
       let responseOptions = null;
 
       if (genAI) {
-        const savedProfile = localStorage.getItem('aether_medical_profile');
+        const savedProfile = localStorage.getItem('nidaan_medical_profile');
         let profileContext = "No onboarding medical profile provided.";
         if (savedProfile) {
           profileContext = JSON.stringify(JSON.parse(savedProfile), null, 2);
         }
 
         const systemInstruction = `
-          You are Aether AI, an expert hospital-based clinical assistant.
+          You are Nidaan One AI, an expert hospital-based clinical assistant.
           Your primary role is triage and specialist referral guidance.
           
           Patient Medical Parameters Context:
@@ -303,7 +303,7 @@ export default function AetherAiAssistant() {
       }, 1500);
 
     } catch (err) {
-      console.warn("[AetherAI] Gemini live call failed, using clinical rules simulator fallback:", err);
+      console.warn("[NidaanOneAI] Gemini live call failed, using clinical rules simulator fallback:", err);
       const offlineResult = getConversationalResponse(text);
       setTimeout(() => {
         setIsTyping(false);
@@ -480,7 +480,7 @@ export default function AetherAiAssistant() {
             
             <div className={`transition-all duration-300 rounded-full ${highlightActive ? 'animate-pulse-glow p-2 bg-[#F3FBF8]/80' : ''}`}>
               <div className="hover:scale-105 active:scale-98 transition-transform duration-200">
-                <AetherRobotMascot className="w-24 h-24 sm:w-28 sm:h-28" />
+                <NidaanOneRobotMascot className="w-24 h-24 sm:w-28 sm:h-28" />
               </div>
             </div>
           </motion.div>
@@ -499,11 +499,11 @@ export default function AetherAiAssistant() {
             <div className="bg-gradient-to-r from-[#182033] via-[#1A343A] to-[#1E7F6A] text-white px-5 py-4 flex items-center justify-between rounded-none border-b border-[#165B52]/40 relative">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/10 flex items-center justify-center overflow-hidden shrink-0 rounded-none border border-white/20">
-                  <AetherRobotMascot className="w-14 h-14 mt-1" />
+                  <NidaanOneRobotMascot className="w-14 h-14 mt-1" />
                 </div>
                 <div>
                   <h4 className="font-poppins font-bold text-[14px] uppercase tracking-wider text-white">
-                    Aether Clinical AI
+                    Nidaan One Clinical AI
                   </h4>
                   <span className="text-[9.5px] font-mono-data text-[#A5D8CD] uppercase tracking-widest block mt-0.5">
                     Hospital Triage Model
@@ -535,7 +535,7 @@ export default function AetherAiAssistant() {
                 >
                   {msg.sender === 'ai' && (
                     <div className="w-8 h-8 bg-white border border-[#E2E8F0] flex items-center justify-center overflow-hidden shrink-0 rounded-none shadow-sm">
-                      <AetherRobotMascot className="w-11 h-11 mt-1" />
+                      <NidaanOneRobotMascot className="w-11 h-11 mt-1" />
                     </div>
                   )}
 
@@ -557,7 +557,7 @@ export default function AetherAiAssistant() {
               {isTyping && (
                 <div className="flex justify-start items-start gap-3">
                   <div className="w-8 h-8 bg-white border border-[#E2E8F0] flex items-center justify-center overflow-hidden shrink-0 rounded-none shadow-sm">
-                    <AetherRobotMascot className="w-11 h-11 mt-1" />
+                    <NidaanOneRobotMascot className="w-11 h-11 mt-1" />
                   </div>
                   <div className="bg-white border border-[#E2E8F0] px-4 py-3 rounded-none flex items-center gap-1.5 shadow-sm border-l-4 border-l-[#1E7F6A]">
                     <span className="w-1.5 h-1.5 bg-[#1E7F6A] rounded-full animate-bounce" />

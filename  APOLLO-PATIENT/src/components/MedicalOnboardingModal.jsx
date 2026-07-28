@@ -294,11 +294,11 @@ export default function MedicalOnboardingModal({ onComplete }) {
       completedAt: new Date().toISOString(),
       version: '1.0',
     };
-    localStorage.setItem('aether_medical_profile', JSON.stringify(profile));
-    localStorage.setItem('aether_onboarding_done', 'true');
+    localStorage.setItem('nidaan_medical_profile', JSON.stringify(profile));
+    localStorage.setItem('nidaan_onboarding_done', 'true');
     setTimeout(() => {
       setSubmitting(false);
-      window.dispatchEvent(new CustomEvent('aether_onboarding_completed', { detail: profile }));
+      window.dispatchEvent(new CustomEvent('nidaan_onboarding_completed', { detail: profile }));
       onComplete(profile);
     }, 800);
   };
@@ -663,7 +663,7 @@ export default function MedicalOnboardingModal({ onComplete }) {
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => {
-                    localStorage.setItem('aether_onboarding_done', 'true');
+                    localStorage.setItem('nidaan_onboarding_done', 'true');
                     onComplete(null);
                   }}
                   className="text-xs font-bold text-[#64748b] hover:text-[#0f172a] underline underline-offset-2 transition-colors"

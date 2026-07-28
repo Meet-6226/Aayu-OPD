@@ -541,7 +541,7 @@ export default function LandingPage() {
               Why Traditional OPD Systems Fail — And How Nidaan One Wins
             </h2>
             <p className="text-[18px] text-[#3B4452] mt-4 leading-[1.7]">
-              Standard booking apps in India (Practo, Lybrate, legacy hospital software) leave doctors waiting and revenue leaking. Here is how Aether OPD changes the game.
+              Standard booking apps in India (Practo, Lybrate, legacy hospital software) leave doctors waiting and revenue leaking. Here is how Nidaan One OPD changes the game.
             </p>
           </div>
 
@@ -606,7 +606,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Aether OPD Intelligence Card (Dark High-Contrast Winning Model) */}
+            {/* Nidaan One OPD Intelligence Card (Dark High-Contrast Winning Model) */}
             <div className="nidaan-one-card bg-[#165B52] border-2 border-[#1E7F6A] rounded-[24px] p-8 shadow-xl text-white relative overflow-hidden flex flex-col justify-between">
               {/* Top Accent Light Beam */}
               <div className="absolute top-0 right-0 bg-white text-[#182033] text-[11px] font-mono-data font-bold px-4 py-1.5 rounded-bl-[14px]">
@@ -621,7 +621,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <h3 className="font-fraunces font-bold text-xl text-white">
-                        Aether OPD Intelligence
+                        Nidaan One OPD Intelligence
                       </h3>
                       <p className="text-xs text-[#EAF7F2] font-semibold">AI Risk Score + Instant WhatsApp Recovery</p>
                     </div>
@@ -1539,7 +1539,7 @@ export default function LandingPage() {
             Stop Losing Patients. Start Recovering Revenue.
           </h2>
           <p className="text-[16px] text-white/80 mt-4 max-w-[460px] mx-auto leading-relaxed">
-            Aether OPD Intelligence is ready for your hospital.
+            Nidaan One OPD Intelligence is ready for your hospital.
           </p>
           
           <div className="flex flex-wrap items-center justify-center gap-4 mt-10">

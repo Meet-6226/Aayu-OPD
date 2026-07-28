@@ -28,7 +28,7 @@ export default function LoginVideoShowcase({ onExpandVideo }) {
       id: 0,
       title: '01. Competitor Analysis',
       tag: 'SHOWDOWN',
-      subtitle: 'Why Traditional Indian OPD Systems Fail vs Aether OPD Intelligence'
+      subtitle: 'Why Traditional Indian OPD Systems Fail vs Nidaan One OPD Intelligence'
     },
     {
       id: 1,
@@ -130,10 +130,10 @@ export default function LoginVideoShowcase({ onExpandVideo }) {
                 </p>
               </div>
 
-              {/* Aether OPD System */}
+              {/* Nidaan One OPD System */}
               <div className="bg-[#1E7F6A] text-white p-3.5 rounded-[14px] space-y-1.5 border-l-4 border-[#EAF7F2] text-xs shadow-md">
                 <div className="flex items-center justify-between">
-                  <strong className="font-bold text-[#EAF7F2]">Aether OPD Intelligence Engine</strong>
+                  <strong className="font-bold text-[#EAF7F2]">Nidaan One OPD Intelligence Engine</strong>
                   <span className="text-[9.5px] font-mono-data font-bold bg-white text-[#182033] px-1.5 py-0.5 rounded">WINNING</span>
                 </div>
                 <p className="text-[11px] text-white/90 leading-tight">

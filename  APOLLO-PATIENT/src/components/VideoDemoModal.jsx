@@ -30,7 +30,7 @@ export default function VideoDemoModal({ isOpen, onClose, onLaunchDemo }) {
     {
       id: 0,
       title: '01. Competitor Showdown',
-      subtitle: 'Why traditional Indian OPD booking systems leak ₹15,000 Cr yearly vs Aether OPD Intelligence',
+      subtitle: 'Why traditional Indian OPD booking systems leak ₹15,000 Cr yearly vs Nidaan One OPD Intelligence',
       duration: 12 // seconds for this scene
     },
     {
@@ -139,7 +139,7 @@ export default function VideoDemoModal({ isOpen, onClose, onLaunchDemo }) {
               >
                 <div className="text-center max-w-xl mx-auto mb-4">
                   <h3 className="font-fraunces font-bold text-2xl sm:text-3xl text-white tracking-tight">
-                    Traditional Indian OPD vs Aether OPD
+                    Traditional Indian OPD vs Nidaan One OPD
                   </h3>
                   <p className="text-xs sm:text-sm text-white/80 mt-1">
                     How legacy OPD booking systems leak ₹15,000 Cr annually vs our AI prediction engine.
@@ -173,7 +173,7 @@ export default function VideoDemoModal({ isOpen, onClose, onLaunchDemo }) {
                     </ul>
                   </div>
 
-                  {/* Aether OPD Card */}
+                  {/* Nidaan One OPD Card */}
                   <div className="bg-[#0a3f43] border-2 border-[#1E7F6A] p-5 rounded-[20px] space-y-3.5 text-left shadow-lg">
                     <div className="flex items-center justify-between pb-2 border-b border-white/15">
                       <span className="text-[11px] font-mono-data font-bold text-[#EAF7F2] uppercase tracking-wider">

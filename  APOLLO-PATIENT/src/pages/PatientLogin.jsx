@@ -464,8 +464,8 @@ export default function PatientLogin() {
 
       validatePatientData(patientDocData);
       await setDoc(doc(db, COLLECTIONS.PATIENTS, uid), patientDocData);
-      localStorage.removeItem('aether_onboarding_done');
-      localStorage.removeItem('aether_medical_profile');
+      localStorage.removeItem('nidaan_onboarding_done');
+      localStorage.removeItem('nidaan_medical_profile');
       updateMockSession(patientDocData);
       
       // Trigger Registration Demo triggers (Welcome WhatsApp and Hindi Welcome Call)
@@ -527,8 +527,8 @@ export default function PatientLogin() {
 
       validatePatientData(patientDocData);
       await setDoc(doc(db, COLLECTIONS.PATIENTS, uid), patientDocData);
-      localStorage.removeItem('aether_onboarding_done');
-      localStorage.removeItem('aether_medical_profile');
+      localStorage.removeItem('nidaan_onboarding_done');
+      localStorage.removeItem('nidaan_medical_profile');
       updateMockSession(patientDocData);
       
       // Trigger Registration Demo triggers (Welcome WhatsApp and Hindi Welcome Call)

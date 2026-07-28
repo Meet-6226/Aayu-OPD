@@ -149,7 +149,7 @@ export default function DoctorRxGeneratorModal({ isOpen, onClose, onPrescription
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-primary-teal">
-                    Aether OPD Doctor Studio
+                    Nidaan One OPD Doctor Studio
                   </span>
                   <span className="text-[9px] bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded font-semibold">
                     1-Click Smart Prescriber

@@ -19,7 +19,7 @@ export default function PatientLayout() {
   // Show medical onboarding once per patient (first login)
   const [showOnboarding, setShowOnboarding] = useState(false);
   useEffect(() => {
-    const done = localStorage.getItem('aether_onboarding_done');
+    const done = localStorage.getItem('nidaan_onboarding_done');
     if (!done) setShowOnboarding(true);
   }, []);
 

@@ -207,8 +207,8 @@ export default function PatientProfile() {
   };
 
   const handleLogout = async () => {
-    localStorage.removeItem('aether_onboarding_done');
-    localStorage.removeItem('aether_medical_profile');
+    localStorage.removeItem('nidaan_onboarding_done');
+    localStorage.removeItem('nidaan_medical_profile');
     await signOutUser();
     navigate('/');
   };
