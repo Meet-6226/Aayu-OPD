@@ -140,8 +140,10 @@ const revenueData = [
 function useCountUp(targetStr, duration = 800) {
   const isCurrency = targetStr.startsWith('₹');
   const isPercent = targetStr.endsWith('%');
-  let cleanNum = parseFloat(targetStr.replace('₹', '').replace('%', '').replace('L', ''));
+  const isMin = targetStr.includes('min');
   const isLakhs = targetStr.includes('L');
+  // Remove currency, %, commas, L, min etc for numeric parsing
+  let cleanNum = parseFloat(targetStr.replace(/[^0-9.]/g, '')) || 0;
   const [val, setVal] = useState(0);
 
   useEffect(() => {
@@ -161,6 +163,9 @@ function useCountUp(targetStr, duration = 800) {
   }
   if (isPercent) {
     return `${val.toFixed(1)}%`;
+  }
+  if (isMin) {
+    return `${val.toFixed(1)} min`;
   }
   return Math.round(val).toLocaleString();
 }
@@ -482,10 +487,10 @@ export default function AdminDashboardPage() {
 
       {/* KPI METRICS (4 cards) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
-        <KpiCard label="Total Appointments" value="2,847" trend={12} sparklineData={sparkData1} />
-        <KpiCard label="No-Show Rate" value="24.3%" trend={-4.2} sparklineData={sparkData2} trendIsGoodDown />
-        <KpiCard label="Revenue Recovered" value="₹38.5L" trend={28} sparklineData={sparkData3} />
-        <KpiCard label="Avg Recovery Time" value="14 min" trend={-3} sparklineData={sparkData4} trendIsGoodDown />
+        <KpiCard label="Total Monthly Appointments" value="2,847" trend={12} sparklineData={sparkData1} />
+        <KpiCard label="No-Show Rate" value="18.4%" trend={-4.2} sparklineData={sparkData2} trendIsGoodDown />
+        <KpiCard label="Revenue Recovered" value="₹2.4L" trend={28} sparklineData={sparkData3} />
+        <KpiCard label="Avg Slot Recovery Time" value="2.8 min" trend={-3.5} sparklineData={sparkData4} trendIsGoodDown />
       </div>
 
       {/* MAIN CHARTS (Increased gap to 3rem / gap-12) */}
