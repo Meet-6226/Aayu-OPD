@@ -564,4 +564,3 @@ Upcoming Milestones:
 - Database Design
 - AI Model Development
 - Backend APIs
-- Frontend Development
