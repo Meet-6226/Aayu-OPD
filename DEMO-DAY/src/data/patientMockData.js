@@ -1,4 +1,4 @@
-// ─── Nidaan One Patient App Comprehensive Mock Data ───
+// ─── Aayu Patient App Comprehensive Mock Data ───
 
 // 1. CURRENT_USER
 export const CURRENT_USER = {
@@ -48,7 +48,7 @@ export const DOCTORS = [
     rating: 4.8,
     reviewCount: 124,
     consultationFee: 800,
-    hospital: "Nidaan One Clinic, Jubilee Hills",
+    hospital: "Aayu Clinic, Jubilee Hills",
     specializations: ["Interventional Cardiology", "Heart Failure", "Angioplasty", "ECG", "Echocardiography"],
     bio: "Dr. Rajesh Mehta is a board-certified interventional cardiologist with 18 years of experience. He specializes in coronary artery disease, heart failure, and minimally invasive cardiac procedures.",
     availableSlots: {
@@ -73,7 +73,7 @@ export const DOCTORS = [
     rating: 4.9,
     reviewCount: 218,
     consultationFee: 1000,
-    hospital: "Nidaan One Clinic, Banjara Hills",
+    hospital: "Aayu Clinic, Banjara Hills",
     specializations: ["Knee Replacement", "Hip Replacement", "Sports Medicine", "Arthroscopy"],
     bio: "Dr. Priya Iyer is a leading orthopedic surgeon specializing in knee and hip replacement surgery. She has performed over 2,000 joint replacement procedures with exceptional outcomes.",
     availableSlots: {
@@ -98,7 +98,7 @@ export const DOCTORS = [
     rating: 4.6,
     reviewCount: 507,
     consultationFee: 500,
-    hospital: "Nidaan One Clinic, Jubilee Hills",
+    hospital: "Aayu Clinic, Jubilee Hills",
     specializations: ["Diabetology", "Hypertension", "Infectious Diseases", "Wellness & Prevention"],
     bio: "Dr. Kavita Reddy is a general physician with extensive experience in diagnosing and treating complex multi-system diseases. Known for her thorough diagnostic approach and patient-centric care.",
     availableSlots: {
@@ -123,7 +123,7 @@ export const DOCTORS = [
     rating: 4.9,
     reviewCount: 189,
     consultationFee: 1200,
-    hospital: "Nidaan One Clinic, Secunderabad",
+    hospital: "Aayu Clinic, Secunderabad",
     specializations: ["Epilepsy", "Stroke", "Movement Disorders", "Headache Management"],
     bio: "Dr. Arjun Deshmukh is a highly regarded neurologist with 18 years of experience in epilepsy, movement disorders, stroke management, and headache clinics.",
     availableSlots: {
@@ -148,7 +148,7 @@ export const DOCTORS = [
     rating: 4.6,
     reviewCount: 412,
     consultationFee: 800,
-    hospital: "Nidaan One Clinic, Jubilee Hills",
+    hospital: "Aayu Clinic, Jubilee Hills",
     specializations: ["Psoriasis", "Eczema", "Cosmetic Dermatology", "Acne Treatment", "Laser Therapy"],
     bio: "Dr. Sunita Patel is a consultant dermatologist specializing in clinical and cosmetic dermatology, experienced in psoriasis, eczema, hair disorders, and advanced cosmetic procedures.",
     availableSlots: {
@@ -173,7 +173,7 @@ export const DOCTORS = [
     rating: 4.5,
     reviewCount: 276,
     consultationFee: 700,
-    hospital: "Nidaan One Clinic, Banjara Hills",
+    hospital: "Aayu Clinic, Banjara Hills",
     specializations: ["High-Risk Pregnancy", "Laparoscopic Gynaecology", "Menstrual Disorders", "PCOD Management"],
     bio: "Dr. Meena Sharma is a senior gynecologist with a special interest in high-risk pregnancies, laparoscopic surgery, and adolescent health issues.",
     availableSlots: {
@@ -198,7 +198,7 @@ export const DOCTORS = [
     rating: 4.4,
     reviewCount: 143,
     consultationFee: 600,
-    hospital: "Nidaan One Clinic, Jubilee Hills",
+    hospital: "Aayu Clinic, Jubilee Hills",
     specializations: ["Sinusitis Treatment", "Hearing Assessment", "Tonsillitis", "Voice Disorders"],
     bio: "Dr. Sanjay Gupta is a dedicated ENT specialist with 9 years of experience, expertise in sinus issues, microscopic ear surgery, and pediatric ENT consultations.",
     availableSlots: {
@@ -223,7 +223,7 @@ export const DOCTORS = [
     rating: 4.8,
     reviewCount: 631,
     consultationFee: 700,
-    hospital: "Nidaan One Clinic, Hyderabad",
+    hospital: "Aayu Clinic, Hyderabad",
     specializations: ["Neonatal Care", "Immunization", "Childhood Asthma", "Developmental Pediatrics"],
     bio: "Dr. Lakshmi Menon is one of the city's most beloved pediatricians. She is specialized in neonatal care, infectious childhood diseases, and infant developmental tracking.",
     availableSlots: {
@@ -271,7 +271,7 @@ export const MY_APPOINTMENTS = [
     persona: "working_professional",
     remindersSent: 3,
     totalReminders: 5,
-    hospital: "Nidaan One Clinic, Jubilee Hills",
+    hospital: "Aayu Clinic, Jubilee Hills",
     fee: 800
   },
   {
@@ -287,7 +287,7 @@ export const MY_APPOINTMENTS = [
     persona: null,
     remindersSent: 1,
     totalReminders: 3,
-    hospital: "Nidaan One Clinic, Banjara Hills",
+    hospital: "Aayu Clinic, Banjara Hills",
     fee: 1000
   },
   // 5 Past
@@ -302,7 +302,7 @@ export const MY_APPOINTMENTS = [
     room: "OPD Room 102",
     bookingId: "APL-2026-0612",
     persona: "working_professional",
-    hospital: "Nidaan One Clinic, Banjara Hills",
+    hospital: "Aayu Clinic, Banjara Hills",
     fee: 1000
   },
   {
@@ -316,7 +316,7 @@ export const MY_APPOINTMENTS = [
     room: "OPD Room 205",
     bookingId: "APL-2026-0551",
     persona: "student",
-    hospital: "Nidaan One Clinic, Jubilee Hills",
+    hospital: "Aayu Clinic, Jubilee Hills",
     fee: 500
   },
   {
@@ -330,7 +330,7 @@ export const MY_APPOINTMENTS = [
     room: "OPD Room 311",
     bookingId: "APL-2026-0498",
     persona: "working_professional",
-    hospital: "Nidaan One Clinic, Banjara Hills",
+    hospital: "Aayu Clinic, Banjara Hills",
     fee: 700
   },
   {
@@ -344,7 +344,7 @@ export const MY_APPOINTMENTS = [
     room: "OPD Room 114",
     bookingId: "APL-2026-0329",
     persona: "default",
-    hospital: "Nidaan One Clinic, Jubilee Hills",
+    hospital: "Aayu Clinic, Jubilee Hills",
     fee: 600
   },
   {
@@ -358,7 +358,7 @@ export const MY_APPOINTMENTS = [
     room: "OPD Room 221",
     bookingId: "APL-2026-0211",
     persona: "default",
-    hospital: "Nidaan One Clinic, Hyderabad",
+    hospital: "Aayu Clinic, Hyderabad",
     fee: 700
   }
 ];

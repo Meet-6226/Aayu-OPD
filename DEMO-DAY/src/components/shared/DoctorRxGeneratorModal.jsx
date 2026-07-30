@@ -220,7 +220,7 @@ export default function DoctorRxGeneratorModal({ isOpen, onClose, patient, onPre
         date,
         doctorName: patient.doctorName || 'Dr. Rajesh Mehta',
         department: patient.department || 'Cardiology',
-        hospital: patient.hospital || 'Nidaan One Clinics',
+        hospital: patient.hospital || 'Aayu Clinics',
         diagnosis: selectedDiagnoses.map(d => ({ name: d, code: 'ICD-10', severity: 'Active / Controlled' })),
         vitals: {
           bp: patient.vitals?.bp || '120/80 mmHg',
@@ -312,7 +312,7 @@ export default function DoctorRxGeneratorModal({ isOpen, onClose, patient, onPre
               <div style={{ textAlign: 'left' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <span style={{ fontSize: '9px', fontWeight: 800, color: '#1b504c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                    NIDAAN ONE OPD STUDIO
+                    AAYU ONE OPD STUDIO
                   </span>
                   <span style={{ fontSize: '8px', background: '#e5f9f8', color: '#1b504c', padding: '0.1rem 0.35rem', borderRadius: '4px', fontWeight: 700 }}>
                     {patient.department?.toUpperCase() || 'GENERAL MEDICINE'}

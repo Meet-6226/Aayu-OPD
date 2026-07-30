@@ -1,7 +1,7 @@
-// Nidaan One No-Show ML API Client
+// Aayu No-Show ML API Client
 // Calls the XGBoost FastAPI service deployed on Render.com
 
-const ML_API_URL = import.meta.env.VITE_ML_API_URL || "https://nidaan-one-opd.onrender.com";
+const ML_API_URL = import.meta.env.VITE_ML_API_URL || "https://aayu-opd.onrender.com";
 
 /**
  * Call the ML /predict endpoint with appointment + patient context.

@@ -158,7 +158,7 @@ function Sidebar({ onEmergencyClick }) {
   const { appointments } = useStaffAppointments();
   const { openSlots } = useSlotRecovery();
 
-  const userRole = localStorage.getItem('nidaan_staff_role') || 'admin';
+  const userRole = localStorage.getItem('aayu_staff_role') || 'admin';
   const profileName = userRole === 'doctor' ? 'Dr. Rajesh Mehta' : 'OPD Administrator';
   const profileRole = userRole === 'doctor' ? 'Consultant Doctor' : 'Admin Staff';
   const profileInitials = userRole === 'doctor' ? 'RM' : 'OA';
@@ -242,8 +242,8 @@ function Sidebar({ onEmergencyClick }) {
 
         <button
           onClick={() => {
-            localStorage.removeItem('nidaan_staff_logged_in');
-            localStorage.removeItem('nidaan_staff_role');
+            localStorage.removeItem('aayu_staff_logged_in');
+            localStorage.removeItem('aayu_staff_role');
             navigate('/');
           }}
           style={{
@@ -358,7 +358,7 @@ function NotificationPanel({ onClose }) {
 function Header({ onNotifClick, showNotifPanel }) {
   const location = useLocation();
   const [search, setSearch] = useState('');
-  const pageInfo = PAGE_TITLES[location.pathname] || { title: 'Nidaan One OPD Intelligence', sub: 'AI-powered OPD management' };
+  const pageInfo = PAGE_TITLES[location.pathname] || { title: 'Aayu OPD Intelligence', sub: 'AI-powered OPD management' };
   const today = todayDisplayShort(); // IST-anchored via appTime.js
 
   return (
@@ -550,7 +550,7 @@ function EmergencySwapModal({ onClose }) {
           reminderType: 'doctor_change_hot_swap',
           channel: 'whatsapp',
           status: 'sent',
-          messageBody: `Nidaan One Clinic Alert: Dear patient, due to an emergency, your appointment today at ${appt.appointmentTime} has been re-assigned to ${backup.name} in ${backup.room}.`,
+          messageBody: `Aayu Clinic Alert: Dear patient, due to an emergency, your appointment today at ${appt.appointmentTime} has been re-assigned to ${backup.name} in ${backup.room}.`,
           sentAt: serverTimestamp()
         });
       }

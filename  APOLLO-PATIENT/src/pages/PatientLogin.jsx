@@ -464,8 +464,8 @@ export default function PatientLogin() {
 
       validatePatientData(patientDocData);
       await setDoc(doc(db, COLLECTIONS.PATIENTS, uid), patientDocData);
-      localStorage.removeItem('nidaan_onboarding_done');
-      localStorage.removeItem('nidaan_medical_profile');
+      localStorage.removeItem('aayu_onboarding_done');
+      localStorage.removeItem('aayu_medical_profile');
       updateMockSession(patientDocData);
       
       // Trigger Registration Demo triggers (Welcome WhatsApp and Hindi Welcome Call)
@@ -527,8 +527,8 @@ export default function PatientLogin() {
 
       validatePatientData(patientDocData);
       await setDoc(doc(db, COLLECTIONS.PATIENTS, uid), patientDocData);
-      localStorage.removeItem('nidaan_onboarding_done');
-      localStorage.removeItem('nidaan_medical_profile');
+      localStorage.removeItem('aayu_onboarding_done');
+      localStorage.removeItem('aayu_medical_profile');
       updateMockSession(patientDocData);
       
       // Trigger Registration Demo triggers (Welcome WhatsApp and Hindi Welcome Call)
@@ -646,7 +646,7 @@ export default function PatientLogin() {
                 <span className="font-mono font-bold text-sm text-white bg-[#1E293B] px-2 py-0.5 rounded-[6px] border border-[#334155] tracking-wider">
                   {generatedOtp}
                 </span>{' '}
-                to sign in to Nidaan One.
+                to sign in to Aayu.
               </p>
             </div>
 
@@ -671,7 +671,7 @@ export default function PatientLogin() {
         <div className="flex items-center justify-between text-xs text-[#3B4452] pt-4 border-t border-[#E8ECEF]/80 font-medium">
           <span>✓ ABDM & ABHA Compliant</span>
           <span>🔒 256-Bit Security</span>
-          <span>Nidaan One Platform</span>
+          <span>Aayu Platform</span>
         </div>
       </div>
 
@@ -706,7 +706,7 @@ export default function PatientLogin() {
               {/* Brand heading */}
               <div className="mt-4 text-center lg:hidden font-sans">
                 <h2 className="font-sans font-black text-xl text-[#0F172A] tracking-tight leading-none">
-                  Nidaan One
+                  Aayu
                 </h2>
                 <p className="text-xs text-[#64748B] tracking-wide mt-1 select-none font-semibold">
                   Operations Intelligence Platform
@@ -1187,7 +1187,7 @@ export default function PatientLogin() {
                   N
                 </div>
                 <h2 className="font-sans font-extrabold text-[18px] text-[#0f766e] tracking-tight mt-2.5">
-                  Nidaan One
+                  Aayu
                 </h2>
               </div>
 

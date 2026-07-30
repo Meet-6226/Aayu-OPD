@@ -28,7 +28,7 @@ export default function LoginVideoShowcase({ onExpandVideo }) {
       id: 0,
       title: '01. Competitor Analysis',
       tag: 'SHOWDOWN',
-      subtitle: 'Why Traditional Indian OPD Systems Fail vs Nidaan One OPD Intelligence'
+      subtitle: 'Why Traditional Indian OPD Systems Fail vs Aayu OPD Intelligence'
     },
     {
       id: 1,
@@ -130,10 +130,10 @@ export default function LoginVideoShowcase({ onExpandVideo }) {
                 </p>
               </div>
 
-              {/* Nidaan One OPD System */}
+              {/* Aayu OPD System */}
               <div className="bg-[#1E7F6A] text-white p-3.5 rounded-[14px] space-y-1.5 border-l-4 border-[#EAF7F2] text-xs shadow-md">
                 <div className="flex items-center justify-between">
-                  <strong className="font-bold text-[#EAF7F2]">Nidaan One OPD Intelligence Engine</strong>
+                  <strong className="font-bold text-[#EAF7F2]">Aayu OPD Intelligence Engine</strong>
                   <span className="text-[9.5px] font-mono-data font-bold bg-white text-[#182033] px-1.5 py-0.5 rounded">WINNING</span>
                 </div>
                 <p className="text-[11px] text-white/90 leading-tight">
@@ -167,7 +167,7 @@ export default function LoginVideoShowcase({ onExpandVideo }) {
 
               {/* WhatsApp Bubble */}
               <div className="bg-[#128C7E]/30 border border-[#128C7E]/40 p-3 rounded-[12px] space-y-1.5 text-xs text-left">
-                <div className="text-[10px] font-mono-data font-bold text-[#EAF7F2]">NIDAAN ONE WHATSAPP HINDI BOT</div>
+                <div className="text-[10px] font-mono-data font-bold text-[#EAF7F2]">AAYU ONE WHATSAPP HINDI BOT</div>
                 <div className="bg-white text-[#182033] p-2.5 rounded-[8px] text-[11px] font-medium leading-snug">
                   "Namaste Priya ji! Aapke 18km route par heavy rain alert hai. Confirm 2:30 PM slot?"
                 </div>

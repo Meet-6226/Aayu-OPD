@@ -27,7 +27,7 @@ import { formatAppointmentDate, formatAppointmentTime, validateAppointmentData }
 import { daysBetween } from '../utils/appTime';
 import { useUserLocation } from '../hooks/useUserLocation';
 import { calculateDistanceKm } from '../utils/calculateDistance';
-import { NIDAAN_ONE_CLINICS } from '../utils/hospitalLocation';
+import { AAYU_CLINICS } from '../utils/hospitalLocation';
 import { getWeatherForecast, isWithinForecastWindow } from '../utils/weatherService';
 import { estimateTrafficLevel } from '../utils/trafficEstimate';
 import { getRoadDistanceAndTraffic, reverseGeocode, getDirectionsUrl } from '../services/googleMapsService';
@@ -197,8 +197,8 @@ export default function BookingConfirmation() {
   const closestHospitalDetails = (locationReady && userLat != null && userLon != null)
     ? (() => {
         let minDistance = Infinity;
-        let closest = NIDAAN_ONE_CLINICS[0];
-        for (const hospital of NIDAAN_ONE_CLINICS) {
+        let closest = AAYU_CLINICS[0];
+        for (const hospital of AAYU_CLINICS) {
           const dist = calculateDistanceKm(userLat, userLon, hospital.latitude, hospital.longitude);
           if (dist < minDistance) {
             minDistance = dist;
@@ -207,7 +207,7 @@ export default function BookingConfirmation() {
         }
         return { hospital: closest, distance: minDistance };
       })()
-    : { hospital: NIDAAN_ONE_CLINICS[0], distance: null };
+    : { hospital: AAYU_CLINICS[0], distance: null };
 
   const closestHospital = closestHospitalDetails.hospital;
   // Haversine straight-line distance (fallback when Google Maps unavailable)
@@ -412,7 +412,7 @@ export default function BookingConfirmation() {
       case 'Student':
         return `Hey ${patientName}! Ready for your consult with ${booking.doctorName} on ${timeText}? Friendly nudge: don't skip! Reply 1 to confirm.`;
       default:
-        return `Appointment confirmed: ${patientName} with ${booking.doctorName}. ${timeText}. Location: Nidaan One Clinic. Reply 1 to confirm.`;
+        return `Appointment confirmed: ${patientName} with ${booking.doctorName}. ${timeText}. Location: Aayu Clinic. Reply 1 to confirm.`;
     }
   };
 
@@ -450,12 +450,12 @@ export default function BookingConfirmation() {
       if (consultationMode === 'online') {
         try {
           videoRoomUrl = await createVideoRoom(appointmentId, booking.dateString, booking.time);
-          videoRoomName = `nidaan-one-consult-${appointmentId}`;
+          videoRoomName = `aayu-consult-${appointmentId}`;
           console.log('[VideoCall] Room created:', videoRoomUrl);
         } catch (e) {
           console.error('[VideoCall] Room creation failed, booking will continue:', e);
-          videoRoomUrl = `https://nidaan-one-test.daily.co/nidaan-one-consult-${appointmentId}`;
-          videoRoomName = `nidaan-one-consult-${appointmentId}`;
+          videoRoomUrl = `https://aayu-test.daily.co/aayu-consult-${appointmentId}`;
+          videoRoomName = `aayu-consult-${appointmentId}`;
         }
       }
 
@@ -611,7 +611,7 @@ export default function BookingConfirmation() {
             },
             updatedAt: serverTimestamp()
           });
-          console.log(`[Location] Saved to Firestore — ${realDistanceKm} km from Nidaan One${isFallback ? ' (fallback)' : ''}`);
+          console.log(`[Location] Saved to Firestore — ${realDistanceKm} km from Aayu${isFallback ? ' (fallback)' : ''}`);
         } catch (e) {
           console.warn('[Location] Failed to save lastKnownLocation:', e);
         }
@@ -864,7 +864,7 @@ export default function BookingConfirmation() {
                     <div className="w-10 h-10 rounded-xl bg-primary-teal text-white flex items-center justify-center shadow-md shadow-primary-teal/10">
                       <MapPin className="h-4.5 w-4.5" />
                     </div>
-                    <span className="text-[10px] font-bold text-text-dark mt-2.5">Nidaan One Clinic</span>
+                    <span className="text-[10px] font-bold text-text-dark mt-2.5">Aayu Clinic</span>
                     <span className="text-[11px] font-bold text-primary-teal bg-light-teal border border-primary-teal/10 px-1.5 py-0.5 rounded-md mt-1.5">
                       Arrival
                     </span>
@@ -936,7 +936,7 @@ export default function BookingConfirmation() {
 
                 {/* Simulated Live Route Map */}
                 <a 
-                  href="https://www.google.com/maps/dir/?api=1&destination=Nidaan+One+Clinic"
+                  href="https://www.google.com/maps/dir/?api=1&destination=Aayu+One+Clinic"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="relative h-[200px] w-full bg-[#f1f5f9] rounded-2xl overflow-hidden border border-slate-200 mt-5 shadow-inner select-none block group cursor-pointer hover:border-primary-teal transition-colors"
@@ -1023,7 +1023,7 @@ export default function BookingConfirmation() {
                     <div className="w-8 h-8 rounded-full bg-primary-teal border-2 border-white flex items-center justify-center shadow text-white animate-pulse">
                       <MapPin className="h-4 w-4" />
                     </div>
-                    <span className="text-[8px] font-bold text-primary-teal bg-white/95 px-1.5 py-0.2 rounded shadow mt-1 border border-teal-100">Nidaan One Clinic</span>
+                    <span className="text-[8px] font-bold text-primary-teal bg-white/95 px-1.5 py-0.2 rounded shadow mt-1 border border-teal-100">Aayu Clinic</span>
                   </div>
 
                   {/* Animating Car Marker along the path */}
@@ -1067,20 +1067,20 @@ export default function BookingConfirmation() {
                       </h5>
                     </div>
                     <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                      Nidaan One Transit Partner
+                      Aayu Transit Partner
                     </span>
                   </div>
 
                   {cabBookingStatus === 'idle' && (
                     <>
                       <p className="text-[11px] text-text-light mb-3">
-                        Ensure an on-time arrival. Pre-book your ride to Nidaan One Clinic with our transit partners:
+                        Ensure an on-time arrival. Pre-book your ride to Aayu Clinic with our transit partners:
                       </p>
                       <div className="grid grid-cols-1 gap-2">
                         {[
                           { id: 'ubergo', name: 'Uber Go', price: '₹180', eta: '3 min away', desc: 'Standard sedan, fast response' },
                           { id: 'uberauto', name: 'Uber Auto', price: '₹110', eta: '5 min away', desc: 'Convenient 3-wheeler commute' },
-                          { id: 'nidaan-oneassist', name: 'Nidaan One Assist Cab', price: '₹290', eta: '4 min away', desc: 'Wheelchair & oxygen assist, priority entry' }
+                          { id: 'aayuassist', name: 'Aayu Assist Cab', price: '₹290', eta: '4 min away', desc: 'Wheelchair & oxygen assist, priority entry' }
                         ].map(opt => (
                           <div 
                             key={opt.id}
@@ -1329,7 +1329,7 @@ export default function BookingConfirmation() {
                 <p className="text-[#9ca3af] uppercase tracking-wider text-[9px] font-bold">Consultation Fee</p>
                 <p className="font-extrabold text-text-dark text-base">{booking.fees}</p>
                 <p className="text-[10px] text-text-light">
-                  {consultationMode === 'online' ? 'Video Call · Join via link' : 'Nidaan One Clinic · Jubilee Hills'}
+                  {consultationMode === 'online' ? 'Video Call · Join via link' : 'Aayu Clinic · Jubilee Hills'}
                 </p>
               </div>
             </div>
@@ -1372,7 +1372,7 @@ export default function BookingConfirmation() {
                     </p>
                   ) : (
                     <p className="text-[9.5px] text-[#0d9488] font-bold mt-0.5 truncate" title={closestHospital.name}>
-                      to Nidaan One {closestHospital.city}
+                      to Aayu {closestHospital.city}
                     </p>
                   )}
                   {userAddress && (
@@ -1629,7 +1629,7 @@ export default function BookingConfirmation() {
                 <div>
                   <div className="flex items-center space-x-1">
                     <Activity className="h-4 w-4 text-amber-900" />
-                    <span className="text-[8px] font-black tracking-widest uppercase font-display text-amber-950">Nidaan One Priority</span>
+                    <span className="text-[8px] font-black tracking-widest uppercase font-display text-amber-950">Aayu Priority</span>
                   </div>
                   <h4 className="text-[10px] font-black text-amber-950 mt-0.5 tracking-tight font-display">OPD Priority Access Token</h4>
                 </div>

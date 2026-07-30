@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
     // 1. Check if there is a mock session stored in localStorage safely
     let sessionLoaded = false;
     try {
-      const savedSession = localStorage.getItem('nidaan_patient_session');
+      const savedSession = localStorage.getItem('aayu_patient_session');
       if (savedSession) {
         const parsedSession = JSON.parse(savedSession);
         setUser(parsedSession);
@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
                 isNew: false
               };
               setUser(mergedSession);
-              localStorage.setItem('nidaan_patient_session', JSON.stringify(mergedSession));
+              localStorage.setItem('aayu_patient_session', JSON.stringify(mergedSession));
               console.log("[AuthContext] Background sync complete. Session updated with fresh Firestore data.");
             }
           }).catch((err) => {
@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
       }
     } catch (e) {
       console.warn("Failed to parse saved session from localStorage:", e);
-      localStorage.removeItem('nidaan_patient_session');
+      localStorage.removeItem('aayu_patient_session');
     }
 
     if (sessionLoaded) return;
@@ -93,8 +93,8 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const cleanId = formatPatientId(phone);
-      const email = `${cleanId}@nidaan-one.com`;
-      const password = `nidaan_${cleanId}`; // Stable unique password for this patient
+      const email = `${cleanId}@aayu.com`;
+      const password = `aayu_${cleanId}`; // Stable unique password for this patient
 
       let firebaseUser = null;
       try {
@@ -138,7 +138,7 @@ export function AuthProvider({ children }) {
 
       setUser(matchedUser);
       setIsAuthenticated(true);
-      localStorage.setItem('nidaan_patient_session', JSON.stringify(matchedUser));
+      localStorage.setItem('aayu_patient_session', JSON.stringify(matchedUser));
       return matchedUser;
     } catch (err) {
       console.error("Mock login query & Firebase Auth signin failed:", err);
@@ -146,7 +146,7 @@ export function AuthProvider({ children }) {
       const fallbackUser = { uid: cleanId, phone: formatPatientPhone(phone), isNew: true };
       setUser(fallbackUser);
       setIsAuthenticated(true);
-      localStorage.setItem('nidaan_patient_session', JSON.stringify(fallbackUser));
+      localStorage.setItem('aayu_patient_session', JSON.stringify(fallbackUser));
       return fallbackUser;
     } finally {
       setLoading(false);
@@ -180,7 +180,7 @@ export function AuthProvider({ children }) {
 
       setUser(matchedUser);
       setIsAuthenticated(true);
-      localStorage.setItem('nidaan_patient_session', JSON.stringify(matchedUser));
+      localStorage.setItem('aayu_patient_session', JSON.stringify(matchedUser));
       return matchedUser;
     } catch (err) {
       console.error("Google user Firestore fetch failed:", err);
@@ -193,7 +193,7 @@ export function AuthProvider({ children }) {
       };
       setUser(fallbackUser);
       setIsAuthenticated(true);
-      localStorage.setItem('nidaan_patient_session', JSON.stringify(fallbackUser));
+      localStorage.setItem('aayu_patient_session', JSON.stringify(fallbackUser));
       return fallbackUser;
     } finally {
       setLoading(false);
@@ -203,7 +203,7 @@ export function AuthProvider({ children }) {
   const updateMockSession = (updatedData) => {
     setUser((prevUser) => {
       const newSession = { ...prevUser, ...updatedData };
-      localStorage.setItem('nidaan_patient_session', JSON.stringify(newSession));
+      localStorage.setItem('aayu_patient_session', JSON.stringify(newSession));
       return newSession;
     });
   };
@@ -238,7 +238,7 @@ export function AuthProvider({ children }) {
     };
     setUser(demoPatient);
     setIsAuthenticated(true);
-    localStorage.setItem('nidaan_patient_session', JSON.stringify(demoPatient));
+    localStorage.setItem('aayu_patient_session', JSON.stringify(demoPatient));
     return demoPatient;
   };
   // ── End Demo Login ────────────────────────────────────────────────────────
@@ -246,7 +246,7 @@ export function AuthProvider({ children }) {
   const signOutUser = async () => {
     setLoading(true);
     try {
-      localStorage.removeItem('nidaan_patient_session');
+      localStorage.removeItem('aayu_patient_session');
       await signOut(auth);
       setUser(null);
       setIsAuthenticated(false);

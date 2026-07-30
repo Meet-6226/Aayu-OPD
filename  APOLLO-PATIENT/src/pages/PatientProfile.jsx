@@ -207,8 +207,8 @@ export default function PatientProfile() {
   };
 
   const handleLogout = async () => {
-    localStorage.removeItem('nidaan_onboarding_done');
-    localStorage.removeItem('nidaan_medical_profile');
+    localStorage.removeItem('aayu_onboarding_done');
+    localStorage.removeItem('aayu_medical_profile');
     await signOutUser();
     navigate('/');
   };
@@ -268,7 +268,7 @@ export default function PatientProfile() {
             <div className="flex-1 text-white space-y-1">
               <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-400/20 px-2.5 py-0.5 rounded-full">
                 <Sparkles className="h-3 w-3 text-emerald-400" />
-                <span className="text-[9px] font-bold tracking-wider uppercase text-emerald-300">Nidaan One Health Locker</span>
+                <span className="text-[9px] font-bold tracking-wider uppercase text-emerald-300">Aayu Health Locker</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white" style={{ color: '#ffffff' }}>{user.name}</h1>
               <p className="text-white/60 text-xs font-medium tracking-wide">
@@ -557,7 +557,7 @@ export default function PatientProfile() {
               <div className="space-y-0.5">
                 <div className="flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3 text-emerald-300" />
-                  <span className="text-[9px] font-bold tracking-wider uppercase text-emerald-300">Nidaan One AI · ABDM Clinical Profile</span>
+                  <span className="text-[9px] font-bold tracking-wider uppercase text-emerald-300">Aayu AI · ABDM Clinical Profile</span>
                 </div>
                 <h2 className="text-base font-extrabold tracking-tight">Your Medical History</h2>
                 <p className="text-white/60 text-[11px] font-medium">Shared securely with your attending consultant during appointments</p>

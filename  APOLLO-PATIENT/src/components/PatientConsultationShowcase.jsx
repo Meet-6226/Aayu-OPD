@@ -18,7 +18,7 @@ export default function PatientConsultationShowcase({ className = '' }) {
         >
           <Star className="h-3.5 w-3.5 fill-[#EAF7F2] text-[#EAF7F2]" />
           <span className="text-xs font-mono-data font-bold text-[#182033]">
-            NIDAAN ONE CARDIOLOGY PANEL
+            AAYU ONE CARDIOLOGY PANEL
           </span>
         </motion.div>
 
@@ -33,7 +33,7 @@ export default function PatientConsultationShowcase({ className = '' }) {
             </h4>
             <p className="text-[11px] text-white/80 mt-0.5 flex items-center space-x-1">
               <MapPin className="h-3 w-3 text-[#EAF7F2] inline" />
-              <span>Nidaan One Greams Road, Chennai</span>
+              <span>Aayu Greams Road, Chennai</span>
             </p>
           </div>
 

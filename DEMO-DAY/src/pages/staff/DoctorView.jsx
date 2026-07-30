@@ -138,7 +138,7 @@ const getPatientMedicalHistory = (patientId, patientName) => {
 
 export default function DoctorViewPage() {
   const navigate = useNavigate();
-  const userRole = localStorage.getItem('nidaan_staff_role') || 'admin';
+  const userRole = localStorage.getItem('aayu_staff_role') || 'admin';
   const [showNotification, setShowNotification] = useState(true);
   const [showLateModal, setShowLateModal] = useState(false);
   const [lateStatus, setLateStatus] = useState(null); // null | 'sending' | 'done'
@@ -197,7 +197,7 @@ export default function DoctorViewPage() {
         doctorId: activeVideoCallAppt.doctorId,
         doctorName: activeVideoCallAppt.doctorName,
         department: activeVideoCallAppt.department,
-        hospital: activeVideoCallAppt.hospital || 'Nidaan One Clinic',
+        hospital: activeVideoCallAppt.hospital || 'Aayu Clinic',
         vitals: { bp: activeVideoCallAppt.bp || '120/80 mmHg', hr: activeVideoCallAppt.heartRate || '72 bpm' },
         ...pat
       };
@@ -576,7 +576,7 @@ export default function DoctorViewPage() {
               {/* RIGHT: Video frame */}
               <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <iframe
-                  src={activeVideoCallAppt.videoRoomUrl || `https://nidaan-one-test.daily.co/nidaan-one-consult-${activeVideoCallAppt.id}`}
+                  src={activeVideoCallAppt.videoRoomUrl || `https://aayu-test.daily.co/aayu-consult-${activeVideoCallAppt.id}`}
                   allow="camera; microphone; display-capture; autoplay"
                   style={{
                     width: '100%',
@@ -638,7 +638,7 @@ export default function DoctorViewPage() {
                     </span>
                   </div>
                   <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.15rem' }}>
-                    {currentDoctor.department} Specialist · Nidaan One Jubilee Hills
+                    {currentDoctor.department} Specialist · Aayu Jubilee Hills
                   </div>
                 </div>
               </div>
@@ -783,7 +783,7 @@ export default function DoctorViewPage() {
                             doctorId: appt.doctorId, 
                             doctorName: appt.doctorName, 
                             department: appt.department, 
-                            hospital: appt.hospital || 'Nidaan One Clinic', 
+                            hospital: appt.hospital || 'Aayu Clinic', 
                             vitals: { bp: appt.bp || '120/80 mmHg', hr: appt.heartRate || '72 bpm' }, 
                             ...pat 
                           })}
@@ -913,7 +913,7 @@ export default function DoctorViewPage() {
                                 doctorId: slot.doctorId, 
                                 doctorName: slot.doctorName, 
                                 department: slot.department, 
-                                hospital: slot.hospital || 'Nidaan One Clinic', 
+                                hospital: slot.hospital || 'Aayu Clinic', 
                                 vitals: { bp: slot.bp || '120/80 mmHg', hr: slot.heartRate || '72 bpm' }, 
                                 ...pat 
                               });
@@ -959,7 +959,7 @@ export default function DoctorViewPage() {
                 </div>
               </div>
 
-              {/* ✨ NIDAAN ONE CLINICAL COPILOT & CLINICAL SCRATCHPAD */}
+              {/* ✨ AAYU ONE CLINICAL COPILOT & CLINICAL SCRATCHPAD */}
               {/* AI Copilot Widget */}
               <div style={{
                 background: 'white', borderRadius: '12px', padding: '1.5rem', 
@@ -970,7 +970,7 @@ export default function DoctorViewPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
                   <Sparkles size={16} color="#1b504c" />
                   <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '1.1rem', fontWeight: 600, color: '#1b504c', margin: 0 }}>
-                    Nidaan One AI Copilot
+                    Aayu AI Copilot
                   </h3>
                   <span style={{ fontSize: '0.62rem', fontWeight: 700, background: '#e8faee', color: '#16a34a', padding: '0.15rem 0.45rem', borderRadius: '4px', border: '1px solid #bbf7d0', marginLeft: 'auto' }}>
                     ACTIVE

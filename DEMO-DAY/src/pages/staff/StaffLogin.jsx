@@ -20,8 +20,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem('nidaan_staff_logged_in') === 'true') {
-      const role = localStorage.getItem('nidaan_staff_role') || 'admin';
+    if (localStorage.getItem('aayu_staff_logged_in') === 'true') {
+      const role = localStorage.getItem('aayu_staff_role') || 'admin';
       if (role === 'doctor') {
         navigate('/staff/doctor-view');
       } else {
@@ -45,14 +45,14 @@ export default function LoginPage() {
     
     console.log("[Staff Login] Attempting login for:", cleanUsername, "Password length:", cleanPassword.length);
     
-    if (cleanUsername === 'nidaan_admin@nidaan-one.com' && cleanPassword === 'Nidaan One OPD#Staff2026!') {
-      localStorage.setItem('nidaan_staff_logged_in', 'true');
-      localStorage.setItem('nidaan_staff_role', 'admin');
-      toast.success('Welcome to Nidaan One OPD Platform!');
+    if (cleanUsername === 'aayu_admin@aayu.com' && cleanPassword === 'Aayu OPD#Staff2026!') {
+      localStorage.setItem('aayu_staff_logged_in', 'true');
+      localStorage.setItem('aayu_staff_role', 'admin');
+      toast.success('Welcome to Aayu OPD Platform!');
       navigate('/staff/dashboard');
-    } else if (cleanUsername === 'doctor@nidaan-one.com' && cleanPassword === 'Doctor#2026!') {
-      localStorage.setItem('nidaan_staff_logged_in', 'true');
-      localStorage.setItem('nidaan_staff_role', 'doctor');
+    } else if (cleanUsername === 'doctor@aayu.com' && cleanPassword === 'Doctor#2026!') {
+      localStorage.setItem('aayu_staff_logged_in', 'true');
+      localStorage.setItem('aayu_staff_role', 'doctor');
       toast.success('Welcome Doctor Rajesh Mehta!');
       navigate('/staff/doctor-view');
     } else {
@@ -102,7 +102,7 @@ export default function LoginPage() {
             <span style={{ color: 'rgba(255,255,255,0.65)' }}>Better Patient Outcomes.</span>
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9375rem', lineHeight: 1.5, maxWidth: 440, margin: 0 }}>
-            OPD intelligence for Nidaan One Clinics — featuring real-time risk stratification, automated slot recovery, and caregiver notification routing.
+            OPD intelligence for Aayu Clinics — featuring real-time risk stratification, automated slot recovery, and caregiver notification routing.
           </p>
         </div>
 
@@ -149,7 +149,7 @@ export default function LoginPage() {
               Staff Portal
             </h2>
             <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>
-              Sign in with your Nidaan One credentials
+              Sign in with your Aayu credentials
             </p>
           </div>
 
@@ -164,7 +164,7 @@ export default function LoginPage() {
               <input
                 type="text"
                 required
-                placeholder="admin@nidaan-one.com"
+                placeholder="admin@aayu.com"
                 value={form.username}
                 onChange={e => setForm(p => ({ ...p, username: e.target.value }))}
                 style={{
@@ -264,7 +264,7 @@ export default function LoginPage() {
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
               <button
                 type="button"
-                onClick={() => setForm({ username: 'nidaan_admin@nidaan-one.com', password: 'Nidaan One OPD#Staff2026!' })}
+                onClick={() => setForm({ username: 'aayu_admin@aayu.com', password: 'Aayu OPD#Staff2026!' })}
                 style={{
                   flex: 1, height: 32, fontSize: '0.75rem', fontWeight: 600,
                   color: '#1b504c', background: '#e5f9f8', border: '1px solid #97c9c4',
@@ -275,7 +275,7 @@ export default function LoginPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setForm({ username: 'doctor@nidaan-one.com', password: 'Doctor#2026!' })}
+                onClick={() => setForm({ username: 'doctor@aayu.com', password: 'Doctor#2026!' })}
                 style={{
                   flex: 1, height: 32, fontSize: '0.75rem', fontWeight: 600,
                   color: '#1b504c', background: '#e5f9f8', border: '1px solid #97c9c4',
@@ -288,7 +288,7 @@ export default function LoginPage() {
           </div>
 
           <p style={{ marginTop: '2rem', fontSize: '0.7rem', color: '#94a3b8', textAlign: 'center' }}>
-            Nidaan One Clinics Group © {now().getFullYear()} · v2.1
+            Aayu Clinics Group © {now().getFullYear()} · v2.1
           </p>
         </div>
       </div>

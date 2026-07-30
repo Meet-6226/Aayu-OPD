@@ -168,7 +168,7 @@ export default function AppointmentsPage() {
         reminderSentFinal: false,
         patientConfirmed: true,
         bookingId: `APL-W-${Math.floor(1000 + Math.random() * 9000)}`,
-        hospital: "Nidaan One Clinic, Jubilee Hills",
+        hospital: "Aayu Clinic, Jubilee Hills",
         room: "Walk-in Desk Cabin",
         notes: walkinForm.notes,
         cancelledReason: "",
@@ -194,7 +194,7 @@ export default function AppointmentsPage() {
       const { functions } = await import('../../firebase/config');
       const { sendWhatsAppDirect } = await import('../../utils/demoTriggers');
       
-      const messageBody = `Nidaan One Clinic OPD: Hi ${apt.name}, a reminder for your appointment with ${apt.doctor} today at ${apt.time}. Reply 1 to confirm, 2 to reschedule.`;
+      const messageBody = `Aayu Clinic OPD: Hi ${apt.name}, a reminder for your appointment with ${apt.doctor} today at ${apt.time}. Reply 1 to confirm, 2 to reschedule.`;
       
       toast.promise(
         (async () => {

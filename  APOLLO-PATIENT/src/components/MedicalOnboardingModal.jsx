@@ -294,11 +294,11 @@ export default function MedicalOnboardingModal({ onComplete }) {
       completedAt: new Date().toISOString(),
       version: '1.0',
     };
-    localStorage.setItem('nidaan_medical_profile', JSON.stringify(profile));
-    localStorage.setItem('nidaan_onboarding_done', 'true');
+    localStorage.setItem('aayu_medical_profile', JSON.stringify(profile));
+    localStorage.setItem('aayu_onboarding_done', 'true');
     setTimeout(() => {
       setSubmitting(false);
-      window.dispatchEvent(new CustomEvent('nidaan_onboarding_completed', { detail: profile }));
+      window.dispatchEvent(new CustomEvent('aayu_onboarding_completed', { detail: profile }));
       onComplete(profile);
     }, 800);
   };
@@ -352,7 +352,7 @@ export default function MedicalOnboardingModal({ onComplete }) {
             {/* Branding — compact */}
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-[#0d9488] shrink-0" />
-              <span className="text-[10px] font-semibold tracking-wider uppercase text-[#94A3B8]">Nidaan One · ABDM</span>
+              <span className="text-[10px] font-semibold tracking-wider uppercase text-[#94A3B8]">Aayu · ABDM</span>
             </div>
 
             {/* Step progress dots */}
@@ -643,7 +643,7 @@ export default function MedicalOnboardingModal({ onComplete }) {
               <div className="mt-6 p-3 bg-[#FAFBFB] border border-[#e2e8f0] rounded-[8px] flex items-start gap-2.5 text-left transition-all duration-150">
                 <Info className="h-4 w-4 text-[#0f766e] shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                  <span className="text-[9px] font-bold text-[#0f766e] uppercase tracking-wider block">Why Nidaan One AI asks this:</span>
+                  <span className="text-[9px] font-bold text-[#0f766e] uppercase tracking-wider block">Why Aayu AI asks this:</span>
                   <p className="text-[10.5px] text-[#475569] leading-normal font-semibold">{q.aiPurpose}</p>
                 </div>
               </div>
@@ -663,7 +663,7 @@ export default function MedicalOnboardingModal({ onComplete }) {
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => {
-                    localStorage.setItem('nidaan_onboarding_done', 'true');
+                    localStorage.setItem('aayu_onboarding_done', 'true');
                     onComplete(null);
                   }}
                   className="text-xs font-bold text-[#64748b] hover:text-[#0f172a] underline underline-offset-2 transition-colors"

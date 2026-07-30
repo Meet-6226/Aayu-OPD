@@ -190,7 +190,7 @@ export default function DoctorProfile() {
                   {doctor.department}
                 </span>
                 <p className="text-xs text-[#6B7280] mt-1">{doctor.qualifications}</p>
-                <p className="text-xs text-[#9CA3AF]">{doctor.hospital || "Nidaan One Clinic, Jubilee Hills"}</p>
+                <p className="text-xs text-[#9CA3AF]">{doctor.hospital || "Aayu Clinic, Jubilee Hills"}</p>
               </div>
             </div>
 

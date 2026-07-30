@@ -359,7 +359,7 @@ export default function MorningBriefingPage() {
           reminderType: 'doctor_change_hot_swap',
           channel: 'whatsapp',
           status: 'sent',
-          messageBody: `Nidaan One Clinic Alert: Dear patient, due to an emergency, your appointment today at ${appt.appointmentTime} has been re-assigned to ${backup.name} in ${backup.room}.`,
+          messageBody: `Aayu Clinic Alert: Dear patient, due to an emergency, your appointment today at ${appt.appointmentTime} has been re-assigned to ${backup.name} in ${backup.room}.`,
           sentAt: serverTimestamp()
         });
       }
@@ -420,7 +420,7 @@ export default function MorningBriefingPage() {
         <div style={{ fontSize: '0.85rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <span>{dayStr}</span>
           <span>·</span>
-          <span>Nidaan One Clinic, Jubilee Hills</span>
+          <span>Aayu Clinic, Jubilee Hills</span>
           <span style={{ fontSize: '0.72rem', color: '#b45309', background: '#fef3c7', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 600 }}>
             System Date: {todayDateString()}
           </span>

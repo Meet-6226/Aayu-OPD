@@ -141,20 +141,20 @@ button, a, input, select {
 .shadow-elev-3 { box-shadow: var(--shadow-3); }
 
 /* ── Card interaction ───────────────────────────────────────────────── */
-.nidaan-one-card {
+.aayu-card {
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
-.nidaan-one-card:hover {
+.aayu-card:hover {
   border-color: #cbd5e1;
   box-shadow: var(--shadow-2);
 }
 
 /* ── Link underline ─────────────────────────────────────────────────── */
-.nidaan-one-link-underline {
+.aayu-link-underline {
   position: relative;
   text-decoration: none;
 }
-.nidaan-one-link-underline::after {
+.aayu-link-underline::after {
   content: '';
   position: absolute;
   bottom: -1px; left: 0;
@@ -162,7 +162,7 @@ button, a, input, select {
   background-color: #0f766e;
   transition: width 180ms ease;
 }
-.nidaan-one-link-underline:hover::after { width: 100%; }
+.aayu-link-underline:hover::after { width: 100%; }
 
 /* ── Scrollbar ──────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }

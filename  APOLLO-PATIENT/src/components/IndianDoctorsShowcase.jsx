@@ -6,7 +6,7 @@ export default function IndianDoctorsShowcase({ className = '' }) {
   return (
     <div className={`relative w-full max-w-[680px] mx-auto flex items-center justify-center p-4 sm:p-6 select-none font-inter ${className}`}>
       
-      {/* ── TOP RIGHT BADGE: Expert Nidaan One Doctors ───────────────────────── */}
+      {/* ── TOP RIGHT BADGE: Expert Aayu Doctors ───────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: -12, scale: 0.9 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -15,7 +15,7 @@ export default function IndianDoctorsShowcase({ className = '' }) {
       >
         <Star className="h-4 w-4 fill-[#EAF7F2] text-[#EAF7F2]" />
         <span className="text-xs sm:text-sm font-bold tracking-wide">
-          Expert Nidaan One Doctors
+          Expert Aayu Doctors
         </span>
       </motion.div>
  
@@ -64,7 +64,7 @@ export default function IndianDoctorsShowcase({ className = '' }) {
       <div className="relative z-10 w-full flex items-center justify-center">
         <img
           src="/indian_doctors_cutout_transparent.png"
-          alt="Expert Nidaan One Doctors"
+          alt="Expert Aayu Doctors"
           className="w-full max-w-[580px] h-auto object-contain filter drop-shadow-2xl hover:scale-[1.01] transition-transform duration-300"
           onError={(e) => {
             // Fallback to indian_doctors_hero.png if transparent cutout unavailable
