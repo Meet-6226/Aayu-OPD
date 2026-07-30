@@ -162,6 +162,15 @@ export default function BookingConfirmation() {
   const [selectedCab, setSelectedCab] = useState('ubergo');
   const [cabBookingStatus, setCabBookingStatus] = useState('idle'); // idle, booking, confirmed
   const [driverInfo, setDriverInfo] = useState(null);
+  const [whatsappNotif, setWhatsappNotif] = useState(null);
+
+  useEffect(() => {
+    const handleWhatsApp = (e) => {
+      setWhatsappNotif(e.detail);
+    };
+    window.addEventListener('whatsapp_dispatched', handleWhatsApp);
+    return () => window.removeEventListener('whatsapp_dispatched', handleWhatsApp);
+  }, []);
 
   // ── Google Maps real road data ─────────────────────────────────────────────
   const [mapsData, setMapsData] = useState(null);        // null = not yet fetched
@@ -702,7 +711,7 @@ export default function BookingConfirmation() {
       setBookingSuccess(true);
       setTimeout(() => {
         navigate('/appointments');
-      }, 1500);
+      }, 3500);
 
     } catch (error) {
       console.error("Booking transaction failed:", error);
@@ -812,6 +821,35 @@ export default function BookingConfirmation() {
           {isSimulatedHighRisk ? 'Reset Risk Simulation' : 'Simulate High Risk'}
         </button>
       </div>
+
+      {/* WhatsApp Dispatched Floating Notification Card */}
+      {whatsappNotif && (
+        <div className="w-full bg-emerald-900 text-white rounded-2xl p-4 mb-6 shadow-lg border border-emerald-500/30 flex items-start justify-between animate-fade-in text-left">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm mt-0.5">
+              💬
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-300">WhatsApp Notification Dispatched</span>
+                <span className="text-[10px] bg-emerald-700/80 px-2 py-0.5 rounded-full font-mono text-emerald-200">
+                  {whatsappNotif.status === 'sent' ? 'Live Sent' : 'Daily 50-Msg Limit Logged'}
+                </span>
+              </div>
+              <p className="text-xs text-emerald-100 font-semibold mt-1">To: {whatsappNotif.phone}</p>
+              <p className="text-xs text-white/90 bg-emerald-950/60 p-2.5 rounded-lg border border-emerald-800/80 mt-1.5 font-mono leading-relaxed">
+                "{whatsappNotif.body}"
+              </p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setWhatsappNotif(null)} 
+            className="text-emerald-300 hover:text-white text-xs font-bold px-2 py-1 bg-emerald-800/50 rounded-lg border border-emerald-700 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Two Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -967,17 +1005,17 @@ export default function BookingConfirmation() {
 
                     {/* Metro Line (Blue) */}
                     <path d="M -10,100 L 610,100" stroke="#60a5fa" strokeWidth="2.5" strokeDasharray="4 4" opacity="0.8" />
-                    <text x="50" y="95" fill="#2563eb" fontSize="6.5" fontWeight="extrabold" fontFamily="sans-serif" opacity="0.8">Metro Blue Line</text>
+                    <text x="50" y="95" fill="#2563eb" fontSize="6.5" fontWeight="extrabold" fontFamily="sans-serif" opacity="0.8">Navi Mumbai Metro Line 1</text>
                     
                     {/* Metro Station Icon */}
                     <circle cx="230" cy="100" r="4.5" fill="white" stroke="#2563eb" strokeWidth="1.5" />
                     <circle cx="230" cy="100" r="2" fill="#2563eb" />
-                    <text x="230" y="112" fill="#1e40af" fontSize="6" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Jubilee Hills Metro</text>
+                    <text x="230" y="112" fill="#1e40af" fontSize="6" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Kharghar Metro Station</text>
 
                     {/* Landmark Text Labels */}
-                    <text x="60" y="150" fill="#64748b" fontSize="6.5" fontWeight="bold" fontFamily="sans-serif" opacity="0.7">Filmnagar Rd</text>
-                    <text x="360" y="70" fill="#64748b" fontSize="6.5" fontWeight="bold" fontFamily="sans-serif" opacity="0.7">Road No. 36</text>
-                    <text x="120" y="25" fill="#64748b" fontSize="6.5" fontWeight="bold" fontFamily="sans-serif" opacity="0.7">Jubilee Hills Rd</text>
+                    <text x="60" y="150" fill="#64748b" fontSize="6.5" fontWeight="bold" fontFamily="sans-serif" opacity="0.7">Kharghar Station Rd</text>
+                    <text x="360" y="70" fill="#64748b" fontSize="6.5" fontWeight="bold" fontFamily="sans-serif" opacity="0.7">Parsik Hill Rd</text>
+                    <text x="120" y="25" fill="#64748b" fontSize="6.5" fontWeight="bold" fontFamily="sans-serif" opacity="0.7">Sion-Panvel Highway</text>
 
                     {/* GPS Navigation Route Track casing */}
                     <path 
@@ -1015,7 +1053,7 @@ export default function BookingConfirmation() {
                     <div className="w-7 h-7 rounded-full bg-teal-600 border border-white flex items-center justify-center shadow text-white">
                       <Home className="h-3.5 w-3.5" />
                     </div>
-                    <span className="text-[8px] font-bold text-text-dark bg-white/95 px-1 py-0.2 rounded shadow mt-1 border border-slate-100">Home</span>
+                    <span className="text-[8px] font-bold text-text-dark bg-white/95 px-1 py-0.2 rounded shadow mt-1 border border-slate-100">Home (Kharghar)</span>
                   </div>
 
                   {/* Hospital Node */}
@@ -1023,7 +1061,7 @@ export default function BookingConfirmation() {
                     <div className="w-8 h-8 rounded-full bg-primary-teal border-2 border-white flex items-center justify-center shadow text-white animate-pulse">
                       <MapPin className="h-4 w-4" />
                     </div>
-                    <span className="text-[8px] font-bold text-primary-teal bg-white/95 px-1.5 py-0.2 rounded shadow mt-1 border border-teal-100">Aayu Clinic</span>
+                    <span className="text-[8px] font-bold text-primary-teal bg-white/95 px-1.5 py-0.2 rounded shadow mt-1 border border-teal-100">Apollo Hospital</span>
                   </div>
 
                   {/* Animating Car Marker along the path */}
@@ -1044,8 +1082,8 @@ export default function BookingConfirmation() {
                     </div>
                     <p className="text-[10px] font-semibold text-text-dark leading-tight">
                       {travel.isPeak 
-                        ? 'Jubilee Hills Flyover: Heavy Congestion (+15m delay)' 
-                        : 'Clear flow: Normal speeds along inner ring route'}
+                        ? 'Sion-Panvel Highway: Heavy Congestion (+15m delay)' 
+                        : 'Clear flow: Normal speeds along Sion-Panvel route'}
                     </p>
                   </div>
 
@@ -1329,7 +1367,7 @@ export default function BookingConfirmation() {
                 <p className="text-[#9ca3af] uppercase tracking-wider text-[9px] font-bold">Consultation Fee</p>
                 <p className="font-extrabold text-text-dark text-base">{booking.fees}</p>
                 <p className="text-[10px] text-text-light">
-                  {consultationMode === 'online' ? 'Video Call · Join via link' : 'Aayu Clinic · Jubilee Hills'}
+                  {consultationMode === 'online' ? 'Video Call · Join via link' : 'Apollo Hospitals · Navi Mumbai'}
                 </p>
               </div>
             </div>

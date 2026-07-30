@@ -8,7 +8,7 @@ export const CURRENT_USER = {
   email: "priya.sharma@gmail.com",
   age: 28,
   gender: "Female",
-  city: "Hyderabad",
+  city: "Navi Mumbai",
   bloodGroup: "B+",
   abhaId: "1234-5678-9012-3456",
   persona: "working_professional",
@@ -48,7 +48,7 @@ export const DOCTORS = [
     rating: 4.8,
     reviewCount: 124,
     consultationFee: 800,
-    hospital: "Aayu Clinic, Jubilee Hills",
+    hospital: "Apollo Hospitals, Navi Mumbai",
     specializations: ["Interventional Cardiology", "Heart Failure", "Angioplasty", "ECG", "Echocardiography"],
     bio: "Dr. Rajesh Mehta is a board-certified interventional cardiologist with 18 years of experience. He specializes in coronary artery disease, heart failure, and minimally invasive cardiac procedures.",
     availableSlots: {

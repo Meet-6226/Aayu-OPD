@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 
-// Hyderabad city centre — safe fallback when permission denied or GPS unavailable
-const HYDERABAD_CENTRE = { latitude: 17.3850, longitude: 78.4867 };
+// Kharghar, Navi Mumbai — safe fallback when permission denied or GPS unavailable
+const KHARGHAR_NAVI_MUMBAI = { latitude: 19.0473, longitude: 73.0694 };
 
 /**
  * useUserLocation
@@ -12,7 +12,7 @@ const HYDERABAD_CENTRE = { latitude: 17.3850, longitude: 78.4867 };
  *  - Does NOT auto-request on mount (browsers require a user gesture on many
  *    origins; auto-requesting without explanation also feels invasive).
  *  - Exposes `requestLocation()` — bind this to an "Allow" button.
- *  - Falls back gracefully to Hyderabad city centre if denied/unavailable so
+ *  - Falls back gracefully to Kharghar, Navi Mumbai if denied/unavailable so
  *    the booking flow never breaks.
  *
  * Returns:
@@ -33,7 +33,7 @@ export function useUserLocation() {
         return JSON.parse(saved).latitude;
       }
     } catch (_) {}
-    return null;
+    return KHARGHAR_NAVI_MUMBAI.latitude;
   });
   const [longitude, setLongitude]             = useState(() => {
     try {
@@ -42,53 +42,21 @@ export function useUserLocation() {
         return JSON.parse(saved).longitude;
       }
     } catch (_) {}
-    return null;
+    return KHARGHAR_NAVI_MUMBAI.longitude;
   });
   const [loading, setLoading]                 = useState(false);
   const [error, setError]                     = useState(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
-  const [isFallback, setIsFallback]           = useState(false);
-  const [locationReady, setLocationReady]     = useState(() => {
-    try {
-      return localStorage.getItem('user_gps_coords') !== null;
-    } catch (_) {
-      return false;
-    }
-  });
+  const [isFallback, setIsFallback]           = useState(true);
+  const [locationReady, setLocationReady]     = useState(true);
 
   const applyFallback = useCallback((reason) => {
-    // Attempt IP Geolocation as a fallback
-    fetch('https://ipapi.co/json/')
-      .then(res => {
-        if (!res.ok) throw new Error('IP Geolocation request failed');
-        return res.json();
-      })
-      .then(data => {
-        if (data.latitude && data.longitude) {
-          setLatitude(data.latitude);
-          setLongitude(data.longitude);
-          setIsFallback(true);
-          setLocationReady(true);
-          setError(null);
-          try {
-            localStorage.setItem('user_gps_coords', JSON.stringify({ latitude: data.latitude, longitude: data.longitude }));
-          } catch (_) {}
-          console.log('[useUserLocation] IP-based coords obtained:', data.latitude, data.longitude, data.city);
-        } else {
-          throw new Error('Invalid IP Geolocation data');
-        }
-      })
-      .catch((err) => {
-        console.warn('[useUserLocation] IP Geolocation failed, using hardcoded Hyderabad fallback:', err);
-        setLatitude(HYDERABAD_CENTRE.latitude);
-        setLongitude(HYDERABAD_CENTRE.longitude);
-        setIsFallback(true);
-        setLocationReady(true);
-        setError(reason || 'Using city-centre fallback.');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    setLatitude(KHARGHAR_NAVI_MUMBAI.latitude);
+    setLongitude(KHARGHAR_NAVI_MUMBAI.longitude);
+    setIsFallback(true);
+    setLocationReady(true);
+    setError(reason || 'Using Kharghar, Navi Mumbai fallback.');
+    setLoading(false);
   }, []);
 
   const requestLocation = useCallback(() => {

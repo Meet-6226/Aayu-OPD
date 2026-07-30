@@ -168,7 +168,7 @@ export default function AppointmentsPage() {
         reminderSentFinal: false,
         patientConfirmed: true,
         bookingId: `APL-W-${Math.floor(1000 + Math.random() * 9000)}`,
-        hospital: "Aayu Clinic, Jubilee Hills",
+        hospital: "Apollo Hospitals, Navi Mumbai",
         room: "Walk-in Desk Cabin",
         notes: walkinForm.notes,
         cancelledReason: "",
@@ -258,13 +258,18 @@ export default function AppointmentsPage() {
   const lowRiskCount = summary.lowRisk;
   const confirmedCount = summary.confirmed;
   const awaitingCount = summary.pending;
-  const walkinCount = appointments.filter(a => a.status === 'walk-in').length;
+  const cancelledCount = summary.cancelled;
+  const walkinCount = appointments.filter(a => a.status === 'walk-in' && a.status !== 'cancelled').length;
 
   const filteredAppointments = appointments.filter(apt => {
     // Date range filter
     if (dateFilter === 'today' && apt.appointmentDate !== todayStr) return false;
     if (dateFilter === 'upcoming' && apt.appointmentDate < todayStr) return false;
     // 'all' = no date restriction
+
+    // EXCLUDE CANCELLED from active views
+    if (activeChip !== 'Cancelled' && apt.status === 'cancelled') return false;
+    if (activeChip === 'Cancelled' && apt.status !== 'cancelled') return false;
 
     if (selectedDoctor !== 'all' && apt.doctor !== selectedDoctor) return false;
     if (selectedRisk !== 'all' && apt.riskLevel !== selectedRisk) return false;
@@ -286,6 +291,7 @@ export default function AppointmentsPage() {
     if (activeChip === 'Confirmed') return apt.reminders.step3 === 'success';
     if (activeChip === 'Awaiting') return apt.reminders.step3 !== 'success';
     if (activeChip === 'Walk-ins') return apt.isWalkin;
+    if (activeChip === 'Cancelled') return apt.status === 'cancelled';
 
     return true;
   }).sort((a, b) => {
@@ -395,16 +401,17 @@ export default function AppointmentsPage() {
         </div>
       </div>
 
-      {/* FILTER CHIPS (Underline + font-medium active state) */}
-      <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', paddingBottom: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid #f3f4f6' }}>
+      {/* FILTER BUTTONS (Modern Pill Button Styling) */}
+      <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.75rem', marginBottom: '1.5rem', scrollbarWidth: 'none' }}>
         {[
           { label: 'All', count: totalCount },
-          { label: 'High Risk', count: highRiskCount },
-          { label: 'Medium Risk', count: mediumRiskCount },
-          { label: 'Low Risk', count: lowRiskCount },
+          { label: 'High Risk', count: highRiskCount, color: '#ef4444' },
+          { label: 'Medium Risk', count: mediumRiskCount, color: '#f59e0b' },
+          { label: 'Low Risk', count: lowRiskCount, color: '#10b981' },
           { label: 'Confirmed', count: confirmedCount },
           { label: 'Awaiting', count: awaitingCount },
           { label: 'Walk-ins', count: walkinCount },
+          { label: 'Cancelled', count: cancelledCount, color: '#94a3b8' },
         ].map(chip => {
           const active = activeChip === chip.label;
           return (
@@ -412,13 +419,35 @@ export default function AppointmentsPage() {
               key={chip.label}
               onClick={() => setActiveChip(chip.label)}
               style={{
-                display: 'flex', alignItems: 'center', gap: '0.35rem', padding: '0.5rem 0', borderRadius: 0, border: 'none',
-                borderBottom: active ? '2px solid #1b504c' : '2px solid transparent', background: 'transparent',
-                color: active ? '#1b504c' : '#64748b', fontSize: '0.82rem', fontWeight: active ? 600 : 400, cursor: 'pointer', whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                padding: '0.45rem 0.85rem',
+                borderRadius: '10px',
+                border: active ? '1.5px solid #1b504c' : '1px solid #e2e8f0',
+                background: active ? '#1b504c' : '#ffffff',
+                color: active ? '#ffffff' : '#475569',
+                fontSize: '0.82rem',
+                fontWeight: active ? 700 : 500,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                boxShadow: active ? '0 3px 10px rgba(27, 80, 76, 0.2)' : '0 1px 2px rgba(0,0,0,0.03)',
+                transition: 'all 150ms ease-in-out',
+                userSelect: 'none',
               }}
             >
               <span>{chip.label}</span>
-              <span style={{ fontSize: '0.68rem', fontWeight: 600, padding: '0.05rem 0.35rem', borderRadius: '99px', background: '#f1f5f9', color: '#64748b', fontVariantNumeric: 'tabular-nums' }}>
+              <span
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  padding: '0.1rem 0.45rem',
+                  borderRadius: '12px',
+                  background: active ? 'rgba(255,255,255,0.22)' : '#f1f5f9',
+                  color: active ? '#ffffff' : (chip.color || '#64748b'),
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+              >
                 {chip.count}
               </span>
             </button>

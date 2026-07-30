@@ -8,7 +8,7 @@ export const CURRENT_USER = {
   gender: 'Female',
   email: 'priya.sharma@gmail.com',
   abhaId: '4521-8965-0214-3658',
-  address: 'Flat 402, Signature Towers, Gachibowli, Hyderabad',
+  address: 'Sector 12, Kharghar, Navi Mumbai, Maharashtra 410210',
   initials: 'PS',
   persona: 'working_professional',
 };

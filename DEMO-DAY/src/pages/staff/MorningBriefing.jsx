@@ -420,7 +420,7 @@ export default function MorningBriefingPage() {
         <div style={{ fontSize: '0.85rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <span>{dayStr}</span>
           <span>·</span>
-          <span>Aayu Clinic, Jubilee Hills</span>
+          <span>Apollo Hospitals, Navi Mumbai</span>
           <span style={{ fontSize: '0.72rem', color: '#b45309', background: '#fef3c7', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 600 }}>
             System Date: {todayDateString()}
           </span>

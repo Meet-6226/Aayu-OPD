@@ -163,8 +163,10 @@ function Sidebar({ onEmergencyClick }) {
   const profileRole = userRole === 'doctor' ? 'Consultant Doctor' : 'Admin Staff';
   const profileInitials = userRole === 'doctor' ? 'RM' : 'OA';
 
+  const activeAppointments = appointments.filter(a => a.status !== 'cancelled');
+
   const dynamicBadges = {
-    '/staff/appointments': String(appointments.length),
+    '/staff/appointments': String(activeAppointments.length),
     '/staff/slot-recovery': String(openSlots.filter(s => s.status !== 'recovered').length),
   };
 

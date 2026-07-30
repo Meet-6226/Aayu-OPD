@@ -426,7 +426,7 @@ export default function AppointmentDetail() {
                   <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed">
                     {isOnline 
                       ? 'Secure, browser-based video lobby. Link available on this page.' 
-                      : `${appointment.room || 'Room 302'}, ${doctor?.hospital || appointment.hospital || 'Aayu Clinic, Jubilee Hills'}`
+                      : `${appointment.room || 'Room 302'}, ${doctor?.hospital || appointment.hospital || 'Apollo Hospitals, Navi Mumbai'}`
                     }
                   </p>
                 </div>
@@ -436,7 +436,7 @@ export default function AppointmentDetail() {
             {!isOnline && (
               <div className="pt-2 border-t border-[#F3F4F6]">
                 <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(doctor?.hospital || appointment.hospital || 'Aayu Clinic, Jubilee Hills')}`}
+                  href={`https://maps.google.com/?q=${encodeURIComponent(doctor?.hospital || appointment.hospital || 'Apollo Hospitals, Navi Mumbai')}`}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0f766e] hover:underline"

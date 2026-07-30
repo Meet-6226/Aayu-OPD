@@ -29,7 +29,7 @@ export default function MedicalPrescriptionCard({ appointment }) {
     date: appointment?.appointmentDate || '2026-07-25',
     doctorName: appointment?.doctorName || 'Dr. Arvind Mehta',
     department: appointment?.department || 'Cardiology',
-    hospital: appointment?.hospital || 'Aayu Clinic, Jubilee Hills',
+    hospital: appointment?.hospital || 'Apollo Hospitals, Navi Mumbai',
     diagnosis: [
       { name: 'Mild Essential Hypertension', code: 'ICD-10: I10', severity: 'Mild / Controlled' },
       { name: 'Vitamin D3 Deficiency', code: 'ICD-10: E55.9', severity: 'Moderate' }
@@ -164,7 +164,7 @@ export default function MedicalPrescriptionCard({ appointment }) {
               AAYU ONE CLINICS
             </h2>
             <p className="text-[9px] text-gray-500 uppercase tracking-widest font-semibold mt-0.5">
-              JUBILEE HILLS, HYDERABAD · EMERGENCY & OPD SERVICES
+              NAVI MUMBAI · EMERGENCY & OPD SERVICES
             </p>
           </div>
 
@@ -327,8 +327,7 @@ export default function MedicalPrescriptionCard({ appointment }) {
                   }}
                 >
                   <span>AAYU ONE CLINICS</span>
-                  <span className="font-bold text-[7px] my-0.5">VERIFIED</span>
-                  <span>JUBILEE HILLS</span>
+                  <span className="font-bold text-[7px] my-0.5">NAVI MUMBAI</span>
                 </div>
               </div>
             </div>
@@ -370,7 +369,7 @@ export default function MedicalPrescriptionCard({ appointment }) {
                 <p className="text-xs font-bold text-gray-900 mt-0.5">
                   {prescriptionData.followUp.displayDate}
                 </p>
-                <p className="text-[10px] text-gray-500">{prescriptionData.followUp.room || 'OPD Room 302'} · Jubilee Hills</p>
+                <p className="text-[10px] text-gray-500">{prescriptionData.followUp.room || 'OPD Room 302'} · Navi Mumbai</p>
               </div>
             </div>
 

@@ -99,8 +99,34 @@ export function useAppointments() {
         throw new Error("Appointment is already cancelled");
       }
 
-      // Run Transaction to perform cancellation atomic actions
+      // 2. Perform external queries BEFORE transaction
+      const slotsRef = collection(db, COLLECTIONS.DOCTOR_SLOTS);
+      const slotQ = query(
+        slotsRef,
+        where("doctorId", "==", apptData.doctorId),
+        where("date", "==", apptData.appointmentDate),
+        where("time", "==", apptData.appointmentTime)
+      );
+      const slotSnapshots = await getDocs(slotQ);
+      const slotDocRef = !slotSnapshots.empty ? doc(db, COLLECTIONS.DOCTOR_SLOTS, slotSnapshots.docs[0].id) : null;
+
+      const waitlistRef = collection(db, COLLECTIONS.WAITLIST);
+      const waitlistQ = query(
+        waitlistRef,
+        where("doctorId", "==", apptData.doctorId),
+        where("preferredDate", "==", apptData.appointmentDate),
+        where("status", "==", "waiting")
+      );
+      const waitlistSnapshots = await getDocs(waitlistQ);
+
+      const patientRef = doc(db, COLLECTIONS.PATIENTS, apptData.patientId);
+
+      // 3. Run Transaction to perform cancellation atomic actions
       await runTransaction(db, async (transaction) => {
+        // --- ALL READS FIRST ---
+        const patientSnap = await transaction.get(patientRef);
+
+        // --- ALL WRITES AFTER READS ---
         // A. Update appointment document
         transaction.update(apptRef, {
           status: "cancelled",
@@ -108,17 +134,8 @@ export function useAppointments() {
           updatedAt: serverTimestamp()
         });
 
-        // B. Find corresponding doctor slot to release it
-        const slotsRef = collection(db, COLLECTIONS.DOCTOR_SLOTS);
-        const slotQ = query(
-          slotsRef,
-          where("doctorId", "==", apptData.doctorId),
-          where("date", "==", apptData.appointmentDate),
-          where("time", "==", apptData.appointmentTime)
-        );
-        const slotSnapshots = await getDocs(slotQ);
-        if (!slotSnapshots.empty) {
-          const slotDocRef = doc(db, COLLECTIONS.DOCTOR_SLOTS, slotSnapshots.docs[0].id);
+        // B. Update slot if exists
+        if (slotDocRef) {
           transaction.update(slotDocRef, {
             isAvailable: true,
             appointmentId: null
@@ -126,8 +143,6 @@ export function useAppointments() {
         }
 
         // C. Update patient stats & trust score
-        const patientRef = doc(db, COLLECTIONS.PATIENTS, apptData.patientId);
-        const patientSnap = await transaction.get(patientRef);
         if (patientSnap.exists()) {
           const patientData = patientSnap.data();
           const currentNoShows = patientData.totalNoShows || 0;
@@ -144,27 +159,16 @@ export function useAppointments() {
           });
         }
 
-        // D. Check waitlist for other patients
-        const waitlistRef = collection(db, COLLECTIONS.WAITLIST);
-        const waitlistQ = query(
-          waitlistRef,
-          where("doctorId", "==", apptData.doctorId),
-          where("preferredDate", "==", apptData.appointmentDate),
-          where("status", "==", "waiting")
-        );
-        const waitlistSnapshots = await getDocs(waitlistQ);
-        
+        // D. Mark waitlisted patients as notified
         waitlistSnapshots.docs.forEach((wlDoc) => {
           const wlData = wlDoc.data();
           const wlDocRef = doc(db, COLLECTIONS.WAITLIST, wlDoc.id);
           
-          // Mark waitlist as notified
           transaction.update(wlDocRef, {
             status: "notified",
             notifiedAt: serverTimestamp()
           });
 
-          // Create notification for waitlisted patient
           const wlNotifyRef = doc(collection(db, COLLECTIONS.NOTIFICATIONS));
           transaction.set(wlNotifyRef, {
             patientId: wlData.patientId,

@@ -3,38 +3,40 @@ import { DEMO_CONFIG } from './demoConfig';
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const validateAndFormatPhone = (phoneStr) => {
-  if (!phoneStr) return null;
+  if (!phoneStr) return '+919876543210';
   let cleaned = String(phoneStr).trim().replace(/[\s-()]/g, '');
   if (cleaned.startsWith('whatsapp:')) {
     cleaned = cleaned.replace('whatsapp:', '');
   }
   let digits = cleaned.replace(/\D/g, '');
   if (digits.length === 12 && digits.startsWith('91')) {
-    digits = digits.slice(2);
+    return '+' + digits;
   } else if (digits.length === 11 && digits.startsWith('0')) {
     digits = digits.slice(1);
   }
-  if (digits.length === 10 && /^[6-9]\d{9}$/.test(digits)) {
+  if (digits.length === 10) {
     return '+91' + digits;
   }
-  return null;
+  if (digits.length > 10 && digits.length <= 15) {
+    return '+' + digits;
+  }
+  return '+919876543210';
 };
 
 // Helper to send Twilio WhatsApp message directly from the browser
-const sendWhatsAppDirect = async (phone, body) => {
+export const sendWhatsAppDirect = async (phone, body) => {
   const formatted = validateAndFormatPhone(phone);
-  if (!formatted) {
-    console.log(`[sendWhatsAppDirect] Invalid phone number, skipping WhatsApp/call: ${phone}`);
-    return false;
-  }
 
   const { twilioSid, twilioToken, twilioWhatsappNumber } = DEMO_CONFIG;
   if (!twilioSid || !twilioToken) {
     console.log(`[sendWhatsAppDirect] Twilio credentials missing in demoConfig.js. Message: "${body}" to ${formatted}`);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('whatsapp_dispatched', { detail: { phone: formatted, body, status: 'simulated', note: 'Twilio credentials missing' } }));
+    }
     return false;
   }
 
-  console.log(`[sendWhatsAppDirect] Sending WhatsApp to ${formatted}`);
+  console.log(`[sendWhatsAppDirect] Sending WhatsApp to ${formatted}...`);
   try {
     const authHeader = 'Basic ' + btoa(`${twilioSid}:${twilioToken}`);
     const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`, {
@@ -53,13 +55,25 @@ const sendWhatsAppDirect = async (phone, body) => {
     const data = await response.json();
     if (response.ok) {
       console.log(`[sendWhatsAppDirect] Success! Msg SID: ${data.sid}`);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('whatsapp_dispatched', { detail: { phone: formatted, body, status: 'sent', sid: data.sid } }));
+      }
       return true;
     } else {
-      console.error(`[sendWhatsAppDirect] Twilio error:`, data.message);
+      console.warn(`[sendWhatsAppDirect] Twilio response warning (code ${data.code}): ${data.message}`);
+      if (data.code === 63038) {
+        console.warn(`[Twilio Quota] Daily 50 message limit reached on free Twilio sandbox account today.`);
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('whatsapp_dispatched', { detail: { phone: formatted, body, status: 'limit_exceeded', error: data.message } }));
+      }
       return false;
     }
   } catch (err) {
     console.error(`[sendWhatsAppDirect] Network failure:`, err.message);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('whatsapp_dispatched', { detail: { phone: formatted, body, status: 'error', error: err.message } }));
+    }
     return false;
   }
 };
@@ -136,7 +150,7 @@ export const triggerPatientRegistrationDemo = async (patientData) => {
 
 export const triggerAppointmentBookingDemo = async (appointmentData, patientData = {}) => {
   const { doctorName, appointmentDate, appointmentTime, bookingId } = appointmentData;
-  const rawPhone = patientData?.phone || patientData?.uid || appointmentData?.patientPhone || appointmentData?.patientId;
+  const rawPhone = patientData?.phone || patientData?.phoneNumber || patientData?.familyContactPhone || appointmentData?.patientPhone || (appointmentData?.patientId && /^\+?\d{10,12}$/.test(appointmentData.patientId) ? appointmentData.patientId : '+919876543210');
   const name = patientData?.name || appointmentData?.patientName || 'Patient';
 
   console.log(`[triggerAppointmentBookingDemo] New booking written. ID: ${appointmentData.id || bookingId}, Phone: ${rawPhone}`);

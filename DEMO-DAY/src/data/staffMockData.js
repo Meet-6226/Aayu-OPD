@@ -13,9 +13,9 @@ export const PATIENTS = [
     trustScore: 45,
     pastVisits: 6,
     pastNoShows: 2,
-    distance: 38,
+    distance: 4.5,
     abhaId: '4521-8965-0214-3658',
-    address: 'Flat 402, Signature Towers, Gachibowli, Hyderabad'
+    address: 'Sector 12, Kharghar, Navi Mumbai, Maharashtra'
   },
   {
     id: 'p-2',
@@ -28,9 +28,9 @@ export const PATIENTS = [
     trustScore: 85,
     pastVisits: 12,
     pastNoShows: 0,
-    distance: 15,
+    distance: 6.2,
     abhaId: '8956-2354-1025-4785',
-    address: 'H-56, Shanti Nagar, Secunderabad, Hyderabad'
+    address: 'Sector 4, AIROLI, Navi Mumbai, Maharashtra'
   },
   {
     id: 'p-3',
@@ -44,9 +44,9 @@ export const PATIENTS = [
     trustScore: 38,
     pastVisits: 8,
     pastNoShows: 3,
-    distance: 22,
+    distance: 3.8,
     abhaId: '7845-9658-3214-1025',
-    address: 'Plot 12, Jubilee Hills Road No. 4, Hyderabad'
+    address: 'Sector 20, Kharghar, Navi Mumbai, Maharashtra'
   },
   {
     id: 'p-4',

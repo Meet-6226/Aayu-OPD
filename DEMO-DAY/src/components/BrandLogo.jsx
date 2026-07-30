@@ -7,10 +7,10 @@ import React from 'react';
 export default function BrandLogo({ variant = 'inline', className = '', height = 32, textColor = '#0F172A', subColor = '#64748B' }) {
   const iconSvg = (
     <img
-      src="/AAYU-logo.jpeg"
+      src="/AAYU-logo-transparent.png"
       alt="AAYU Logo"
-      className="shrink-0 rounded-md"
-      style={{ height: `${height}px`, width: 'auto', objectFit: 'contain' }}
+      className="shrink-0 object-contain drop-shadow-sm"
+      style={{ height: `${height}px`, width: 'auto' }}
     />
   );
 

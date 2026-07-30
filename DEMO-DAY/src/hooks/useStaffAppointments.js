@@ -192,16 +192,22 @@ export function useStaffAppointments() {
 
   const fetchTodaySummary = () => {
     const summary = {
-      total: populatedAppointments.length,
+      total: 0,
       highRisk: 0,
       mediumRisk: 0,
       lowRisk: 0,
       confirmed: 0,
       pending: 0,
+      cancelled: 0,
       revenueAtRisk: 0
     };
 
     populatedAppointments.forEach(a => {
+      if (a.status === 'cancelled') {
+        summary.cancelled++;
+        return;
+      }
+      summary.total++;
       const r = a.riskLevel;
       if (r === 'high') summary.highRisk++;
       else if (r === 'medium') summary.mediumRisk++;
