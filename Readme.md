@@ -562,4 +562,3 @@ Upcoming Milestones:
 - UI/UX Design
 - System Architecture
 - Database Design
-- AI Model Development
