@@ -187,12 +187,13 @@ export default function SlotRecoveryPage() {
   const [suggestionAccepted, setSuggestionAccepted] = useState(null);
   const [leadTimeHrs, setLeadTimeHrs] = useState(24);
   const [notifiedMap, setNotifiedMap] = useState({});
+  const [filledMap, setFilledMap] = useState({});
 
   // Derived Stats
-  const activeOpenSlots = liveOpenSlots.filter(s => s.status !== 'recovered');
+  const activeOpenSlots = liveOpenSlots.filter(s => s.status !== 'recovered' && s.status !== 'confirmed' && !filledMap[s.id]);
   const revenueAtRisk = activeOpenSlots.reduce((acc, s) => acc + (Number(s.consultationFee) || 0), 0);
 
-  const recoveredAppointments = liveAppointments.filter(a => a.status === 'recovered');
+  const recoveredAppointments = liveAppointments.filter(a => a.status === 'recovered' || a.isRecovered || filledMap[a.id]);
   const recoveredAmount = recoveredAppointments.reduce((acc, a) => acc + (Number(a.consultationFee) || 0), 0);
 
   // Calculate dynamic Overbooking Recommendation based on real high risk patients today
@@ -230,6 +231,7 @@ export default function SlotRecoveryPage() {
 
   const handleFillSlot = async (appointmentId, waitlistId, patientName, slotTime) => {
     try {
+      setFilledMap(prev => ({ ...prev, [appointmentId]: true }));
       await toast.promise(
         fillSlot(appointmentId, waitlistId),
         {
@@ -310,7 +312,7 @@ export default function SlotRecoveryPage() {
     }
   ];
 
-  const openSlots = liveOpenSlots.length > 0 ? liveOpenSlots : fallbackOpenSlots;
+  const openSlots = (liveOpenSlots.length > 0 ? liveOpenSlots : fallbackOpenSlots).filter(s => !filledMap[s.id] && s.status !== 'confirmed' && s.status !== 'recovered');
 
   return (
     <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>

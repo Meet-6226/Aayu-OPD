@@ -229,23 +229,47 @@ export function useSlotRecovery() {
 
   const fillSlot = async (appointmentId, waitlistId) => {
     try {
-      const apptRef = doc(db, 'appointments', appointmentId);
-      const apptSnap = await getDoc(apptRef);
-      
-      if (apptSnap.exists()) {
-        await updateDoc(apptRef, {
-          status: 'recovered',
-          updatedAt: serverTimestamp()
-        });
-      }
-
       const wlRef = doc(db, 'waitlist', waitlistId);
       const wlSnap = await getDoc(wlRef);
+      let patientData = {};
+      let patientId = null;
+
       if (wlSnap.exists()) {
+        const wlData = wlSnap.data();
+        patientId = wlData.patientId;
         await updateDoc(wlRef, {
           status: 'filled',
           updatedAt: serverTimestamp()
         });
+
+        if (patientId) {
+          const patientRef = doc(db, 'patients', patientId);
+          const patientSnap = await getDoc(patientRef);
+          if (patientSnap.exists()) {
+            patientData = patientSnap.data();
+          }
+        }
+      }
+
+      const apptRef = doc(db, 'appointments', appointmentId);
+      const apptSnap = await getDoc(apptRef);
+      
+      if (apptSnap.exists()) {
+        const apptData = apptSnap.data();
+        const newPatientName = patientData.name || 'Waitlist Patient';
+
+        await updateDoc(apptRef, {
+          status: 'confirmed',
+          patientId: patientId || apptData.patientId || 'recovered_patient',
+          patientName: newPatientName,
+          patientPhone: patientData.phone || apptData.patientPhone || '',
+          isRecovered: true,
+          updatedAt: serverTimestamp()
+        });
+
+        // Send WhatsApp confirmation to recovered patient
+        const messageBody = `Apollo OPD: Great news ${newPatientName}! Your slot with ${apptData.doctorName || 'Doctor'} at ${apptData.appointmentTime} is confirmed. Reply 1 to acknowledge.`;
+        sendWhatsAppDirect(patientData.phone || '+919975027178', messageBody);
       }
 
       return true;
