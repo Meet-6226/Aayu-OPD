@@ -11,8 +11,8 @@ export const DEMO_CONFIG = {
   // 1. Twilio config for WhatsApp reminders
   twilioSid: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TWILIO_SID) || "AC195749a95d6dca1d1975ec04df69e72e", 
   twilioToken: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TWILIO_TOKEN) || "19096538c3f7bfef79b8f7215e7cdd9a", 
-  twilioWhatsappNumber: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TWILIO_WHATSAPP_NUMBER) || "whatsapp:+14155238886", 
-  twilioSandboxCode: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TWILIO_SANDBOX_CODE) || "just-noise", 
+  twilioWhatsappNumber: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TWILIO_WHATSAPP_NUMBER) || "whatsapp:+17372508034", 
+  twilioSandboxCode: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TWILIO_SANDBOX_CODE) || "join twilio-trial", 
 
   // 2. Vapi.ai config for automatic Hindi voice calls
   vapiApiKey: activeVapiApiKey, 
