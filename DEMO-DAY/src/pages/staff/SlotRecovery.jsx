@@ -229,11 +229,11 @@ export default function SlotRecoveryPage() {
     }
   };
 
-  const handleFillSlot = async (appointmentId, waitlistId, patientName, slotTime) => {
+  const handleFillSlot = async (appointmentId, waitlistId, patientName, slotTime, patientPhone = '') => {
     try {
       setFilledMap(prev => ({ ...prev, [appointmentId]: true }));
       await toast.promise(
-        fillSlot(appointmentId, waitlistId),
+        fillSlot(appointmentId, waitlistId, patientName, patientPhone),
         {
           loading: 'Recovering slot and assigning patient...',
           success: `Slot recovered! Assigned to ${patientName}.`,
@@ -601,7 +601,7 @@ export default function SlotRecoveryPage() {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                   <span style={{ color: '#16a34a', fontSize: '0.72rem', fontWeight: 600 }}>✓ Notified</span>
                                   <button
-                                    onClick={() => handleFillSlot(slot.id, patient.id, patient.name, slot.time)}
+                                    onClick={() => handleFillSlot(slot.id, patient.id, patient.name, slot.time, patient.phone)}
                                     style={{
                                       padding: '0.35rem 0.75rem', borderRadius: '4px', border: 'none', fontSize: '0.75rem', fontWeight: 600,
                                       background: '#16a34a',

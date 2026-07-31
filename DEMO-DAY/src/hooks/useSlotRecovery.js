@@ -308,7 +308,7 @@ export function useSlotRecovery() {
     }
   };
 
-  const fillSlot = async (appointmentId, waitlistId) => {
+  const fillSlot = async (appointmentId, waitlistId, candidateName = '', candidatePhone = '') => {
     try {
       const wlRef = doc(db, 'waitlist', waitlistId);
       const wlSnap = await getDoc(wlRef);
@@ -337,20 +337,21 @@ export function useSlotRecovery() {
       
       if (apptSnap.exists()) {
         const apptData = apptSnap.data();
-        const newPatientName = patientData.name || 'Waitlist Patient';
+        const newPatientName = candidateName || patientData.name || 'Assigned Candidate';
+        const newPatientPhone = candidatePhone || patientData.phone || apptData.patientPhone || '+91 98765 43210';
 
         await updateDoc(apptRef, {
           status: 'confirmed',
-          patientId: patientId || apptData.patientId || 'recovered_patient',
+          patientId: patientId || `pat_wl_${Date.now()}`,
           patientName: newPatientName,
-          patientPhone: patientData.phone || apptData.patientPhone || '',
+          patientPhone: newPatientPhone,
           isRecovered: true,
           updatedAt: serverTimestamp()
         });
 
         // Send WhatsApp confirmation to recovered patient
         const messageBody = `Apollo OPD: Great news ${newPatientName}! Your slot with ${apptData.doctorName || 'Doctor'} at ${apptData.appointmentTime} is confirmed. Reply 1 to acknowledge.`;
-        sendWhatsAppDirect(patientData.phone || '+919975027178', messageBody);
+        sendWhatsAppDirect(newPatientPhone || '+919975027178', messageBody);
       }
 
       return true;
