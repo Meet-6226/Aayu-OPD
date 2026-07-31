@@ -7,6 +7,7 @@ import { useNotifications } from '../hooks/useNotifications';
 
 import BrandLogo from './BrandLogo';
 import MedicalOnboardingModal from './MedicalOnboardingModal';
+import PageLoader from './PageLoader';
 import { db } from '../firebase/config';
 import { COLLECTIONS } from '../firebase/collections';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -178,7 +179,9 @@ export default function PatientLayout() {
 
       {/* ── Main Content ─────────────────────────────────────────────── */}
       <main className="flex-grow pt-0 lg:pt-16 pb-24 lg:pb-0 bg-[#F8FAFC]">
-        <Outlet />
+        <React.Suspense fallback={<PageLoader fullScreen={false} message="Loading clinical portal..." />}>
+          <Outlet />
+        </React.Suspense>
       </main>
 
       {/* ── Medical Onboarding Modal (first login only) ─────────────── */}

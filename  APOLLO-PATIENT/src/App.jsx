@@ -9,19 +9,21 @@ import PatientLayout from './components/PatientLayout';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Pages
-import LandingPage from './pages/LandingPage';
-import PatientLogin from './pages/PatientLogin';
-import PatientHome from './pages/PatientHome';
-import BrowseDoctors from './pages/BrowseDoctors';
-import DoctorProfile from './pages/DoctorProfile';
-import BookingConfirmation from './pages/BookingConfirmation';
-import MyAppointments from './pages/MyAppointments';
-import AppointmentDetail from './pages/AppointmentDetail';
-import PatientProfile from './pages/PatientProfile';
-import PatientNotifications from './pages/PatientNotifications';
-import MyReports from './pages/MyReports';
-import SeedDb from './pages/SeedDb';
+import PageLoader from './components/PageLoader';
+
+// Pages (Lazy Loaded)
+const LandingPage = React.lazy(() => import('./pages/LandingPage'));
+const PatientLogin = React.lazy(() => import('./pages/PatientLogin'));
+const PatientHome = React.lazy(() => import('./pages/PatientHome'));
+const BrowseDoctors = React.lazy(() => import('./pages/BrowseDoctors'));
+const DoctorProfile = React.lazy(() => import('./pages/DoctorProfile'));
+const BookingConfirmation = React.lazy(() => import('./pages/BookingConfirmation'));
+const MyAppointments = React.lazy(() => import('./pages/MyAppointments'));
+const AppointmentDetail = React.lazy(() => import('./pages/AppointmentDetail'));
+const PatientProfile = React.lazy(() => import('./pages/PatientProfile'));
+const PatientNotifications = React.lazy(() => import('./pages/PatientNotifications'));
+const MyReports = React.lazy(() => import('./pages/MyReports'));
+const SeedDb = React.lazy(() => import('./pages/SeedDb'));
 
 // Page Transition Wrapper
 function AnimatedPage({ children }) {
@@ -104,7 +106,9 @@ export default function App() {
     <AuthProvider>
       <Router>
         <ErrorBoundary>
-          <AnimatedAppRoutes />
+          <React.Suspense fallback={<PageLoader />}>
+            <AnimatedAppRoutes />
+          </React.Suspense>
         </ErrorBoundary>
       </Router>
     </AuthProvider>
