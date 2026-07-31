@@ -1553,7 +1553,7 @@ export default function BookingConfirmation() {
               </div>
 
               <a
-                href="https://wa.me/14155238886?text=I%20want%20to%20receive%20appointment%20reminders%20on%20WhatsApp"
+                href={`https://wa.me/${(DEMO_CONFIG.twilioWhatsappNumber || 'whatsapp:+17372508034').replace('whatsapp:+', '')}?text=${encodeURIComponent(DEMO_CONFIG.twilioSandboxCode || 'join twilio-trial')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full mt-4 py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-white font-semibold text-xs rounded-xl flex items-center justify-center space-x-1 transition-all duration-200 shadow-[0_4px_12px_rgba(37,211,102,0.1)] hover:translate-y-[-1px]"

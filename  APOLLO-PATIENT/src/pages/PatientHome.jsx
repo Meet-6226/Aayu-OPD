@@ -367,7 +367,7 @@ export default function PatientHome() {
                 </div>
               </div>
               <a
-                href="https://wa.me/14155238886?text=Enable%20appointment%20reminders"
+                href={`https://wa.me/${(DEMO_CONFIG.twilioWhatsappNumber || 'whatsapp:+17372508034').replace('whatsapp:+', '')}?text=${encodeURIComponent(DEMO_CONFIG.twilioSandboxCode || 'join twilio-trial')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block text-center py-2 text-xs font-semibold text-white bg-[#16A34A] hover:bg-[#15803D] rounded-[8px] transition-colors"

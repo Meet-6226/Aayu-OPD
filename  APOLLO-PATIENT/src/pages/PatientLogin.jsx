@@ -329,8 +329,10 @@ export default function PatientLogin() {
 
     // Direct, synchronous window.open with actual WhatsApp target URL on valid OTP user click
     if (whatsappOptInStep1) {
-      const sandboxCode = DEMO_CONFIG.twilioSandboxCode || 'just-noise';
-      const whatsappUrl = `https://wa.me/14155238886?text=${encodeURIComponent('join ' + sandboxCode)}`;
+      const cleanNumber = (DEMO_CONFIG.twilioWhatsappNumber || 'whatsapp:+17372508034').replace('whatsapp:+', '');
+      const sandboxCode = DEMO_CONFIG.twilioSandboxCode || 'join twilio-trial';
+      const textMsg = sandboxCode.startsWith('join ') ? sandboxCode : `join ${sandboxCode}`;
+      const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(textMsg)}`;
       try {
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
       } catch (err) {
