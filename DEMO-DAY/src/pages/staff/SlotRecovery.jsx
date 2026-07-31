@@ -186,6 +186,7 @@ export default function SlotRecoveryPage() {
 
   const [suggestionAccepted, setSuggestionAccepted] = useState(null);
   const [leadTimeHrs, setLeadTimeHrs] = useState(24);
+  const [notifiedMap, setNotifiedMap] = useState({});
 
   // Derived Stats
   const activeOpenSlots = liveOpenSlots.filter(s => s.status !== 'recovered');
@@ -213,6 +214,7 @@ export default function SlotRecoveryPage() {
 
   const handleNotify = async (waitlistId) => {
     try {
+      setNotifiedMap(prev => ({ ...prev, [waitlistId]: true }));
       await toast.promise(
         notifyWaitlistPatient(waitlistId),
         {
@@ -567,7 +569,7 @@ export default function SlotRecoveryPage() {
                     {isExpanded && (
                       <div style={{ overflow: 'hidden', marginTop: '1rem', background: '#f8fafc', padding: '0.75rem', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         {waitlistMatches.map(patient => {
-                          const isNotified = slot.notifiedList ? slot.notifiedList[patient.id] : false;
+                          const isNotified = (slot.notifiedList && slot.notifiedList[patient.id]) || notifiedMap[patient.id] || patient.status === 'notified';
                           const riskColor = patient.risk <= 15 ? '#16a34a' : patient.risk <= 35 ? '#d97706' : '#ef4444';
                           
                           return (
@@ -595,24 +597,25 @@ export default function SlotRecoveryPage() {
                               {/* Sent with green text / Match Action */}
                               {isNotified ? (
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                  <span style={{ color: '#16a34a', fontSize: '0.75rem', fontWeight: 600 }}>✅ Sent</span>
+                                  <span style={{ color: '#16a34a', fontSize: '0.72rem', fontWeight: 600 }}>✓ Notified</span>
                                   <button
                                     onClick={() => handleFillSlot(slot.id, patient.id, patient.name, slot.time)}
                                     style={{
-                                      padding: '0.3rem 0.6rem', borderRadius: '4px', border: 'none', fontSize: '0.72rem', fontWeight: 500,
+                                      padding: '0.35rem 0.75rem', borderRadius: '4px', border: 'none', fontSize: '0.75rem', fontWeight: 600,
                                       background: '#16a34a',
                                       color: 'white',
                                       cursor: 'pointer',
+                                      boxShadow: '0 1px 3px rgba(22, 163, 74, 0.25)'
                                     }}
                                   >
-                                    Assign
+                                    Assign Slot
                                   </button>
                                 </div>
                               ) : (
                                 <button
                                   onClick={() => handleNotify(patient.id)}
                                   style={{
-                                    padding: '0.3rem 0.6rem', borderRadius: '4px', border: 'none', fontSize: '0.72rem', fontWeight: 500,
+                                    padding: '0.35rem 0.75rem', borderRadius: '4px', border: 'none', fontSize: '0.75rem', fontWeight: 600,
                                     background: '#1b504c',
                                     color: 'white',
                                     cursor: 'pointer',
