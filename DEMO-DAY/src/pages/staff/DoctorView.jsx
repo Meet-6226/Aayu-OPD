@@ -160,6 +160,7 @@ export default function DoctorViewPage() {
 
   // Online consultation states
   const [activeTab, setActiveTab] = useState('in_clinic'); // 'in_clinic' | 'virtual_opd'
+  const [activeVideoCallAppt, setActiveVideoCallAppt] = useState(null);
   const [selectedDateFilter, setSelectedDateFilter] = useState('today'); // 'today' | 'tomorrow' | 'upcoming'
   const [scratchpadText, setScratchpadText] = useState('');
   const [liveCancellations, setLiveCancellations] = useState([]);
