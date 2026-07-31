@@ -9,8 +9,8 @@ const activeVapiApiKey = rawVapiApiKey || "5a143972-6dec-4c85-8f4c-5b7eb8947252"
 
 export const DEMO_CONFIG = {
   // 1. Twilio config for WhatsApp reminders
-  twilioSid: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TWILIO_SID) || "ACa671ca7b66e22827bfecaa4c8cbccdf1", 
-  twilioToken: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TWILIO_TOKEN) || "6168010c522df58b2e4656d32e050b22", 
+  twilioSid: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TWILIO_SID) || "AC195749a95d6dca1d1975ec04df69e72e", 
+  twilioToken: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TWILIO_TOKEN) || "19096538c3f7bfef79b8f7215e7cdd9a", 
   twilioWhatsappNumber: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TWILIO_WHATSAPP_NUMBER) || "whatsapp:+14155238886", 
   twilioSandboxCode: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TWILIO_SANDBOX_CODE) || "just-noise", 
 
