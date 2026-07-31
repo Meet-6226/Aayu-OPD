@@ -23,6 +23,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { useDoctors } from '../hooks/useDoctors';
 import { useAppointments } from '../hooks/useAppointments';
+import { DEMO_CONFIG } from '../utils/demoConfig';
 
 const getDoctorInitials = (name) => {
   if (!name) return 'DR';

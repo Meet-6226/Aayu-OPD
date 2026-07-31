@@ -23,6 +23,7 @@ import { db } from '../firebase/config';
 import { COLLECTIONS } from '../firebase/collections';
 import { useAuth } from '../hooks/useAuth';
 import { triggerAppointmentBookingDemo } from '../utils/demoTriggers';
+import { DEMO_CONFIG } from '../utils/demoConfig';
 import { formatAppointmentDate, formatAppointmentTime, validateAppointmentData } from '../utils/dataFormat';
 import { daysBetween } from '../utils/appTime';
 import { useUserLocation } from '../hooks/useUserLocation';
