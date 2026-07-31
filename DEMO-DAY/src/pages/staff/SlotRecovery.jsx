@@ -491,7 +491,7 @@ export default function SlotRecoveryPage() {
               </div>
             ) : (
               openSlots.map(slot => {
-                const waitlistMatches = getWaitlist(slot.doctorId, slot.appointmentDate);
+                const waitlistMatches = getWaitlist(slot.doctorId, slot.appointmentDate, slot.department);
                 const isExpanded = expandedSlots[slot.id];
                 
                 return (

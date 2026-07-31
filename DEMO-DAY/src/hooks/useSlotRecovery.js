@@ -112,7 +112,7 @@ export function useSlotRecovery() {
     };
   }, []);
 
-  const getWaitlist = (doctorId, date) => {
+  const getWaitlist = (doctorId, date, department = '') => {
     const list = waitlist.filter(w => 
       (w.doctorId === doctorId || !doctorId || w.doctorId === 'doc_001' || w.doctorId === 'd-1') && 
       (w.preferredDate === date || !date || !w.preferredDate)
@@ -133,10 +133,90 @@ export function useSlotRecovery() {
       });
     }
 
-    // Default 2 waitlist candidates for any cancelled slot so recovery matching always has 1-2 people
+    // Department & doctor specific candidate pools
+    const deptLower = (department || '').toLowerCase();
+    const docLower = (doctorId || '').toLowerCase();
+
+    if (deptLower.includes('cardio') || docLower.includes('mehta') || docLower.includes('001')) {
+      return [
+        {
+          id: `wl_cardio_1_${doctorId || 'doc'}`,
+          patientId: '919820144512',
+          name: 'Rohan Verma',
+          phone: '+91 98201 44512',
+          risk: 18,
+          riskLevel: 'LOW',
+          waitTime: '3 hours',
+          symptom: 'Routine Cardiac Follow-up & ECG',
+          status: 'waiting'
+        },
+        {
+          id: `wl_cardio_2_${doctorId || 'doc'}`,
+          patientId: '919769088231',
+          name: 'Suresh Menon',
+          phone: '+91 97690 88231',
+          risk: 32,
+          riskLevel: 'MEDIUM',
+          waitTime: '1 day',
+          symptom: 'BP Monitor Review Request',
+          status: 'waiting'
+        }
+      ];
+    } else if (deptLower.includes('neuro') || docLower.includes('deshmukh') || docLower.includes('002')) {
+      return [
+        {
+          id: `wl_neuro_1_${doctorId || 'doc'}`,
+          patientId: '919930411980',
+          name: 'Priya Sharma',
+          phone: '+91 99304 11980',
+          risk: 14,
+          riskLevel: 'LOW',
+          waitTime: '5 hours',
+          symptom: 'Migraine Follow-up Consultation',
+          status: 'waiting'
+        },
+        {
+          id: `wl_neuro_2_${doctorId || 'doc'}`,
+          patientId: '919876500081',
+          name: 'Vikramaditya Kulkarni',
+          phone: '+91 98765 00081',
+          risk: 42,
+          riskLevel: 'MEDIUM',
+          waitTime: '2 days',
+          symptom: 'Nerve Conduction Test Slot Request',
+          status: 'waiting'
+        }
+      ];
+    } else if (deptLower.includes('ortho') || docLower.includes('iyer') || docLower.includes('003')) {
+      return [
+        {
+          id: `wl_ortho_1_${doctorId || 'doc'}`,
+          patientId: '919968874212',
+          name: 'Karan Malhotra',
+          phone: '+91 99688 74212',
+          risk: 22,
+          riskLevel: 'LOW',
+          waitTime: '1 day',
+          symptom: 'Knee Joint Pain Review',
+          status: 'waiting'
+        },
+        {
+          id: `wl_ortho_2_${doctorId || 'doc'}`,
+          patientId: '918976234591',
+          name: 'Ananya Deshmukh',
+          phone: '+91 89762 34591',
+          risk: 54,
+          riskLevel: 'MEDIUM',
+          waitTime: '3 days',
+          symptom: 'Physiotherapy Slot Request',
+          status: 'waiting'
+        }
+      ];
+    }
+
     return [
       {
-        id: `wl_match_${doctorId || 'doc'}_1`,
+        id: `wl_gen_1_${doctorId || 'doc'}`,
         patientId: 'sim_wait_1',
         name: 'Amit Patel',
         phone: '+91 98765 43210',
@@ -147,7 +227,7 @@ export function useSlotRecovery() {
         status: 'waiting'
       },
       {
-        id: `wl_match_${doctorId || 'doc'}_2`,
+        id: `wl_gen_2_${doctorId || 'doc'}`,
         patientId: 'sim_wait_2',
         name: 'Neha Sen',
         phone: '+91 87654 32109',
@@ -164,8 +244,9 @@ export function useSlotRecovery() {
     return openSlots.map(slot => {
       const pat = patients[slot.patientId] || {};
       const docInfo = doctors[slot.doctorId] || {};
+      const dept = slot.department || docInfo.department || 'Cardiology';
       
-      const matchingWaitlist = getWaitlist(slot.doctorId, slot.appointmentDate);
+      const matchingWaitlist = getWaitlist(slot.doctorId, slot.appointmentDate, dept);
 
       return {
         ...slot,
