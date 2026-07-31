@@ -192,6 +192,19 @@ export function useAppointments() {
           channel: "system",
           createdAt: serverTimestamp()
         });
+
+        // F. Create real-time cancellation alert for Staff Dashboard & Doctor's View
+        const cancelAlertRef = doc(collection(db, 'cancellations'));
+        transaction.set(cancelAlertRef, {
+          appointmentId: apptId,
+          patientName: apptData.patientName || 'Patient',
+          doctorName: apptData.doctorName || 'Dr. Rajesh Mehta',
+          doctorId: apptData.doctorId || 'doc_001',
+          appointmentTime: apptData.appointmentTime || '10:30 AM',
+          appointmentDate: apptData.appointmentDate || todayDateString(),
+          reason: reason || 'Cancelled via Patient App',
+          createdAt: serverTimestamp()
+        });
       });
 
       // Refetch appointments list

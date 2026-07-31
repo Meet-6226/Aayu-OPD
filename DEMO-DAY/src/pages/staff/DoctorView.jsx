@@ -8,7 +8,7 @@ import {
   Pill, Droplets, Shield, Wind, Plus
 } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
-import { doc, updateDoc, collection, query, where, onSnapshot } from 'firebase/firestore';
+import { doc, updateDoc, collection, query, where, onSnapshot, orderBy, limit } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { getTodayDateString } from '../../utils/dataFormat';
 import { todayDisplayLong } from '../../utils/appTime';
@@ -161,8 +161,23 @@ export default function DoctorViewPage() {
   // Online consultation states
   const [activeTab, setActiveTab] = useState('in_clinic'); // 'in_clinic' | 'virtual_opd'
   const [activeVideoCallAppt, setActiveVideoCallAppt] = useState(null);
-  const [selectedDateFilter, setSelectedDateFilter] = useState('today'); // 'today' | 'tomorrow' | 'upcoming'
   const [scratchpadText, setScratchpadText] = useState('');
+  const [liveCancellations, setLiveCancellations] = useState([]);
+
+  useEffect(() => {
+    const cancellationsRef = collection(db, 'cancellations');
+    const q = query(cancellationsRef, orderBy('createdAt', 'desc'), limit(3));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const items = [];
+      snapshot.forEach(docSnap => {
+        items.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      setLiveCancellations(items);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleStartVideoCall = async (appt) => {
     try {
@@ -444,6 +459,55 @@ export default function DoctorViewPage() {
           </div>
         </div>
       </div>
+
+      {/* REAL-TIME CANCELLATION NOTIFICATION CARD FOR DOCTOR */}
+      {liveCancellations.length > 0 && (
+        <div
+          style={{
+            background: '#fef2f2',
+            border: '1px solid #fca5a5',
+            borderRadius: '10px',
+            padding: '0.85rem 1.25rem',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '1rem',
+            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.08)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#ef4444', display: 'flex', alignItems: 'center', justifycontent: 'center', color: 'white', flexShrink: 0 }}>
+              <AlertTriangle size={20} />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#991b1b', fontFamily: 'Space Grotesk, sans-serif' }}>
+                🚨 Live Patient Cancellation Alert
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#b91c1c', marginTop: '2px' }}>
+                <strong>{liveCancellations[0].patientName || 'Patient'}</strong> cancelled their <strong>{liveCancellations[0].appointmentTime || ''}</strong> appointment with {liveCancellations[0].doctorName || 'Doctor'} ({liveCancellations[0].reason || 'Personal reason'}). Slot is open for waitlist recovery.
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate('/staff/slot-recovery')}
+            style={{
+              background: '#dc2626',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '0.5rem 1rem',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              boxShadow: '0 2px 4px rgba(220, 38, 38, 0.2)'
+            }}
+          >
+            Recover Slot →
+          </button>
+        </div>
+      )}
 
       {/* Tabs Selector */}
       <div style={{ display: 'flex', gap: '1rem', borderBottom: '2px solid #e2e8f0', marginBottom: '1.5rem', paddingBottom: '0.25rem' }}>

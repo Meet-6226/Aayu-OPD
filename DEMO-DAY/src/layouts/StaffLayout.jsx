@@ -696,6 +696,56 @@ export default function DashboardLayout({ children }) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    let isInitial = true;
+    const cancellationsRef = collection(db, 'cancellations');
+    const q = query(cancellationsRef, orderBy('createdAt', 'desc'), limit(5));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'added') {
+          const cData = change.doc.data();
+          if (!isInitial) {
+            toast.custom(
+              (t) => (
+                <div
+                  onClick={() => toast.dismiss(t.id)}
+                  style={{
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '12px 18px',
+                    borderRadius: '10px',
+                    boxShadow: '0 8px 24px rgba(239, 68, 68, 0.35)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    maxWidth: '420px',
+                    cursor: 'pointer',
+                    fontFamily: 'Space Grotesk, sans-serif'
+                  }}
+                >
+                  <AlertTriangle size={22} style={{ flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.02em' }}>
+                      🚨 CANCELLATION ALERT
+                    </div>
+                    <div style={{ fontSize: '0.78rem', opacity: 0.95, marginTop: '2px', lineHeight: 1.3 }}>
+                      <strong>{cData.patientName || 'Patient'}</strong> cancelled {cData.appointmentTime || ''} slot with <strong>{cData.doctorName || 'Doctor'}</strong>.
+                    </div>
+                  </div>
+                </div>
+              ),
+              { duration: 8000 }
+            );
+          }
+        }
+      });
+      isInitial = false;
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
     window.addEventListener('resize', check);
