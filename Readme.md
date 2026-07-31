@@ -563,4 +563,3 @@ Upcoming Milestones:
 - System Architecture
 - Database Design
 - AI Model Development
-- Backend APIs
