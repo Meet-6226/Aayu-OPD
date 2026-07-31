@@ -142,8 +142,8 @@ export function useStaffAppointments() {
       ...appt,
       time: appt.appointmentTime || '',
       // Patient properties
-      name: (pat.name && pat.name !== 'User' ? pat.name : null) || (appt.patientName && appt.patientName !== 'User' ? appt.patientName : null) || (appt.patientId ? `Patient ${String(appt.patientId).slice(-4)}` : 'Guest Patient'),
-      phone: pat.phone || '',
+      name: appt.patientName || pat.name || (appt.patientId ? `Patient ${String(appt.patientId).slice(-4)}` : 'Guest Patient'),
+      phone: appt.patientPhone || pat.phone || '',
       age: pat.age || 30,
       gender: pat.gender || 'M',
       persona: pat.persona === 'working_professional' ? 'Lifestyle Juggler' :
