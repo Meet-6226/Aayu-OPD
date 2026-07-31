@@ -196,7 +196,7 @@ export function useAppointments() {
         // F. Create real-time cancellation alert for Staff Dashboard & Doctor's View
         const cancelAlertRef = doc(collection(db, 'cancellations'));
         transaction.set(cancelAlertRef, {
-          appointmentId: apptId,
+          appointmentId: appointmentId,
           patientName: apptData.patientName || 'Patient',
           doctorName: apptData.doctorName || 'Dr. Rajesh Mehta',
           doctorId: apptData.doctorId || 'doc_001',
