@@ -27,7 +27,7 @@ import { todayDisplayShort } from '../utils/appTime';
 import { useStaffAppointments } from '../hooks/useStaffAppointments';
 import { useSlotRecovery } from '../hooks/useSlotRecovery';
 import { db } from '../firebase/config';
-import { collection, getDocs, doc, updateDoc, setDoc, query, where, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, setDoc, query, where, serverTimestamp, onSnapshot, orderBy, limit } from 'firebase/firestore';
 import BrandLogo from '../components/BrandLogo';
 
 // ─── Nav Config ───
