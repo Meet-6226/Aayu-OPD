@@ -100,19 +100,18 @@ export function useStaffAppointments() {
 
   // ── Decide if a patient/appointment pair is a real booking ───────────────
   const isRealPatient = (appt, pat) => {
-    if (isDemoId(appt.patientId)) return false;
+    if (appt.isRecovered || appt.status === 'recovered') return true;
+    if (isDemoId(appt.patientId) && !appt.patientName && !appt.isRecovered) return false;
 
     const apptName  = (appt.patientName || '').trim();
     const patName   = (pat.name || '').trim();
-    const patPhone  = (pat.phone || '').trim();
+    const patPhone  = (pat.phone || appt.patientPhone || '').trim();
 
-    // Both name slots are placeholder AND no phone recorded → stub only
-    const isStub =
-      (apptName === 'User' || apptName === '') &&
-      (patName  === 'User' || patName  === '') &&
-      !patPhone;
+    if (apptName && apptName !== 'User' && apptName !== 'Guest Patient') return true;
+    if (patName && patName !== 'User') return true;
+    if (patPhone) return true;
 
-    return !isStub;
+    return false;
   };
 
   // Expose populated appointments — real patients only
