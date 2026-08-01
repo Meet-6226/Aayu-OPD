@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Aayu Smart Healthcare & Emergency Response System">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Aayu">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Aayu Healthcare</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <!-- Clean HTML5 Preloader with Aayu Logo -->
+  <div id="preloader" style="position: fixed; inset: 0; background: linear-gradient(135deg, #0F172A, #0F766E); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; font-family: system-ui, sans-serif; transition: opacity 0.5s ease;">
+    <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: center;">
+      <img src="assets/assets/images/new_logo-removebg-preview.png" style="width: 260px; height: auto; display: block;" onerror="this.src='assets/assets/new_logo-removebg-preview.png'">
+    </div>
+    <div style="width: 160px; height: 3px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; position: relative;">
+      <div style="width: 50%; height: 100%; background: #34D399; position: absolute; animation: preloaderBar 1.2s infinite ease-in-out;"></div>
+    </div>
+    <p style="color: rgba(255,255,255,0.85); font-size: 11px; font-weight: 700; letter-spacing: 2.5px; margin-top: 16px;">AAYU HEALTHCARE</p>
+  </div>
+  <style>
+    @keyframes preloaderBar {
+      0% { left: -50%; }
+      100% { left: 100%; }
+    }
+  </style>
+  <script>
+    window.addEventListener('flutter-first-frame', function() {
+      const loader = document.getElementById('preloader');
+      if (loader) {
+        setTimeout(() => {
+          loader.style.opacity = '0';
+          setTimeout(() => loader.remove(), 500);
+        }, 2500);
+      }
+    });
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
