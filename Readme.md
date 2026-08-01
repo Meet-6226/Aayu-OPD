@@ -561,4 +561,3 @@ Upcoming Milestones:
 - Requirement Analysis
 - UI/UX Design
 - System Architecture
-- Database 
